@@ -1,0 +1,4 @@
+rpc_server:
+    path:     /api
+    defaults: { _controller: RpcServerBundle:RpcServer:index }
+    methods:  [POST]

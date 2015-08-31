@@ -1,0 +1,4 @@
+services:
+      rpc.server:
+            class: Timiki\Bundle\RpcServerBundle\RpcServer
+            arguments: [%rpc.server.paths%, %rpc.server.type%, %locale%, @service_container]

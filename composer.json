@@ -1,0 +1,33 @@
+{
+  "name"         : "timiki/rpc-server-bundle",
+  "type"         : "symfony-bundle",
+  "description"  : "Timiki RPC server node bundle",
+  "branches"     : ["master"],
+  "tags"         : ["1.0.0"],
+  "keywords"     : [],
+  "authors"      : [
+    {
+      "name"  : "Netesin N",
+      "email" : "nikita@netesin.ru"
+    }
+  ],
+  "repositories" : [
+    {
+      "type" : "composer",
+      "url"  : "http://svn.dev:8090/repo/private/"
+    },
+    {
+      "type" : "composer",
+      "url"  : "http://svn.dev:8090/repo/packagist/"
+    },
+    {"packagist" : false}
+  ],
+  "require"      : {
+    "symfony/symfony" : "~2.7"
+  },
+  "autoload"     : {
+    "psr-4" : {
+      "Timiki\\Bundle\\RpcServerBundle\\" : ""
+    }
+  }
+}
