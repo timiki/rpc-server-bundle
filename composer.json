@@ -1,7 +1,7 @@
 {
   "name"       : "timiki/rpc-server-bundle",
   "type"       : "symfony-bundle",
-  "description": "Timiki RPC server node bundle",
+  "description": "Timiki RPC server bundle",
   "branches"   : ["master"],
   "tags"       : ["1.0.0"],
   "keywords"   : [],
