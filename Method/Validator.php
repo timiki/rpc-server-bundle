@@ -42,7 +42,7 @@ class Validator
                     $validateMethodName = 'validate' . ucfirst(strtolower($rule));
                     if (method_exists($this, $validateMethodName)) {
                         if (!$this->{$validateMethodName}($paramDefault[0], $params)) {
-                            $paramResultValidate[] = ['param' => $paramDefault[0], 'error' => 'validate.' . strtolower($paramDefault[0]) . '.' . strtolower($rule), 'message' => $method->trans('rpc.' . $method->getName() . 'validate.' . strtolower($paramDefault[0]) . '.' . strtolower($rule))];
+                            $paramResultValidate[] = ['param' => $paramDefault[0], 'error' => 'validate.' . strtolower($paramDefault[0]) . '.' . strtolower($rule), 'message' => $method->trans('rpc.' . $method->getName() . '.validate.' . strtolower($paramDefault[0]) . '.' . strtolower($rule))];
                         }
                     } else {
                         $paramResultValidate[] = ['param' => $paramDefault[0], 'error' => 'validate.invalid.rule', 'message' => $method->trans('rpc.validate.invalid.rule')];
