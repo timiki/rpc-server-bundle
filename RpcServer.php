@@ -15,6 +15,13 @@ use Timiki\Bundle\RpcServerBundle\Method\Validator;
 class RpcServer
 {
     /**
+     * Proxy enable
+     *
+     * @var boolean
+     */
+    protected $proxy = false;
+
+    /**
      * Server methods array
      *
      * @var array
@@ -52,12 +59,13 @@ class RpcServer
     /**
      * Create new server
      *
-     * @param array $paths
-     * @param string $handler
-     * @param string $locale
+     * @param array                                            $paths
+     * @param string                                           $handler
+     * @param string                                           $locale
+     * @param boolean                                          $proxy
      * @param \Symfony\Component\DependencyInjection\Container $container
      */
-    public function __construct(array $paths = [], $handler = 'json', $locale = 'en', \Symfony\Component\DependencyInjection\Container $container = null)
+    public function __construct(array $paths = [], $handler = 'json', $locale = 'en', $proxy, \Symfony\Component\DependencyInjection\Container $container = null, $proxy = false)
     {
         // Add foundation methods
         $this->addMethodsDirectory(__DIR__ . '/Rpc', '\\Timiki\\Bundle\\RpcServerBundle\\Rpc');
@@ -68,6 +76,8 @@ class RpcServer
         foreach ($paths as $namespace => $path) {
             $this->addMethodsDirectory($path, $namespace);
         }
+
+        $this->proxy = $proxy;
     }
 
     /**
@@ -203,8 +213,8 @@ class RpcServer
      * Call method
      *
      * @param string $method
-     * @param array $params
-     * @param array $extra
+     * @param array  $params
+     * @param array  $extra
      * @return Result
      */
     public function callMethod($method, array $params = [], array $extra = [])
@@ -299,8 +309,8 @@ class RpcServer
     /**
      * Handle http request
      *
-     * @param HttpRequest $httpRequest
-     * @param string $type
+     * @param HttpRequest  $httpRequest
+     * @param string       $type
      * @param HttpResponse $httpResponse
      * @return HttpResponse
      */
