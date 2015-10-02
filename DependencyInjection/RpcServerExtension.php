@@ -22,7 +22,7 @@ class RpcServerExtension extends Extension
         $configuration = new Configuration();
         $config        = $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
         // paths
@@ -33,5 +33,6 @@ class RpcServerExtension extends Extension
 
         $container->setParameter('rpc.server.type', $config['type']);
         $container->setParameter('rpc.server.paths', $paths);
+        $container->setParameter('rpc.server.proxy', $config['proxy']);
     }
 }
