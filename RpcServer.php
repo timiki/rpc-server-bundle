@@ -65,7 +65,7 @@ class RpcServer
      * @param boolean                                          $proxy
      * @param \Symfony\Component\DependencyInjection\Container $container
      */
-    public function __construct(array $paths = [], $handler = 'json', $locale = 'en', $proxy, \Symfony\Component\DependencyInjection\Container $container = null, $proxy = false)
+    public function __construct(array $paths = [], $handler = 'json', $locale = 'en', \Symfony\Component\DependencyInjection\Container $container = null, $proxy = false)
     {
         // Add foundation methods
         $this->addMethodsDirectory(__DIR__ . '/Rpc', '\\Timiki\\Bundle\\RpcServerBundle\\Rpc');
