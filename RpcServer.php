@@ -321,7 +321,17 @@ class RpcServer
             if ($this->isProxy()) {
                 $proxy       = $this->getProxy();
                 $proxyResult = $proxy->callMethod($method, $params, $extra);
-                $result->setResult($proxyResult);
+
+                // Proxy errors
+                if (!empty($proxyResult->error)) {
+                    foreach ($proxyResult->error as $e) {
+                        $result->setError($e);
+                    }
+                }
+
+                // Proxy result
+                $result->setResult($proxyResult->result);
+
             } else {
                 $result->setError(['error' => 'methodNotFound', 'message' => 'Method not found']);
             }
