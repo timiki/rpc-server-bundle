@@ -33,8 +33,8 @@ class RpcProxy
     /**
      * Create new proxy
      *
-     * @param array                                            $client
-     * @param string                                           $locale
+     * @param array $client
+     * @param string $locale
      * @param \Symfony\Component\DependencyInjection\Container $container
      */
     public function __construct(array $client = [], $locale = 'en', \Symfony\Component\DependencyInjection\Container $container = null)
@@ -93,8 +93,8 @@ class RpcProxy
      * Call method
      *
      * @param string $method
-     * @param array  $params
-     * @param array  $extra
+     * @param array $params
+     * @param array $extra
      * @return mixed
      */
     public function callMethod($method, array $params = [], array $extra = [])

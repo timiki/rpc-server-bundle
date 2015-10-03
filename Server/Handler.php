@@ -20,7 +20,7 @@ abstract class Handler
     /**
      * Handler name
      *
-     * @var String
+     * @var string
      */
     private $name;
 
@@ -42,7 +42,7 @@ abstract class Handler
     /**
      * Get handler name
      *
-     * @return String
+     * @return string
      */
     public function getName()
     {

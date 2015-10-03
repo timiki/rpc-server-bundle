@@ -96,8 +96,8 @@ abstract class Method
      *
      * @param       $id
      * @param array $parameters
-     * @param null  $domain
-     * @param null  $locale
+     * @param null $domain
+     * @param null $locale
      * @return string
      */
     public function trans($id, array $parameters = array(), $domain = null, $locale = null)
@@ -111,8 +111,8 @@ abstract class Method
      * @param       $id
      * @param       $number
      * @param array $parameters
-     * @param null  $domain
-     * @param null  $locale
+     * @param null $domain
+     * @param null $locale
      * @return string
      */
     public function transChoice($id, $number, array $parameters = array(), $domain = null, $locale = null)

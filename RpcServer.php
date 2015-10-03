@@ -59,17 +59,14 @@ class RpcServer
     /**
      * Create new server
      *
-     * @param array                                            $paths
-     * @param string                                           $handler
-     * @param string                                           $locale
-     * @param boolean                                          $proxy
+     * @param array $paths
+     * @param string $handler
+     * @param string $locale
+     * @param boolean $proxy
      * @param \Symfony\Component\DependencyInjection\Container $container
      */
     public function __construct(array $paths = [], $handler = 'json', $locale = 'en', \Symfony\Component\DependencyInjection\Container $container = null, $proxy = false)
     {
-        // Add foundation methods
-        $this->addMethodsDirectory(__DIR__ . '/Rpc', '\\Timiki\\Bundle\\RpcServerBundle\\Rpc');
-
         $this->locale    = $locale;
         $this->container = $container;
 
@@ -116,7 +113,7 @@ class RpcServer
                             $filename = explode('.', $file->getBasename());
                             if ($filename[count($filename) - 1] === 'php') {
                                 if ($file->getBasename('.php') === $method) {
-                                    $className = $namespace . '\\' . $file->getBasename('.php');
+                                    $className = $namespace.'\\'.$file->getBasename('.php');
                                     if (class_exists($className)) {
                                         /* @var Method $methodObject */
                                         $methodObject = new $className();
@@ -155,11 +152,31 @@ class RpcServer
     /**
      * Get server locale
      *
-     * @return String
+     * @return string
      */
     public function getLocale()
     {
         return $this->locale;
+    }
+
+    /**
+     * Check is proxy use
+     *
+     * @return boolean
+     */
+    public function isProxy()
+    {
+        return $this->proxy;
+    }
+
+    /**
+     * Get Rpc proxy
+     *
+     * @return RpcProxy
+     */
+    public function getProxy()
+    {
+        return $this->container->get('rpc.proxy');
     }
 
     /**
@@ -176,7 +193,7 @@ class RpcServer
                 /* @var \DirectoryIterator $file */
                 if (!$file->isDot() and !$file->isDir()) {
                     if (!array_key_exists($file->getBasename('.php'), $this->methods)) {
-                        $className = $namespace . '\\' . $file->getBasename('.php');
+                        $className = $namespace.'\\'.$file->getBasename('.php');
                         if (class_exists($className)) {
                             /* @var Method $methodObject */
                             $methodObject = new $className();
@@ -213,20 +230,20 @@ class RpcServer
      * Call method
      *
      * @param string $method
-     * @param array  $params
-     * @param array  $extra
+     * @param array $params
+     * @param array $extra
      * @return Result
      */
     public function callMethod($method, array $params = [], array $extra = [])
     {
-        $method = $this->getMethod($method);
-        $result = new Result();
-        if ($method !== null) {
+        $methodObject = $this->getMethod($method);
+        $result       = new Result();
+        if ($methodObject !== null) {
 
             // Prepare methods params value
             $methodParams = [];
 
-            foreach ($method->getParams() as $value) {
+            foreach ($methodObject->getParams() as $value) {
                 if (array_key_exists($value[0], $params)) {
                     $methodParams[$value[0]] = $params[$value[0]];
                 } else {
@@ -242,14 +259,14 @@ class RpcServer
 
             // Validate methods params
             $validator      = new Validator();
-            $validateResult = $validator->validate($method, $methodParams);
+            $validateResult = $validator->validate($methodObject, $methodParams);
 
             if (count($validateResult) > 0) {
                 // have some errors
                 $result->setError($validateResult);
             } else {
 
-                $reflection = new  \ReflectionObject($method);
+                $reflection = new  \ReflectionObject($methodObject);
 
                 /*
                 | Reflection method beforeExecute function
@@ -272,7 +289,7 @@ class RpcServer
                         }
                     }
 
-                    $reflection->getMethod('beforeExecute')->invokeArgs($method, $args);
+                    $reflection->getMethod('beforeExecute')->invokeArgs($methodObject, $args);
                 }
 
                 if (!$result->isError()) {
@@ -295,12 +312,19 @@ class RpcServer
                                 }
                             }
                         }
-                        $reflection->getMethod('execute')->invokeArgs($method, $args);
+                        $reflection->getMethod('execute')->invokeArgs($methodObject, $args);
                     }
                 }
             }
         } else {
-            $result->setError(['error' => 'methodNotFound', 'message' => 'Method not found']);
+            // Use Proxy?
+            if ($this->isProxy()) {
+                $proxy       = $this->getProxy();
+                $proxyResult = $proxy->callMethod($method, $params, $extra);
+                $result->setResult($proxyResult);
+            } else {
+                $result->setError(['error' => 'methodNotFound', 'message' => 'Method not found']);
+            }
         }
 
         return $result;
@@ -309,8 +333,8 @@ class RpcServer
     /**
      * Handle http request
      *
-     * @param HttpRequest  $httpRequest
-     * @param string       $type
+     * @param HttpRequest $httpRequest
+     * @param string $type
      * @param HttpResponse $httpResponse
      * @return HttpResponse
      */
@@ -328,11 +352,11 @@ class RpcServer
         | Get HttpRequest handler
         */
 
-        if (class_exists('\\Timiki\\Bundle\\RpcServerBundle\\Server\\Handlers\\' . ucfirst(strtolower($type)))) {
-            $handlerClass = '\\Timiki\\Bundle\\RpcServerBundle\\Server\\Handlers\\' . ucfirst(strtolower($type));
+        if (class_exists('\\Timiki\\Bundle\\RpcServerBundle\\Server\\Handlers\\'.ucfirst(strtolower($type)))) {
+            $handlerClass = '\\Timiki\\Bundle\\RpcServerBundle\\Server\\Handlers\\'.ucfirst(strtolower($type));
             $handler      = new $handlerClass();
         } else {
-            $handlerClass = '\\Timiki\\Bundle\\RpcServerBundle\\Server\\Handlers\\' . ucfirst(strtolower($this->defaultHandlers));
+            $handlerClass = '\\Timiki\\Bundle\\RpcServerBundle\\Server\\Handlers\\'.ucfirst(strtolower($this->defaultHandlers));
             $handler      = new $handlerClass();
         }
 

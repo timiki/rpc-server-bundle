@@ -11,7 +11,7 @@ class Json extends Handler
      * Check if request is valid
      *
      * @param \Symfony\Component\HttpFoundation\Request $httpRequest
-     * @return Array
+     * @return array
      */
     protected function parserRequest(\Symfony\Component\HttpFoundation\Request $httpRequest)
     {
