@@ -323,14 +323,15 @@ class RpcServer
                 $proxyResult = $proxy->callMethod($method, $params, $extra);
 
                 // Proxy errors
-                if (!empty($proxyResult->error)) {
-                    foreach ($proxyResult->error as $e) {
+                if (!empty($proxyResult->getResult()->error)) {
+                    foreach ($proxyResult->getResult()->error as $e) {
                         $result->setError($e);
                     }
                 }
 
                 // Proxy result
-                $result->setResult($proxyResult->result);
+                $result->setProxy($proxyResult);
+                $result->setResult($proxyResult->getResult());
 
             } else {
                 $result->setError(['error' => 'methodNotFound', 'message' => 'Method not found']);
@@ -397,10 +398,38 @@ class RpcServer
             $responseCookies = $result->getProxy()->getHttpResponse()->getHeader('set-cookie');
 
             foreach ($responseCookies as $cookeRaw) {
+                // Parse cookie string
                 $cookeRawArray = explode(';', $cookeRaw);
-                if (in_array($cookeRawArray[0], $cookiesForward)) {
-                    $name   = explode('=', $cookeRawArray[0]);
-                    $cookie = new \Symfony\Component\HttpFoundation\Cookie($name[0], $name[1]);
+                $cookeArray    = ['name' => '', 'value' => '', 'expire' => 0, 'path' => '/', 'domain' => null, 'secure' => false, 'httpOnly' => true];
+
+                foreach ($cookeRawArray as $key => $cookeRawArrayPart) {
+                    $part = explode('=', $cookeRawArrayPart);
+                    if ($key === 0) {
+                        $cookeArray['name']  = $part[0];
+                        $cookeArray['value'] = $part[1];
+                    } else {
+                        switch (trim($part[0])) {
+                            case 'expire':
+                                $cookeArray['expire'] = intval($part[1]);
+                                break;
+                            case 'path':
+                                $cookeArray['path'] = $part[1];
+                                break;
+                            case 'domain':
+                                $cookeArray['domain'] = $part[1];
+                                break;
+                            case 'secure':
+                                $cookeArray['domain'] = boolval($part[1]);
+                                break;
+                            case 'httpOnly':
+                                $cookeArray['httpOnly'] = boolval($part[1]);
+                                break;
+                        }
+                    }
+                }
+
+                if (in_array($cookeArray['name'], $cookiesForward)) {
+                    $cookie = new \Symfony\Component\HttpFoundation\Cookie($cookeArray['name'], $cookeArray['value'], $cookeArray['expire'], $cookeArray['path'], $cookeArray['domain'], $cookeArray['secure'], $cookeArray['httpOnly']);
                     $httpResponse->headers->setCookie($cookie);
                 }
             }

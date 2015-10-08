@@ -3,6 +3,7 @@
 namespace Timiki\Bundle\RpcServerBundle;
 
 use Timiki\RpcClientCommon\Client;
+use Timiki\RpcClientCommon\Client\Response;
 
 /**
  * RPC Proxy instance
@@ -95,7 +96,7 @@ class RpcProxy
      * @param string $method
      * @param array $params
      * @param array $extra
-     * @return mixed
+     * @return Response
      */
     public function callMethod($method, array $params = [], array $extra = [])
     {
