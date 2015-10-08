@@ -9,18 +9,19 @@ namespace Timiki\Bundle\RpcServerBundle\Method;
 class Result
 {
     /**
-     * $_result
-     *
-     * @var mixed
+     * result
      */
-    protected $_result = null;
+    protected $result = null;
 
     /**
-     * $_error
-     *
-     * @var mixed
+     * error
      */
-    protected $_error = [];
+    protected $error = [];
+
+    /**
+     * proxy
+     */
+    protected $proxy = null;
 
     /**
      * Set result value
@@ -30,7 +31,7 @@ class Result
      */
     public function setResult($result)
     {
-        $this->_result = $result;
+        $this->result = $result;
 
         return $this;
     }
@@ -43,7 +44,7 @@ class Result
      */
     public function setError($error)
     {
-        $this->_error[] = $error;
+        $this->error[] = $error;
 
         return $this;
     }
@@ -55,7 +56,7 @@ class Result
      */
     public function isResult()
     {
-        return ($this->_result === null) ? false : true;
+        return ($this->result === null) ? false : true;
     }
 
     /**
@@ -65,7 +66,7 @@ class Result
      */
     public function isError()
     {
-        return (count($this->_error) > 0) ? true : false;
+        return (count($this->error) > 0) ? true : false;
     }
 
     /**
@@ -75,7 +76,7 @@ class Result
      */
     public function getError()
     {
-        return $this->_error;
+        return $this->error;
     }
 
     /**
@@ -85,6 +86,28 @@ class Result
      */
     public function getResult()
     {
-        return $this->_result;
+        return $this->result;
+    }
+
+    /**
+     * Get proxy result (rpc client result)
+     *
+     * @return \Timiki\RpcClientCommon\Client\Response
+     */
+    public function getProxy()
+    {
+        return $this->proxy;
+    }
+
+    /**
+     * Set proxy result (rpc client result)
+     *
+     * @return Result
+     */
+    public function setProxy($proxy)
+    {
+        $this->proxy = $proxy;
+
+        return $this;
     }
 }

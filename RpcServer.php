@@ -388,6 +388,25 @@ class RpcServer
         $result = $this->callMethod($methodName, $methodParams, $methodExtra);
 
         /*
+        | Is proxy?
+        */
+
+        if ($this->isProxy() && $result->getProxy() !== null) {
+            // is set proxy cookies
+            $cookiesForward  = $this->getProxy()->getClient()->getOption('forwardCookies', []);
+            $responseCookies = $result->getProxy()->getHttpResponse()->getHeader('set-cookie');
+
+            foreach ($cookiesForward as $cookeRaw) {
+                $cookeRawArray = explode(';', $cookeRaw);
+                if (in_array($cookeRawArray[0], $cookiesForward)) {
+                    $name   = explode('=', $cookeRawArray[0]);
+                    $cookie = new \Symfony\Component\HttpFoundation\Cookie($name[0], $name[1]);
+                    $httpResponse->headers->setCookie($cookie);
+                }
+            }
+        }
+
+        /*
         | Process HttpResponse
         */
 
