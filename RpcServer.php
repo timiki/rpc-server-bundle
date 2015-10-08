@@ -396,7 +396,7 @@ class RpcServer
             $cookiesForward  = $this->getProxy()->getClient()->getOption('forwardCookies', []);
             $responseCookies = $result->getProxy()->getHttpResponse()->getHeader('set-cookie');
 
-            foreach ($cookiesForward as $cookeRaw) {
+            foreach ($responseCookies as $cookeRaw) {
                 $cookeRawArray = explode(';', $cookeRaw);
                 if (in_array($cookeRawArray[0], $cookiesForward)) {
                     $name   = explode('=', $cookeRawArray[0]);
