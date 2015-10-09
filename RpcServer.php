@@ -396,7 +396,6 @@ class RpcServer
             // is set proxy cookies
             $cookiesForward  = $this->getProxy()->getClient()->getOption('forwardCookies', []);
             $responseCookies = $result->getProxy()->getHttpResponse()->getHeader('set-cookie');
-
             foreach ($responseCookies as $cookeRaw) {
                 // Parse cookie string
                 $cookeRawArray = explode(';', $cookeRaw);
@@ -427,7 +426,6 @@ class RpcServer
                         }
                     }
                 }
-
                 if (in_array($cookeArray['name'], $cookiesForward)) {
                     $cookie = new \Symfony\Component\HttpFoundation\Cookie($cookeArray['name'], $cookeArray['value'], $cookeArray['expire'], $cookeArray['path'], $cookeArray['domain'], $cookeArray['secure'], $cookeArray['httpOnly']);
                     $httpResponse->headers->setCookie($cookie);
