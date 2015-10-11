@@ -20,7 +20,7 @@ abstract class MethodGranted extends Method
             $isGranted[] = $this->getContainer()->get('security.authorization_checker')->isGranted($role);
         }
         if (in_array(false, $isGranted, true)) {
-            $result->setResult(['status' => 'error', 'msg' => $this->trans('rpc.method.not_granted')]);
+            $result->setError('not_granted');
         }
     }
 }
