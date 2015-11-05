@@ -281,8 +281,8 @@ class RpcServer
                         } elseif ($param->getName() == 'extra') {
                             $args[] = $extra;
                         } else {
-                            if (array_key_exists($param->getName(), $params)) {
-                                $args[] = $params[$param->getName()];
+                            if (array_key_exists($param->getName(), $methodParams)) {
+                                $args[] = $methodParams[$param->getName()];
                             } else {
                                 $args[] = null;
                             }
@@ -305,8 +305,8 @@ class RpcServer
                             } elseif ($param->getName() == 'extra') {
                                 $args[] = $extra;
                             } else {
-                                if (array_key_exists($param->getName(), $params)) {
-                                    $args[] = $params[$param->getName()];
+                                if (array_key_exists($param->getName(), $methodParams)) {
+                                    $args[] = $methodParams[$param->getName()];
                                 } else {
                                     $args[] = null;
                                 }
