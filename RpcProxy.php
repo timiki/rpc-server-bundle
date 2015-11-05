@@ -4,6 +4,7 @@ namespace Timiki\Bundle\RpcServerBundle;
 
 use Timiki\RpcClientCommon\Client;
 use Timiki\RpcClientCommon\Client\Response;
+use Symfony\Component\DependencyInjection\Container;
 
 /**
  * RPC Proxy instance
@@ -27,21 +28,47 @@ class RpcProxy
     /**
      * Container
      *
-     * @var \Symfony\Component\DependencyInjection\Container
+     * @var Container
      */
     protected $container;
 
     /**
      * Create new proxy
      *
-     * @param array $client
-     * @param string $locale
-     * @param \Symfony\Component\DependencyInjection\Container $container
+     * @param array     $client
+     * @param string    $locale
+     * @param Container $container
      */
-    public function __construct(array $client = [], $locale = 'en', \Symfony\Component\DependencyInjection\Container $container = null)
+    public function __construct(array $client = [], $locale = 'en', $container = null)
     {
         $this->setLocale($locale);
+        $this->setContainer($container);
         $this->setClient(new Client($client['address'], $client['options'], $client['type'], $this->getLocale()));
+    }
+
+    /**
+     * Set container
+     *
+     * @param Container|null $container
+     * @return $this
+     */
+    public function setContainer(Container $container)
+    {
+        if ($container instanceof Container) {
+            $this->container = $container;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get container
+     *
+     * @return Container|null
+     */
+    public function getContainer()
+    {
+        return $this->container;
     }
 
     /**
@@ -94,12 +121,25 @@ class RpcProxy
      * Call method
      *
      * @param string $method
-     * @param array $params
-     * @param array $extra
+     * @param array  $params
+     * @param array  $extra
      * @return Response
      */
     public function callMethod($method, array $params = [], array $extra = [])
     {
-        return $this->client->call($method, $params, $extra);
+        // Before run call need stop session
+        if ($this->getContainer() !== null) {
+            $this->getContainer()->get('session')->save();
+        }
+
+        // Call method
+        $response = $this->client->call($method, $params, $extra);
+
+        // After run call need restart session
+        if ($this->getContainer() !== null) {
+            $this->getContainer()->get('session')->migrate();
+        }
+
+        return $response;
     }
 }
