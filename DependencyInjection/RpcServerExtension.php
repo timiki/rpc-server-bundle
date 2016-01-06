@@ -33,7 +33,7 @@ class RpcServerExtension extends Extension
 
         $container->setParameter('rpc.server.type', $config['type']);
         $container->setParameter('rpc.server.paths', $paths);
+        $container->setParameter('rpc.server.proxy', $config['proxy']);
         $container->setParameter('rpc.server.proxy.enable', $config['proxy']['enable']);
-        $container->setParameter('rpc.server.proxy.client', $config['proxy']['client']);
     }
 }

@@ -26,6 +26,13 @@ class RpcProxy
     protected $client;
 
     /**
+     * Options
+     *
+     * @var array
+     */
+    protected $options;
+
+    /**
      * Container
      *
      * @var Container
@@ -35,15 +42,24 @@ class RpcProxy
     /**
      * Create new proxy
      *
-     * @param array     $client
-     * @param string    $locale
+     * @param array $options
+     * @param string $locale
      * @param Container $container
      */
-    public function __construct(array $client = [], $locale = 'en', $container = null)
+    public function __construct(array $options = [], $locale = 'en', $container = null)
     {
         $this->setLocale($locale);
         $this->setContainer($container);
-        $this->setClient(new Client($client['address'], $client['options'], $client['type'], $this->getLocale()));
+
+        $clientOptions = [
+            'forwardHeaders' => $options['forwardHeaders'], // Forward headers array
+            'forwardCookies' => $options['forwardCookies'], // Forward cookies array
+            'forwardIp'      => $options['forwardIp'], // Forward client ip to server
+            'forwardLocale'  => $options['forwardLocale'], // Forward client locale to server
+        ];
+
+        $this->options = $options;
+        $this->setClient(new Client($options['address'], $clientOptions, $options['type'], $this->getLocale()));
     }
 
     /**
@@ -69,6 +85,16 @@ class RpcProxy
     public function getContainer()
     {
         return $this->container;
+    }
+
+    /**
+     * Get options
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
     }
 
     /**
@@ -121,8 +147,8 @@ class RpcProxy
      * Call method
      *
      * @param string $method
-     * @param array  $params
-     * @param array  $extra
+     * @param array $params
+     * @param array $extra
      * @return Response
      */
     public function callMethod($method, array $params = [], array $extra = [])

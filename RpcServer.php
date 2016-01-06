@@ -415,10 +415,14 @@ class RpcServer
                                 $cookeArray['path'] = $part[1];
                                 break;
                             case 'domain':
-                                $cookeArray['domain'] = $part[1];
+                                if (!empty($this->getProxy()->getOptions()['forwardCookiesDomain'])) {
+                                    $cookeArray['domain'] = $this->getProxy()->getOptions()['forwardCookiesDomain'];
+                                } else {
+                                    $cookeArray['domain'] = $part[1];
+                                }
                                 break;
                             case 'secure':
-                                $cookeArray['domain'] = boolval($part[1]);
+                                $cookeArray['secure'] = boolval($part[1]);
                                 break;
                             case 'httpOnly':
                                 $cookeArray['httpOnly'] = boolval($part[1]);
