@@ -30,7 +30,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue('json')
                 ->end()
                 ->arrayNode('proxy')
-                    ->addDefaultsIfNotSet(['enable'=>false,'type'=>'json','address' => [],'forwardHeaders'=>[],'forwardCookies'=>[],'forwardCookiesDomain'=> '','forwardIp'=>true,'forwardLocale'=>true])
+                    ->addDefaultsIfNotSet(['enable'=>false,'type'=>'json','address' => [],'forwardHeaders'=>[],'forwardCookies'=>[],'forwardCookiesDomain'=> ''])
                     ->children()
                         ->variableNode('enable')->defaultValue(false)->end()
                         ->variableNode('type')->defaultValue('json')->end()
