@@ -54,8 +54,6 @@ class RpcProxy
         $clientOptions = [
             'forwardHeaders' => $options['forwardHeaders'], // Forward headers array
             'forwardCookies' => $options['forwardCookies'], // Forward cookies array
-            'forwardIp'      => $options['forwardIp'], // Forward client ip to server
-            'forwardLocale'  => $options['forwardLocale'], // Forward client locale to server
         ];
 
         $this->options = $options;

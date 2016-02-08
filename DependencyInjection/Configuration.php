@@ -38,8 +38,6 @@ class Configuration implements ConfigurationInterface
                         ->variableNode('forwardHeaders')->defaultValue([])->end()
                         ->variableNode('forwardCookies')->defaultValue([])->end()
                         ->variableNode('forwardCookiesDomain')->defaultValue('')->end()
-                        ->booleanNode('forwardIp')->defaultValue(true)->end()
-                        ->booleanNode('forwardLocale')->defaultValue(true)->end()
                     ->end()
                 ->end()
                 ->arrayNode('paths')
