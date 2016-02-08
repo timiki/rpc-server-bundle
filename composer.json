@@ -1,31 +1,25 @@
 {
-  "name"         : "timiki/rpc-server-bundle",
-  "type"         : "symfony-bundle",
-  "description"  : "Timiki RPC server bundle",
-  "repositories" : [
-    {
-      "type" : "vcs",
-      "url"  : "https://github.com/timiki/rpc-client-common"
-    }
-  ],
-  "branches"     : [
+  "name"        : "timiki/rpc-server-bundle",
+  "type"        : "symfony-bundle",
+  "description" : "Timiki RPC server bundle",
+  "branches"    : [
     "master"
   ],
-  "tags"         : [
+  "tags"        : [
     "1.0.0"
   ],
-  "keywords"     : [],
-  "authors"      : [
+  "keywords"    : [],
+  "authors"     : [
     {
       "name"  : "Netesin N",
       "email" : "nikita@netesin.ru"
     }
   ],
-  "require"      : {
+  "require"     : {
     "symfony/symfony"          : ">=2.7",
-    "timiki/rpc-client-common" : ">=1.0"
+    "timiki/rpc-client-common" : "dev-master"
   },
-  "autoload"     : {
+  "autoload"    : {
     "psr-4" : {
       "Timiki\\Bundle\\RpcServerBundle\\" : ""
     }
