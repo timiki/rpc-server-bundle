@@ -167,20 +167,20 @@ class RpcServer
     }
 
     /**
-     * Get server method list
+     * Get method list
      *
      * @return array
      */
     public function getMethods()
     {
         /* @return array */
-        $process = function ($path, $namespace, $prefix = '') use (&$process) {
+        $process = function ($path, $namespace, $prefix = '\\') use (&$process) {
             $methods   = [];
             $directory = new \DirectoryIterator($path);
             foreach ($directory as $file) {
                 /* @var \DirectoryIterator $file */
                 if (!$file->isDot() and !$file->isDir()) {
-                    $className = $namespace.'\\'.$prefix.$file->getBasename('.php');
+                    $className = $namespace.$prefix.$file->getBasename('.php');
                     if (class_exists($className)) {
                         /* @var Method $methodObject */
                         $method = new $className();
@@ -190,7 +190,7 @@ class RpcServer
                         }
                     }
                 } elseif (!$file->isDot() and $file->isDir()) {
-                    $methods = array_replace_recursive($methods, $process($file->getPath().'/'.$file->getBasename(), $namespace, ltrim($prefix.'\\'.$file->getBasename().'\\', '\\')));
+                    $methods = array_replace_recursive($methods, $process($file->getPath().'/'.$file->getBasename(), $namespace, rtrim($prefix, '\\').'\\'.$file->getBasename().'\\'));
                 }
             }
 
@@ -208,8 +208,6 @@ class RpcServer
             /* @var Method $method */
             $list[$name] = $method->getDescription();
         }
-
-        asort($list);
 
         return $list;
     }
