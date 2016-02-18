@@ -105,27 +105,14 @@ class RpcServer
     {
         if (!array_key_exists($method, $this->methods)) {
             foreach ($this->methodsPath as $path => $namespace) {
-                if (file_exists($path)) {
-                    $directory = new \DirectoryIterator($path);
-                    foreach ($directory as $file) {
-                        /* @var \DirectoryIterator $file */
-                        if (!$file->isDot() and !$file->isDir()) {
-                            $filename = explode('.', $file->getBasename());
-                            if ($filename[count($filename) - 1] === 'php') {
-                                if ($file->getBasename('.php') === $method) {
-                                    $className = $namespace.'\\'.$file->getBasename('.php');
-                                    if (class_exists($className)) {
-                                        /* @var Method $methodObject */
-                                        $methodObject = new $className();
-                                        $methodObject->setServer($this);
-                                        $methodObject->setContainer($this->container);
-                                        $this->methods[$method] = $methodObject;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                $className = $namespace.'\\'.$method;
+                if (class_exists($className)) {
+                    /* @var Method $methodObject */
+                    $methodObject = new $className();
+                    $methodObject->setServer($this);
+                    $methodObject->setContainer($this->container);
+                    $this->methods[$method] = $methodObject;
+                    break;
                 }
             }
             if (!array_key_exists($method, $this->methods)) {
@@ -186,33 +173,45 @@ class RpcServer
      */
     public function getMethods()
     {
-        // Load all methods in paths
-        foreach ($this->methodsPath as $path => $namespace) {
+        /* @return array */
+        $process = function ($path, $namespace, $prefix = '') use (&$process) {
+            $methods   = [];
             $directory = new \DirectoryIterator($path);
             foreach ($directory as $file) {
                 /* @var \DirectoryIterator $file */
                 if (!$file->isDot() and !$file->isDir()) {
-                    if (!array_key_exists($file->getBasename('.php'), $this->methods)) {
-                        $className = $namespace.'\\'.$file->getBasename('.php');
-                        if (class_exists($className)) {
-                            /* @var Method $methodObject */
-                            $methodObject = new $className();
-                            $methodObject->setServer($this);
-                            $this->methods[$file->getBasename('.php')] = $methodObject;
+                    $className = $namespace.'\\'.$prefix.$file->getBasename('.php');
+                    if (class_exists($className)) {
+                        /* @var Method $methodObject */
+                        $method = new $className();
+                        if ($method instanceof Method) {
+                            $method->setServer($this);
+                            $methods[$prefix.$file->getBasename('.php')] = $method;
                         }
                     }
+                } elseif (!$file->isDot() and $file->isDir()) {
+                    $methods = array_replace_recursive($methods, $process($file->getPath().'/'.$file->getBasename(), $namespace, ltrim($prefix.'\\'.$file->getBasename().'\\', '\\')));
                 }
             }
-        }
+
+            return $methods;
+        };
 
         $methods = [];
-        foreach ($this->methods as $method) {
-            /* @var Method $method */
-            $methods[$method->getName()] = $method->getDescription();
+        foreach ($this->methodsPath as $path => $namespace) {
+            $methods = array_replace_recursive($methods, $process($path, $namespace));
         }
-        asort($methods);
 
-        return $methods;
+
+        $list = [];
+        foreach ($methods as $name => $method) {
+            /* @var Method $method */
+            $list[$name] = $method->getDescription();
+        }
+
+        asort($list);
+
+        return $list;
     }
 
     /**
