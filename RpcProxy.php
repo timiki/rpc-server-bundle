@@ -4,166 +4,198 @@ namespace Timiki\Bundle\RpcServerBundle;
 
 use Timiki\RpcClientCommon\Client;
 use Timiki\RpcClientCommon\Client\Response;
-use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use \Symfony\Component\HttpFoundation\Request;
 
 /**
  * RPC Proxy instance
  */
 class RpcProxy
 {
-    /**
-     * Proxy locale (default en)
-     *
-     * @var array
-     */
-    protected $locale = 'en';
+	/**
+	 * Proxy locale (default en)
+	 *
+	 * @var array
+	 */
+	protected $locale = 'en';
 
-    /**
-     * RPC client
-     *
-     * @var Client
-     */
-    protected $client;
+	/**
+	 * RPC client
+	 *
+	 * @var Client
+	 */
+	protected $client;
 
-    /**
-     * Options
-     *
-     * @var array
-     */
-    protected $options;
+	/**
+	 * Options
+	 *
+	 * @var array
+	 */
+	protected $options;
 
-    /**
-     * Container
-     *
-     * @var Container
-     */
-    protected $container;
+	/**
+	 * Container
+	 *
+	 * @var ContainerInterface
+	 */
+	protected $container;
 
-    /**
-     * Create new proxy
-     *
-     * @param array $options
-     * @param string $locale
-     * @param Container $container
-     */
-    public function __construct(array $options = [], $locale = 'en', $container = null)
-    {
-        $this->setLocale($locale);
-        $this->setContainer($container);
+	/**
+	 * Create new proxy
+	 *
+	 * @param array $options
+	 * @param string $locale
+	 * @param ContainerInterface $container
+	 */
+	public function __construct(array $options = [], $locale = 'en', ContainerInterface $container = null)
+	{
+		$this->setLocale($locale);
+		$this->setContainer($container);
+		$this->options = $options;
 
-        $clientOptions = [
-            'forwardHeaders' => $options['forwardHeaders'], // Forward headers array
-            'forwardCookies' => $options['forwardCookies'], // Forward cookies array
-        ];
+		$headers = (array)$options['headers'];
+		$cookies = (array)$options['cookies'];
 
-        $this->options = $options;
-        $this->setClient(new Client($options['address'], $clientOptions, $options['type'], $this->getLocale()));
-    }
+		if (is_array($options['forwardHeaders']) and !empty($options['forwardHeaders'])) {
+			foreach ($options['forwardHeaders'] as $header) {
+				$headers[$header] = Request::createFromGlobals()->headers->get($header);
+				if (strtolower($header) == 'client-ip') {
+					$headers[$header] = [Request::createFromGlobals()->getClientIp()];
+				}
+			}
+		}
 
-    /**
-     * Set container
-     *
-     * @param Container|null $container
-     * @return $this
-     */
-    public function setContainer(Container $container)
-    {
-        if ($container instanceof Container) {
-            $this->container = $container;
-        }
+		if (is_array($options['forwardCookies']) and !empty($options['forwardCookies'])) {
+			foreach (Request::createFromGlobals()->cookies->all() as $name => $values) {
+				if (in_array($name, $options['forwardCookies'])) {
+					$cookies[$name] = $values;
+				}
+			}
+		}
 
-        return $this;
-    }
+		$this->setClient(new Client($options['address'], $options['type'], $headers, $cookies, $this->getLocale()));
+	}
 
-    /**
-     * Get container
-     *
-     * @return Container|null
-     */
-    public function getContainer()
-    {
-        return $this->container;
-    }
+	/**
+	 * Set container
+	 *
+	 * @param ContainerInterface|null $container
+	 * @return $this
+	 */
+	public function setContainer(ContainerInterface $container)
+	{
+		if ($container instanceof ContainerInterface) {
+			$this->container = $container;
+		}
 
-    /**
-     * Get options
-     *
-     * @return array
-     */
-    public function getOptions()
-    {
-        return $this->options;
-    }
+		return $this;
+	}
 
-    /**
-     * Set proxy client
-     *
-     * @param Client $client
-     * @return $this
-     */
-    public function setClient(Client $client)
-    {
-        $this->client = $client;
+	/**
+	 * Get container
+	 *
+	 * @return ContainerInterface|null
+	 */
+	public function getContainer()
+	{
+		return $this->container;
+	}
 
-        return $this;
-    }
+	/**
+	 * Get options
+	 *
+	 * @return array
+	 */
+	public function getOptions()
+	{
+		return $this->options;
+	}
 
-    /**
-     * Get proxy client
-     *
-     * @return Client
-     */
-    public function getClient()
-    {
-        return $this->client;
-    }
+	/**
+	 * Get option
+	 *
+	 * @param string $name Option name
+	 * @param mixed $default Option default value
+	 * @return mixed
+	 */
+	public function getOption($name, $default = null)
+	{
+		if (array_key_exists($name, $this->options)) {
+			return $this->options[$name];
+		}
 
-    /**
-     * Set server locale
-     *
-     * @param string $locale
-     * @return $this
-     */
-    public function setLocale($locale)
-    {
-        $this->locale = $locale;
+		return $default;
+	}
 
-        return $this;
-    }
+	/**
+	 * Set proxy client
+	 *
+	 * @param Client $client
+	 * @return $this
+	 */
+	public function setClient(Client $client)
+	{
+		$this->client = $client;
 
-    /**
-     * Get server locale
-     *
-     * @return string
-     */
-    public function getLocale()
-    {
-        return $this->locale;
-    }
+		return $this;
+	}
 
-    /**
-     * Call method
-     *
-     * @param string $method
-     * @param array $params
-     * @param array $extra
-     * @return Response
-     */
-    public function callMethod($method, array $params = [], array $extra = [])
-    {
-        // Before run call need stop session
-        if ($this->getContainer() !== null) {
-            $this->getContainer()->get('session')->save();
-        }
+	/**
+	 * Get proxy client
+	 *
+	 * @return Client
+	 */
+	public function getClient()
+	{
+		return $this->client;
+	}
 
-        // Call method
-        $response = $this->client->call($method, $params, $extra);
+	/**
+	 * Set server locale
+	 *
+	 * @param string $locale
+	 * @return $this
+	 */
+	public function setLocale($locale)
+	{
+		$this->locale = $locale;
 
-        // After run call need restart session
-        if ($this->getContainer() !== null) {
-            $this->getContainer()->get('session')->migrate();
-        }
+		return $this;
+	}
 
-        return $response;
-    }
+	/**
+	 * Get server locale
+	 *
+	 * @return string
+	 */
+	public function getLocale()
+	{
+		return $this->locale;
+	}
+
+	/**
+	 * Call method
+	 *
+	 * @param string $method
+	 * @param array $params
+	 * @param array $extra
+	 * @return Response
+	 */
+	public function callMethod($method, array $params = [], array $extra = [])
+	{
+		// Before run call need stop session
+		if ($this->getContainer() !== null) {
+			$this->getContainer()->get('session')->save();
+		}
+
+		// Call method
+		$response = $this->client->call($method, $params, $extra);
+
+		// After run call need restart session
+		if ($this->getContainer() !== null) {
+			$this->getContainer()->get('session')->migrate();
+		}
+
+		return $response;
+	}
 }
