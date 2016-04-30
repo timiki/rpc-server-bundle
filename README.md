@@ -1,4 +1,10 @@
-# Timiki RPC server
+# JSON-RPC
+
+JSON-RPC is a remote procedure call protocol encoded in JSON. It is a very simple protocol (and very similar to XML-RPC), defining only a handful of data types and commands. 
+JSON-RPC allows for notifications (data sent to the server that does not require a response) and for multiple calls to be sent to the server which may be answered out of order.
+
+[Wikipedia][1] | [Specification][2]
+
 
 ## Configs
 
@@ -45,3 +51,7 @@ Enable|Disable forward ip to remote RPC server
 #### forwardLocale (boolean)
 
 Enable|Disable forward locale to remote RPC server
+
+
+[1]: https://en.wikipedia.org/wiki/JSON-RPC
+[2]: http://www.jsonrpc.org/specification
