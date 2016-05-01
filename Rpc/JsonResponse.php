@@ -210,11 +210,7 @@ class JsonResponse
 			}
 
 		} else {
-
-			if (!empty($this->result)) {
-				$json['result'] = $this->result;
-			}
-
+			$json['result'] = $this->result;
 		}
 
 		$json['id'] = !empty($this->id) ? $this->id : null;
