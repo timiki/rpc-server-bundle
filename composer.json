@@ -17,8 +17,9 @@
     }
   ],
   "require"     : {
+    "php"               : ">=5.5|>=7.0",
     "symfony/symfony"   : ">=2.7|>=3.0",
-    "timiki/rpc-client" : "dev-develop"
+    "timiki/rpc-client" : "dev-master"
   },
   "autoload"    : {
     "psr-4" : {
