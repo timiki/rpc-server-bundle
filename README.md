@@ -6,7 +6,52 @@ JSON-RPC allows for notifications (data sent to the server that does not require
 [Wikipedia][1] | [Specification][2]
 
 
+
+
+
+
+
 ## Configs
+
+
+
+## Method
+
+
+    <?php
+    
+    use Timiki\Bundle\RpcServerBundle\Rpc\Method
+    
+    
+    class MyMethod extend Method {
+    
+        /**
+         * Get the method params
+         *
+         * @return array
+         */
+        public function getParams()
+        {   
+            return [
+                ['id', 'integer|required'],
+                ['name', 'string', '']
+            ];
+        }
+        
+        /**
+         * Execute the server method
+         */
+        public function execute()
+        {
+            // Your code
+        }
+    
+    }
+    
+    
+    
+    
+    
 
 #### type (string)
 

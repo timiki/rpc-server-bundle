@@ -1,166 +1,111 @@
 <?php
 
-namespace Timiki\Bundle\RpcServerBundle;
+namespace Timiki\Bundle\RpcServerBundle\Rpc;
 
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Timiki\Bundle\RpcServerBundle\Server\Method;
 use Timiki\Bundle\RpcServerBundle\Server\Handler as HandlerInterface;
 use Timiki\Bundle\RpcServerBundle\Method\Result;
-use Timiki\Bundle\RpcServerBundle\Method\Validator;
 
 /**
- * RPC Server instance
+ * RPC handler
  */
-class RpcServer
+class handler
 {
 	/**
-	 * Proxy enable
-	 *
-	 * @var boolean
-	 */
-	protected $proxy = false;
-
-	/**
-	 * Server methods array
+	 * Server methods
 	 *
 	 * @var array
 	 */
 	protected $methods = [];
 
 	/**
-	 * Server methods path
+	 * Server methods paths
 	 *
 	 * @var array
 	 */
-	protected $methodsPath = [];
-
-	/**
-	 * Server default handler
-	 *
-	 * @var array
-	 */
-	protected $defaultHandlers = 'json';
-
-	/**
-	 * Server locale (default en)
-	 *
-	 * @var array
-	 */
-	protected $locale = 'en';
+	protected $paths = [];
 
 	/**
 	 * Container
 	 *
-	 * @var ContainerInterface
+	 * @var ContainerInterface|null
 	 */
 	protected $container;
 
 	/**
-	 * Create new server
+	 * Create new instance of JSON-RPC server
 	 *
-	 * @param array $paths
-	 * @param string $handler
-	 * @param string $locale
-	 * @param boolean $proxy
-	 * @param ContainerInterface $container
+	 * @param array              $methods   Methods array [name => class]
+	 * @param array              $paths     Paths array [namespace => path]
+	 * @param ContainerInterface $container Instance of container
 	 */
-	public function __construct(array $paths = [], $handler = 'json', $locale = 'en', ContainerInterface $container = null, $proxy = false)
+	public function __construct(array $methods = [], array $paths = [], ContainerInterface $container = null)
 	{
-		$this->locale    = $locale;
 		$this->container = $container;
 
+		foreach ($methods as $name => $class) {
+			$this->methods[$name] = $class;
+		}
+
 		foreach ($paths as $namespace => $path) {
-			$this->addMethodsDirectory($path, $namespace);
+			$this->paths[$namespace] = $path;
 		}
-
-		$this->proxy = $proxy;
 	}
 
 	/**
-	 * Add directory with methods class
+	 * Get container instance
 	 *
-	 * @param string $path
-	 * @param string $namespace
-	 * @return $this
+	 * @return ContainerInterface|null
 	 */
-	public function addMethodsDirectory($path, $namespace = '\\')
+	public function &getContainer()
 	{
-		$namespace = rtrim($namespace, '\\');
-
-		if (!array_key_exists($path, $this->methodsPath)) {
-			$this->methodsPath[$path] = $namespace;
-		}
-
-		return $this;
+		return $this->container;
 	}
 
 	/**
-	 * Get server method
+	 * Get method
 	 *
-	 * @param $method
+	 * @param string $method Method name
 	 * @return null|Method
 	 */
 	public function getMethod($method)
 	{
-		if (!array_key_exists($method, $this->methods)) {
-			foreach ($this->methodsPath as $path => $namespace) {
-				$className = $namespace . '\\' . $method;
-				if (class_exists($className)) {
-					/* @var Method $methodObject */
-					$methodObject = new $className();
-					$methodObject->setServer($this);
-					$methodObject->setContainer($this->container);
-					$this->methods[$method] = $methodObject;
-					break;
-				}
+
+		if (array_key_exists($method, $this->methods)) {
+
+			$class = $this->methods[$method];
+			if (class_exists($class)) {
+				/* @var Method $methodObject */
+				$methodObject = new $class();
+				$methodObject->setHandler($this);
+
+				return $methodObject;
 			}
-			if (!array_key_exists($method, $this->methods)) {
-				$this->methods[$method] = null;
-			}
+
 		}
 
-		return $this->methods[$method];
-	}
+		foreach ($this->paths as $path => $namespace) {
 
-	/**
-	 * Set server locale
-	 *
-	 * @param string $locale
-	 * @return $this
-	 */
-	public function setLocale($locale)
-	{
-		$this->locale = $locale;
+			$class = $namespace.'\\'.$method;
+			if (class_exists($class)) {
+				/* @var Method $methodObject */
+				$methodObject = new $class();
+				$methodObject->setHandler($this);
 
-		return $this;
-	}
+				return $methodObject;
+			}
 
-	/**
-	 * Get server locale
-	 *
-	 * @return string
-	 */
-	public function getLocale()
-	{
-		return $this->locale;
-	}
+		}
 
-	/**
-	 * Check is proxy use
-	 *
-	 * @return boolean
-	 */
-	public function isProxy()
-	{
-		return $this->proxy;
+		return null;
 	}
 
 	/**
 	 * Get Rpc proxy
 	 *
-	 * @return RpcProxy
+	 * @return Proxy
 	 */
 	public function getProxy()
 	{
@@ -168,71 +113,14 @@ class RpcServer
 	}
 
 	/**
-	 * Get method list
-	 *
-	 * @return array
-	 */
-	public function getMethods()
-	{
-		/* @return array */
-		$process = function ($path, $namespace, $prefix = '\\') use (&$process) {
-			$methods   = [];
-			$directory = new \DirectoryIterator($path);
-			foreach ($directory as $file) {
-				/* @var \DirectoryIterator $file */
-				if (!$file->isDot() and !$file->isDir()) {
-					$className = $namespace . $prefix . $file->getBasename('.php');
-					if (class_exists($className)) {
-						/* @var Method $methodObject */
-						$method = new $className();
-						if ($method instanceof Method) {
-							$method->setServer($this);
-							$methods[$prefix . $file->getBasename('.php')] = $method;
-						}
-					}
-				} elseif (!$file->isDot() and $file->isDir()) {
-					$methods = array_replace_recursive($methods, $process($file->getPath() . '/' . $file->getBasename(), $namespace, rtrim($prefix, '\\') . '\\' . $file->getBasename() . '\\'));
-				}
-			}
-
-			return $methods;
-		};
-
-		$methods = [];
-		foreach ($this->methodsPath as $path => $namespace) {
-			$methods = array_replace_recursive($methods, $process($path, $namespace));
-		}
-
-
-		$list = [];
-		foreach ($methods as $name => $method) {
-			/* @var Method $method */
-			$list[$name] = $method->getDescription();
-		}
-
-		return $list;
-	}
-
-	/**
-	 * Check if method exists
-	 *
-	 * @param $method
-	 * @return boolean
-	 */
-	public function isMethodExists($method)
-	{
-		return array_key_exists($method, $this->getMethods()) ? true : false;
-	}
-
-	/**
 	 * Call method
 	 *
-	 * @param string $method
-	 * @param array $params
-	 * @param array $extra
-	 * @return Result
+	 * @param string|integer $id
+	 * @param string         $method Method name
+	 * @param array          $params Method params
+	 * @return mixed Return method result value
 	 */
-	public function callMethod($method, array $params = [], array $extra = [])
+	public function call($id, $method, array $params = [])
 	{
 		$methodObject = $this->getMethod($method);
 		$result       = new Result();
@@ -340,32 +228,179 @@ class RpcServer
 	}
 
 	/**
-	 * Handle http request
+	 * Parser HttpRequestRequest to JsonRequest array
 	 *
 	 * @param HttpRequest $httpRequest
-	 * @param string $type
+	 * @return JsonRequest[]|null
+	 */
+	protected function parserHttpRequest(HttpRequest $httpRequest)
+	{
+		$requests = [];
+
+		try {
+			$json = json_decode($httpRequest->getContent(), true);
+		} catch (\Exception $e) {
+			return null;
+		}
+
+		$parseJsonRequest = function ($json) use ($requests) {
+
+			$jsonrpc = array_key_exists('jsonrpc', $json) ? $json['jsonrpc'] : null;
+			$id      = array_key_exists('id', $json) ? $json['id'] : null;
+			$method  = array_key_exists('method', $json) ? $json['method'] : null;
+			$params  = array_key_exists('params', $json) ? $json['params'] : null;
+
+			$requests[] = new JsonRequest($jsonrpc, $id, $method, $params);
+
+		};
+
+		if (array_keys($json) !== range(0, count($json) - 1)) {
+			$parseJsonRequest($json);
+		} else {
+			foreach ($json as $part) {
+				$parseJsonRequest($part);
+			}
+		}
+
+		return $requests;
+	}
+
+	/**
+	 * Handle json request
+	 *
+	 * @param jsonRequest $jsonRequest
+	 * @return JsonResponse
+	 */
+	public function handleJsonRequest(jsonRequest $jsonRequest)
+	{
+
+		// Is valid request
+
+		if (!$jsonRequest->isValid()) {
+
+			$jsonResponse = new JsonResponse();
+			$jsonResponse->setId($jsonRequest->getId());
+			$jsonResponse->setErrorCode('-32600');
+			$jsonResponse->setErrorMessage('Invalid Request');
+
+			return $jsonResponse;
+		}
+
+		// Get method
+
+		if (!$method = $this->getMethod($jsonRequest->getMethod())) {
+
+			$this->getProxy();
+
+
+			// TODO: proxy
+
+			$jsonResponse = new JsonResponse();
+			$jsonResponse->setId($jsonRequest->getId());
+			$jsonResponse->setErrorCode('-32601');
+			$jsonResponse->setErrorMessage('Method not found');
+
+			return $jsonResponse;
+		}
+
+		// Is granted
+
+		$isGranted = [];
+		foreach ($method->getRoles() as $role) {
+			$isGranted[] = $this->getContainer()->get('security.authorization_checker')->isGranted($role);
+		}
+
+		if (in_array(false, $isGranted, true)) {
+
+			$jsonResponse = new JsonResponse();
+			$jsonResponse->setId($jsonRequest->getId());
+			$jsonResponse->setErrorCode('-32001');
+			$jsonResponse->setErrorMessage('Method not granted');
+
+			return $jsonResponse;
+		}
+
+		// Validate methods params
+
+		$validator = new Validator();
+
+		if ($validatorResult = $validator->validate($method, $jsonRequest->getParams())) {
+
+			$jsonResponse = new JsonResponse();
+			$jsonResponse->setId($jsonRequest->getId());
+			$jsonResponse->setErrorCode('-32602');
+			$jsonResponse->setErrorMessage('Invalid params');
+			$jsonResponse->setErrorData($validatorResult);
+
+			return $jsonResponse;
+		}
+
+		// Set values
+
+		$method->setValues($jsonRequest->getParams());
+
+		// Execute
+
+		try {
+			$method->execute();
+		} catch (\Exception $e) {
+
+			$jsonResponse = new JsonResponse();
+			$jsonResponse->setId($jsonRequest->getId());
+			$jsonResponse->setErrorCode('-32603');
+			$jsonResponse->setErrorMessage('Internal error');
+
+			return $jsonResponse;
+		}
+
+		$jsonResponse = new JsonResponse();
+		$jsonResponse->setId($jsonRequest->getId());
+
+		if ($method->isError()) {
+			$jsonResponse->setErrorCode('-32000');
+			$jsonResponse->setErrorMessage('Method error');
+			$jsonResponse->setErrorData($method->getErrors());
+		} else {
+			$jsonResponse->setResult($method->getResult());
+		}
+
+		return $jsonResponse;
+	}
+
+	/**
+	 * Handle http request
+	 *
+	 * @param HttpRequest  $httpRequest
 	 * @param HttpResponse $httpResponse
 	 * @return HttpResponse
 	 */
-	public function handleHttpRequest(HttpRequest $httpRequest, $type = 'json', HttpResponse $httpResponse = null)
+	public function handleHttpRequest(HttpRequest $httpRequest, HttpResponse $httpResponse = null)
 	{
 		/*
-		| Create HttpResponse
+		| Parse HttpRequest
 		*/
+		if (!$requests = $this->parserHttpRequest($httpRequest)) {
 
-		if ($httpResponse === null) {
-			$httpResponse = HttpResponse::create();
+			$jsonResponse = new JsonResponse();
+			$jsonResponse->setErrorCode('-32700');
+			$jsonResponse->setErrorMessage('Parse error');
+
+			return $jsonResponse->getHttpResponse();
 		}
+
+
+		return;
+
 
 		/*
 		| Get HttpRequest handler
 		*/
 
-		if (class_exists('\\Timiki\\Bundle\\RpcServerBundle\\Server\\Handlers\\' . ucfirst(strtolower($type)))) {
-			$handlerClass = '\\Timiki\\Bundle\\RpcServerBundle\\Server\\Handlers\\' . ucfirst(strtolower($type));
+		if (class_exists('\\Timiki\\Bundle\\RpcServerBundle\\Server\\Handlers\\'.ucfirst(strtolower($type)))) {
+			$handlerClass = '\\Timiki\\Bundle\\RpcServerBundle\\Server\\Handlers\\'.ucfirst(strtolower($type));
 			$handler      = new $handlerClass();
 		} else {
-			$handlerClass = '\\Timiki\\Bundle\\RpcServerBundle\\Server\\Handlers\\' . ucfirst(strtolower($this->defaultHandlers));
+			$handlerClass = '\\Timiki\\Bundle\\RpcServerBundle\\Server\\Handlers\\'.ucfirst(strtolower($this->defaultHandlers));
 			$handler      = new $handlerClass();
 		}
 
@@ -384,7 +419,7 @@ class RpcServer
 		| Execute method
 		*/
 
-		$result = $this->callMethod($methodName, $methodParams, $methodExtra);
+		$result = $this->call($methodName, $methodParams, $methodExtra);
 
 		/*
 		| Is proxy?

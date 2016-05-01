@@ -1,7 +1,7 @@
 {
   "name"        : "timiki/rpc-server-bundle",
   "type"        : "symfony-bundle",
-  "description" : "Timiki RPC server bundle for symfony",
+  "description" : "JSON-RPC server bundle for symfony",
   "branches"    : [
     "master"
   ],
@@ -17,8 +17,8 @@
     }
   ],
   "require"     : {
-    "symfony/symfony"          : ">=2.7",
-    "timiki/rpc-client-common" : ">=1.4"
+    "symfony/symfony"   : ">=2.7|>=3.0",
+    "timiki/rpc-client" : "dev-develop"
   },
   "autoload"    : {
     "psr-4" : {
