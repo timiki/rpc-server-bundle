@@ -211,7 +211,7 @@ class JsonResponse
 
 		} else {
 
-			if (!empty(!$this->result)) {
+			if (!empty($this->result)) {
 				$json['result'] = $this->result;
 			}
 
