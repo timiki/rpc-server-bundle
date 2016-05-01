@@ -162,6 +162,7 @@ class Proxy
 			$jsonResponse->setErrorMessage($response->getErrorMessage());
 			$jsonResponse->setErrorData($response->getErrordata());
 			$jsonResponse->setResult($response->getResult());
+			$jsonResponse->setProxy($response->getHttpResponse());
 
 			return $jsonResponse;
 		}

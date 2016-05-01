@@ -3,6 +3,7 @@
 namespace Timiki\Bundle\RpcServerBundle\Rpc;
 
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
+use Timiki\RpcClient\Client\HttpResponse as ProxyHttpResponse;
 
 class JsonResponse
 {
@@ -47,6 +48,13 @@ class JsonResponse
 	 * @var mixed|null
 	 */
 	protected $result;
+
+	/**
+	 * Proxy http response
+	 *
+	 * @var ProxyHttpResponse|null
+	 */
+	protected $proxy;
 
 	/**
 	 * Create new JsonResponse
@@ -237,5 +245,38 @@ class JsonResponse
 	public function isError()
 	{
 		return !empty($this->errorCode);
+	}
+
+	/**
+	 * Is response from proxy
+	 *
+	 * @return boolean
+	 */
+	public function isProxy()
+	{
+		return !empty($this->errorCode);
+	}
+
+	/**
+	 * Get proxy http response
+	 *
+	 * @return null|ProxyHttpResponse
+	 */
+	public function getProxy()
+	{
+		return $this->proxy;
+	}
+
+	/**
+	 * Set proxy http response
+	 *
+	 * @param null|ProxyHttpResponse $proxy
+	 * @return $this
+	 */
+	public function setProxy($proxy)
+	{
+		$this->proxy = $proxy;
+
+		return $this;
 	}
 }

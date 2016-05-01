@@ -403,7 +403,9 @@ class Handler
 			$jsonResponses = $this->handleJsonRequest($request);
 		}
 
-		$results = [];
+		$results      = [];
+		$httpResponse = HttpResponse::create();
+
 
 		foreach ($jsonResponses as $jsonResponse) {
 
@@ -415,11 +417,66 @@ class Handler
 
 		}
 
-		if (count($jsonRequests) === 1 && count($results) === 1) {
-			$results = $results[0];
-		}
+		// Single request
 
-		$httpResponse = HttpResponse::create();
+		if (count($jsonRequests) === 1 && count($jsonResponses) === 1 && count($results) === 1) {
+
+			$results = $results[0];
+
+			$jsonResponse = $jsonResponses[0];
+
+			// Proxy cookies for simple request
+
+			if ($jsonResponse->isProxy()) {
+
+				// is set proxy cookies
+
+				$cookiesForward  = $this->getProxy()->getOption('forwardCookies', []);
+				$responseCookies = $jsonResponse->getProxy()->getHeader('set-cookie', []);
+
+				foreach ($responseCookies as $cookeRaw) {
+					// Parse cookie string
+					$cookeRawArray = explode(';', $cookeRaw);
+					$cookeArray    = ['name' => '', 'value' => '', 'expire' => 0, 'path' => '/', 'domain' => null, 'secure' => false, 'httpOnly' => true];
+
+					foreach ($cookeRawArray as $key => $cookeRawArrayPart) {
+						$part = explode('=', $cookeRawArrayPart);
+						if ($key === 0) {
+							$cookeArray['name']  = $part[0];
+							$cookeArray['value'] = $part[1];
+						} else {
+							switch (trim($part[0])) {
+								case 'expire':
+									$cookeArray['expire'] = intval($part[1]);
+									break;
+								case 'path':
+									$cookeArray['path'] = $part[1];
+									break;
+								case 'domain':
+									if (!empty($this->getProxy()->getOptions()['forwardCookiesDomain'])) {
+										$cookeArray['domain'] = $this->getProxy()->getOptions()['forwardCookiesDomain'];
+									} else {
+										$cookeArray['domain'] = $part[1];
+									}
+									break;
+								case 'secure':
+									$cookeArray['secure'] = boolval($part[1]);
+									break;
+								case 'httpOnly':
+									$cookeArray['httpOnly'] = boolval($part[1]);
+									break;
+							}
+						}
+					}
+
+					if (in_array($cookeArray['name'], $cookiesForward)) {
+						$cookie = new \Symfony\Component\HttpFoundation\Cookie($cookeArray['name'], $cookeArray['value'], $cookeArray['expire'], $cookeArray['path'], $cookeArray['domain'], $cookeArray['secure'], $cookeArray['httpOnly']);
+						$httpResponse->headers->setCookie($cookie);
+					}
+
+				}
+			}
+		}
 
 		$httpResponse->headers->set('Content-Type', 'application/json');
 		$httpResponse->setContent(json_encode($results));
