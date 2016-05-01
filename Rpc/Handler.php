@@ -19,7 +19,7 @@ class Handler
 	protected $methods = [];
 
 	/**
-	 * Server methods paths
+	 * Server namespace methods paths
 	 *
 	 * @var array
 	 */
@@ -84,7 +84,7 @@ class Handler
 
 		}
 
-		foreach ($this->paths as $path => $namespace) {
+		foreach ($this->paths as $namespace) {
 
 			$class = $namespace.'\\'.$method;
 			if (class_exists($class)) {
@@ -241,22 +241,22 @@ class Handler
 			return null;
 		}
 
-		$parseJsonRequest = function ($json) use ($requests) {
+		$parseJsonRequest = function ($json) {
 
 			$jsonrpc = array_key_exists('jsonrpc', $json) ? $json['jsonrpc'] : null;
 			$id      = array_key_exists('id', $json) ? $json['id'] : null;
 			$method  = array_key_exists('method', $json) ? $json['method'] : null;
 			$params  = array_key_exists('params', $json) ? $json['params'] : [];
 
-			$requests[] = new JsonRequest($jsonrpc, $id, $method, (array)$params);
+			return new JsonRequest($jsonrpc, $id, $method, (array)$params);
 
 		};
 
 		if (array_keys($json) !== range(0, count($json) - 1)) {
-			$parseJsonRequest($json);
+			$requests[] = $parseJsonRequest($json);
 		} else {
 			foreach ($json as $part) {
-				$parseJsonRequest($part);
+				$requests[] = $parseJsonRequest($part);
 			}
 		}
 
