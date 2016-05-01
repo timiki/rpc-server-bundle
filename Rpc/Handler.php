@@ -237,7 +237,7 @@ class Handler
 
 		$parseJsonRequest = function ($json) {
 
-			$jsonrpc = array_key_exists('jsonrpc', $json) ? $json['jsonrpc'] : null;
+			$jsonrpc = array_key_exists('jsonrpc', $json) ? $json['jsonrpc'] : '2.0';
 			$id      = array_key_exists('id', $json) ? $json['id'] : null;
 			$method  = array_key_exists('method', $json) ? $json['method'] : null;
 			$params  = array_key_exists('params', $json) ? $json['params'] : [];
