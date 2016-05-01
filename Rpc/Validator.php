@@ -21,6 +21,20 @@ class Validator
 	{
 		$result = [];
 
+		// Given only values
+
+		if (array_keys($params) !== range(0, count($params) - 1)) {
+
+			$default = $method->getParams();
+
+			foreach ($params as $key => $value){
+				if (isset($default[$key])) {
+					$params[$default[$key][0]] = $value;
+				}
+			}
+
+		}
+
 		foreach ($method->getParams() as $param) {
 
 			// param result validate

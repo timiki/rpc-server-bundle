@@ -246,9 +246,9 @@ class Handler
 			$jsonrpc = array_key_exists('jsonrpc', $json) ? $json['jsonrpc'] : null;
 			$id      = array_key_exists('id', $json) ? $json['id'] : null;
 			$method  = array_key_exists('method', $json) ? $json['method'] : null;
-			$params  = array_key_exists('params', $json) ? $json['params'] : null;
+			$params  = array_key_exists('params', $json) ? $json['params'] : [];
 
-			$requests[] = new JsonRequest($jsonrpc, $id, $method, $params);
+			$requests[] = new JsonRequest($jsonrpc, $id, $method, (array)$params);
 
 		};
 
@@ -330,7 +330,7 @@ class Handler
 			return $jsonResponse;
 		}
 
-		// Validate methods params
+		// Build and validate methods params
 
 		$validator = new Validator();
 

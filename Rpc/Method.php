@@ -92,6 +92,22 @@ abstract class Method
 	{
 		$this->values = [];
 
+		// Given only values
+
+		if (array_keys($values) !== range(0, count($values) - 1)) {
+
+			$params = $this->getParams();
+
+			foreach ($values as $key => $value) {
+				if (isset($params[$key])) {
+					$values[$params[$key][0]] = $value;
+				}
+			}
+
+		}
+
+		// Process values
+
 		foreach ($this->getParams() as $param) {
 
 			if (array_key_exists($param[0], $values)) {
