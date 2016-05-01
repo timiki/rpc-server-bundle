@@ -117,9 +117,9 @@ class Handler
 	{
 		$requests = [];
 
-		try {
-			$json = json_decode($httpRequest->getContent(), true);
-		} catch (\Exception $e) {
+		$json = json_decode($httpRequest->getContent(), true);
+
+		if ($json === null) {
 			return null;
 		}
 
