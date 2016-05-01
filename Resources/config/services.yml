@@ -1,6 +1,6 @@
 services:
       rpc.server:
-            class: Timiki\Bundle\RpcServerBundle\Rps\Handler
+            class: Timiki\Bundle\RpcServerBundle\Rpc\Handler
             arguments: ['%rpc.server.methods%', '%rpc.server.paths%', '@service_container']
       rpc.proxy:
             class: Timiki\Bundle\RpcServerBundle\Rpc\Proxy

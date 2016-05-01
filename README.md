@@ -13,6 +13,14 @@ JSON-RPC allows for notifications (data sent to the server that does not require
 
 ## Configs
 
+Add to you config.yml
+    
+    # RPC server
+    rpc_server:
+        paths:
+           - {namespace: 'Methods namespace', path: 'Methods path'}
+        methods:
+           - {name: 'Methods name', path: 'Methods class path'}
 
 
 ## Method
