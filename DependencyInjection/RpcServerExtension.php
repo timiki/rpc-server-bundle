@@ -25,19 +25,13 @@ class RpcServerExtension extends Extension
 		$loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 		$loader->load('services.yml');
 
-		// paths
-		$paths = [];
-		foreach ($config['paths'] as $path) {
-			$paths[$path['namespace']] = $path['path'];
-		}
-
 		// methods
 		$methods = [];
 		foreach ($config['methods'] as $method) {
 			$methods[$method['name']] = $method['class'];
 		}
 
-		$container->setParameter('rpc.server.paths', $paths);
+		$container->setParameter('rpc.server.paths', $config['paths']);
 		$container->setParameter('rpc.server.methods', $methods);
 		$container->setParameter('rpc.server.proxy', $config['proxy']);
 	}
