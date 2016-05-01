@@ -9,7 +9,7 @@ class JsonRequest
 	 *
 	 * @var string
 	 */
-	protected $jsonrpc;
+	protected $jsonrpc = '2.0';
 
 	/**
 	 * Id
@@ -95,6 +95,14 @@ class JsonRequest
 	 */
 	public function isValid()
 	{
-		return !empty($this->jsonrpc) && !empty($this->method);
+		if (empty($this->jsonrpc)) {
+			return false;
+		}
+
+		if (empty($this->method)) {
+			return false;
+		}
+
+		return true;
 	}
 }
