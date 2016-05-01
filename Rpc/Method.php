@@ -113,8 +113,8 @@ abstract class Method
 			if (array_key_exists($param[0], $values)) {
 				$this->values[$param[0]] = $values[$param[0]];
 			} else {
-				if (isset($param[3])) {
-					$this->values[$param[0]] = $param[3];
+				if (isset($param[2])) {
+					$this->values[$param[0]] = $param[2];
 				}
 			}
 
