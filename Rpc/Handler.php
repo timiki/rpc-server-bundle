@@ -5,8 +5,6 @@ namespace Timiki\Bundle\RpcServerBundle\Rpc;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Timiki\Bundle\RpcServerBundle\Server\Handler as HandlerInterface;
-use Timiki\Bundle\RpcServerBundle\Method\Result;
 
 /**
  * RPC handler
