@@ -1,7 +1,0 @@
-rpc:
-    validate:
-        invalid:
-              rule: 'Invalid validation rule for RPC params'
-    method:
-        not_granted: 'No access rights to call this method'
-
