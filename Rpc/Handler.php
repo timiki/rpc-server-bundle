@@ -11,7 +11,7 @@ use Timiki\Bundle\RpcServerBundle\Method\Result;
 /**
  * RPC handler
  */
-class handler
+class Handler
 {
 	/**
 	 * Server methods
