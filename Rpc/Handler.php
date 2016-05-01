@@ -81,12 +81,15 @@ class Handler
 		foreach ($this->namespace as $namespace) {
 
 			$class = $namespace.'\\'.$method;
-			if (class_exists($class)) {
-				/* @var Method $methodObject */
-				$methodObject = new $class();
-				$methodObject->setHandler($this);
+			try {
+				if (class_exists($class)) {
+					/* @var Method $methodObject */
+					$methodObject = new $class();
+					$methodObject->setHandler($this);
 
-				return $methodObject;
+					return $methodObject;
+				}
+			} catch (\Exception $e) {
 			}
 
 		}
