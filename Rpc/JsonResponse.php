@@ -254,7 +254,7 @@ class JsonResponse
 	 */
 	public function isProxy()
 	{
-		return !empty($this->errorCode);
+		return !empty($this->proxy);
 	}
 
 	/**

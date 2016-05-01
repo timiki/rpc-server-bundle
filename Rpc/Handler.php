@@ -394,7 +394,7 @@ class Handler
 
 		$jsonResponses = [];
 		foreach ($jsonRequests as $request) {
-			$jsonResponses = $this->handleJsonRequest($request);
+			$jsonResponses[] = $this->handleJsonRequest($request);
 		}
 
 		$results      = [];
