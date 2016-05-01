@@ -19,11 +19,11 @@ class Handler
 	protected $methods = [];
 
 	/**
-	 * Server namespace methods paths
+	 * Server namespace methods
 	 *
 	 * @var array
 	 */
-	protected $paths = [];
+	protected $namespace = [];
 
 	/**
 	 * Container
@@ -36,20 +36,14 @@ class Handler
 	 * Create new instance of JSON-RPC server
 	 *
 	 * @param array              $methods   Methods array [name => class]
-	 * @param array              $paths     Paths array [namespace => path]
+	 * @param array              $namespace Namespace array
 	 * @param ContainerInterface $container Instance of container
 	 */
-	public function __construct(array $methods = [], array $paths = [], ContainerInterface $container = null)
+	public function __construct(array $methods = [], array $namespace = [], ContainerInterface $container = null)
 	{
 		$this->container = $container;
-
-		foreach ($methods as $name => $class) {
-			$this->methods[$name] = $class;
-		}
-
-		foreach ($paths as $namespace => $path) {
-			$this->paths[$namespace] = $path;
-		}
+		$this->methods   = $methods;
+		$this->namespace = $namespace;
 	}
 
 	/**
@@ -84,7 +78,7 @@ class Handler
 
 		}
 
-		foreach ($this->paths as $namespace) {
+		foreach ($this->namespace as $namespace) {
 
 			$class = $namespace.'\\'.$method;
 			if (class_exists($class)) {

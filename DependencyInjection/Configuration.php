@@ -38,7 +38,7 @@ class Configuration implements ConfigurationInterface
 						->variableNode('cookies')->defaultValue([])->end()
                     ->end()
                 ->end()
-                ->variableNode('paths')
+                ->variableNode('namespace')
                     ->defaultValue([])
                 ->end()
 				->arrayNode('methods')

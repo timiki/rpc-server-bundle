@@ -31,7 +31,7 @@ class RpcServerExtension extends Extension
 			$methods[$method['name']] = $method['class'];
 		}
 
-		$container->setParameter('rpc.server.paths', $config['paths']);
+		$container->setParameter('rpc.server.namespace', $config['namespace']);
 		$container->setParameter('rpc.server.methods', $methods);
 		$container->setParameter('rpc.server.proxy', $config['proxy']);
 	}
