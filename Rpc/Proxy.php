@@ -3,9 +3,8 @@
 namespace Timiki\Bundle\RpcServerBundle\Rpc;
 
 use Timiki\RpcClient\Client;
-use Timiki\RpcClientCommon\Client\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use \Symfony\Component\HttpFoundation\Request;
 
 /**
  * RPC Proxy
@@ -142,28 +141,45 @@ class Proxy
 	}
 
 	/**
-	 * Call method
+	 * Handle json request
 	 *
-	 * @param string       $method
-	 * @param array        $params
-	 * @param integer|null $id
-	 * @return JsonResponse
+	 * @param JsonRequest $jsonRequest
+	 * @return JsonResponse|null
 	 */
-	public function callMethod($method, array $params = [], $id = null)
+	public function handleJsonRequest(JsonRequest $jsonRequest)
 	{
-		// Before run call need stop session
-		if ($this->getContainer() !== null) {
+		if ($this->getContainer()) {
 			$this->getContainer()->get('session')->save();
 		}
 
-		// Call method
-		$response = $this->client->call($method, $params, $id);
+		$jsonResponse = null;
 
-		// After run call need restart session
+		if ($response = $this->client->call($jsonRequest->getMethod(), $jsonRequest->getParams(), $jsonRequest->getId())) {
+
+			$jsonResponse = new JsonResponse();
+			$jsonResponse->setId($response->getId());
+			$jsonResponse->setErrorCode($response->getErrorCode());
+			$jsonResponse->setErrorMessage($response->getErrorMessage());
+			$jsonResponse->setErrorData($response->getErrordata());
+			$jsonResponse->setResult($response->getResult());
+
+			return $jsonResponse;
+		}
+
 		if ($this->getContainer() !== null) {
 			$this->getContainer()->get('session')->migrate();
 		}
 
-		return $response;
+		return $jsonResponse;
+	}
+
+	/**
+	 * Is proxy is enable
+	 *
+	 * @return boolean
+	 */
+	public function isEnable()
+	{
+		return array_key_exists('enable', $this->options) ? (boolean)$this->options['enable'] : false;
 	}
 }

@@ -228,4 +228,14 @@ class JsonResponse
 
 		return $httpResponse;
 	}
+
+	/**
+	 * Is response error
+	 *
+	 * @return boolean
+	 */
+	public function isError()
+	{
+		return !empty($this->errorCode);
+	}
 }
