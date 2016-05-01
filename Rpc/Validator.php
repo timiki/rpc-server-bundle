@@ -23,7 +23,7 @@ class Validator
 
 		// Given only values
 
-		if (array_keys($params) !== range(0, count($params) - 1)) {
+		if (array_keys($params) === range(0, count($params) - 1)) {
 
 			$default = $method->getParams();
 

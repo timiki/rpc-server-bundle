@@ -107,121 +107,6 @@ class Handler
 		return $this->container->get('rpc.proxy');
 	}
 
-//	/**
-//	 * Call method
-//	 *
-//	 * @param string       $method Method name
-//	 * @param array        $params Method params
-//	 * @param integer|null $id
-//	 * @return mixed Return method result value
-//	 */
-//	public function call($method, array $params = [], $id)
-//	{
-//		$methodObject = $this->getMethod($method);
-//		$result       = new Result();
-//		if ($methodObject !== null) {
-//
-//			// Prepare methods params value
-//			$methodParams = [];
-//
-//			foreach ($methodObject->getParams() as $value) {
-//				if (array_key_exists($value[0], $params)) {
-//					$methodParams[$value[0]] = $params[$value[0]];
-//				} else {
-//					// Set default or null
-//					if (array_key_exists(2, $value)) {
-//						$methodParams[$value[0]] = $value[2];
-//					}
-//					// else {
-//					// $methodParams[$value[0]] = null;
-//					// }
-//				}
-//			}
-//
-//			// Validate methods params
-//			$validator      = new Validator();
-//			$validateResult = $validator->validate($methodObject, $methodParams);
-//
-//			if (count($validateResult) > 0) {
-//				// have some errors
-//				$result->setError($validateResult);
-//			} else {
-//
-//				$reflection = new  \ReflectionObject($methodObject);
-//
-//				/*
-//				| Reflection method beforeExecute function
-//				*/
-//				if ($reflection->hasMethod('beforeExecute')) {
-//					$methodBeforeExecuteParams = $reflection->getMethod('beforeExecute')->getParameters();
-//					$args                      = [];
-//
-//					foreach ($methodBeforeExecuteParams as $param) {
-//						if ($param->getName() == 'result') {
-//							$args[] = &$result;
-//						} elseif ($param->getName() == 'extra') {
-//							$args[] = $extra;
-//						} else {
-//							if (array_key_exists($param->getName(), $methodParams)) {
-//								$args[] = $methodParams[$param->getName()];
-//							} else {
-//								$args[] = null;
-//							}
-//						}
-//					}
-//
-//					$reflection->getMethod('beforeExecute')->invokeArgs($methodObject, $args);
-//				}
-//
-//				if (!$result->isError()) {
-//					/*
-//					| Reflection method execute function
-//					*/
-//					if ($reflection->hasMethod('execute')) {
-//						$methodExecuteParams = $reflection->getMethod('execute')->getParameters();
-//						$args                = [];
-//						foreach ($methodExecuteParams as $param) {
-//							if ($param->getName() == 'result') {
-//								$args[] = &$result;
-//							} elseif ($param->getName() == 'extra') {
-//								$args[] = $extra;
-//							} else {
-//								if (array_key_exists($param->getName(), $methodParams)) {
-//									$args[] = $methodParams[$param->getName()];
-//								} else {
-//									$args[] = null;
-//								}
-//							}
-//						}
-//						$reflection->getMethod('execute')->invokeArgs($methodObject, $args);
-//					}
-//				}
-//			}
-//		} else {
-//			// Use Proxy?
-//			if ($this->isProxy()) {
-//				$proxy       = $this->getProxy();
-//				$proxyResult = $proxy->callMethod($method, $params, $extra);
-//
-//				// Proxy errors
-//				if (!empty($proxyResult->getResult()->error)) {
-//					foreach ($proxyResult->getResult()->error as $e) {
-//						$result->setError($e);
-//					}
-//				}
-//
-//				// Proxy result
-//				$result->setProxy($proxyResult);
-//				$result->setResult($proxyResult->getResult()->result);
-//
-//			} else {
-//				$result->setError(['error' => 'methodNotFound', 'message' => 'Method not found']);
-//			}
-//		}
-//
-//		return $result;
-//	}
-
 	/**
 	 * Parser HttpRequestRequest to JsonRequest array
 	 *
@@ -249,12 +134,12 @@ class Handler
 
 		};
 
-		if (array_keys($json) !== range(0, count($json) - 1)) {
-			$requests[] = $parseJsonRequest($json);
-		} else {
+		if (array_keys($json) === range(0, count($json) - 1)) {
 			foreach ($json as $part) {
 				$requests[] = $parseJsonRequest($part);
 			}
+		} else {
+			$requests[] = $parseJsonRequest($json);
 		}
 
 		return $requests;

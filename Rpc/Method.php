@@ -94,7 +94,7 @@ abstract class Method
 
 		// Given only values
 
-		if (array_keys($values) !== range(0, count($values) - 1)) {
+		if (array_keys($values) === range(0, count($values) - 1)) {
 
 			$params = $this->getParams();
 
