@@ -99,7 +99,7 @@ class JsonRequest
 			return false;
 		}
 
-		if (empty($this->method)) {
+		if (empty($this->method) || !is_string($this->method)) {
 			return false;
 		}
 
