@@ -40,7 +40,7 @@ class JsonRequest
 	 * @param string  $method
 	 * @param array   $params
 	 */
-	public function __construct($jsonrpc, $id, $method, array $params)
+	public function __construct($jsonrpc, $id, $method, $params)
 	{
 		$this->jsonrpc = $jsonrpc;
 		$this->id      = $id;
@@ -100,6 +100,10 @@ class JsonRequest
 		}
 
 		if (empty($this->method)) {
+			return false;
+		}
+
+		if (!empty($this->params) && !is_array($this->params)) {
 			return false;
 		}
 

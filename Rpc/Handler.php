@@ -130,7 +130,7 @@ class Handler
 			$method  = array_key_exists('method', $json) ? $json['method'] : null;
 			$params  = array_key_exists('params', $json) ? $json['params'] : [];
 
-			return new JsonRequest($jsonrpc, $id, $method, (array)$params);
+			return new JsonRequest($jsonrpc, $id, $method, $params);
 
 		};
 
