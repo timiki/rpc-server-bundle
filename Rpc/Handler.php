@@ -68,6 +68,7 @@ class Handler
 		if (array_key_exists($method, $this->methods)) {
 
 			$class = $this->methods[$method];
+
 			if (class_exists($class)) {
 				/* @var Method $methodObject */
 				$methodObject = new $class();
@@ -100,18 +101,22 @@ class Handler
 	/**
 	 * Get Rpc proxy
 	 *
-	 * @return Proxy
+	 * @return Proxy|null
 	 */
 	public function getProxy()
 	{
-		return $this->container->get('rpc.proxy');
+		if ($this->container) {
+			return $this->container->get('rpc.proxy');
+		}
+
+		return null;
 	}
 
 	/**
 	 * Parser HttpRequestRequest to JsonRequest array
 	 *
 	 * @param HttpRequest $httpRequest
-	 * @return JsonRequest[]|null
+	 * @return JsonRequest[]|array|null
 	 */
 	protected function parserHttpRequest(HttpRequest $httpRequest)
 	{
@@ -119,16 +124,23 @@ class Handler
 
 		$json = json_decode($httpRequest->getContent(), true);
 
-		if ($json === null) {
+		if ($json === null || !is_array($json)) {
 			return null;
 		}
 
 		$parseJsonRequest = function ($json) {
 
-			$jsonrpc = array_key_exists('jsonrpc', $json) ? $json['jsonrpc'] : '2.0';
-			$id      = array_key_exists('id', $json) ? $json['id'] : null;
-			$method  = array_key_exists('method', $json) ? $json['method'] : null;
-			$params  = array_key_exists('params', $json) ? $json['params'] : [];
+			$jsonrpc = null;
+			$id      = null;
+			$method  = null;
+			$params  = null;
+
+			if (is_array($json)) {
+				$jsonrpc = array_key_exists('jsonrpc', $json) ? $json['jsonrpc'] : '2.0';
+				$id      = array_key_exists('id', $json) ? $json['id'] : null;
+				$method  = array_key_exists('method', $json) ? $json['method'] : null;
+				$params  = array_key_exists('params', $json) ? $json['params'] : [];
+			}
 
 			return new JsonRequest($jsonrpc, $id, $method, $params);
 
@@ -139,7 +151,7 @@ class Handler
 				$requests[] = $parseJsonRequest($part);
 			}
 		} else {
-			$requests[] = $parseJsonRequest($json);
+			$requests = $parseJsonRequest($json);
 		}
 
 		return $requests;
@@ -169,13 +181,23 @@ class Handler
 
 		if (!$method = $this->getMethod($jsonRequest->getMethod())) {
 
-			$proxy = $this->getProxy();
+			if ($proxy = $this->getProxy()) {
 
-			if ($proxy->isEnable()) {
+				if ($proxy->isEnable()) {
 
-				if ($response = $proxy->handleJsonRequest($jsonRequest)) {
-					return $response;
+					if ($response = $proxy->handleJsonRequest($jsonRequest)) {
+						return $response;
+					} else {
+						$jsonResponse = new JsonResponse();
+						$jsonResponse->setId($jsonRequest->getId());
+						$jsonResponse->setErrorCode('-32601');
+						$jsonResponse->setErrorMessage('Method not found');
+
+						return $jsonResponse;
+					}
+
 				} else {
+
 					$jsonResponse = new JsonResponse();
 					$jsonResponse->setId($jsonRequest->getId());
 					$jsonResponse->setErrorCode('-32601');
@@ -183,7 +205,6 @@ class Handler
 
 					return $jsonResponse;
 				}
-
 			} else {
 
 				$jsonResponse = new JsonResponse();
@@ -193,13 +214,17 @@ class Handler
 
 				return $jsonResponse;
 			}
+
 		}
 
 		// Is granted
 
 		$isGranted = [];
-		foreach ($method->getRoles() as $role) {
-			$isGranted[] = $this->getContainer()->get('security.authorization_checker')->isGranted($role);
+
+		if ($this->container) {
+			foreach ($method->getRoles() as $role) {
+				$isGranted[] = $this->getContainer()->get('security.authorization_checker')->isGranted($role);
+			}
 		}
 
 		if (in_array(false, $isGranted, true)) {
@@ -234,7 +259,7 @@ class Handler
 		// Execute
 
 		try {
-			$method->execute();
+			$result = $method->execute();
 		} catch (\Exception $e) {
 
 			$jsonResponse = new JsonResponse();
@@ -243,6 +268,10 @@ class Handler
 			$jsonResponse->setErrorMessage('Internal error');
 
 			return $jsonResponse;
+		}
+
+		if (empty($method->getResult()) && !empty($result)) {
+			$method->result($result);
 		}
 
 		$jsonResponse = new JsonResponse();
@@ -278,6 +307,14 @@ class Handler
 			return $jsonResponse->getHttpResponse();
 		}
 
+		$count = 0;
+
+		if ($jsonRequests instanceof JsonRequest) {
+			$jsonRequests = [$jsonRequests];
+		} else {
+			$count = count($jsonRequests);
+		}
+
 		/* @var JsonResponse[] $jsonResponses */
 
 		$jsonResponses = [];
@@ -299,9 +336,9 @@ class Handler
 
 		}
 
-		// Single request
+		// Single request with response
 
-		if (count($jsonRequests) === 1 && count($jsonResponses) === 1 && count($results) === 1) {
+		if ($count === 0 && count($results) === 1) {
 
 			$results = $results[0];
 
@@ -361,7 +398,10 @@ class Handler
 		}
 
 		$httpResponse->headers->set('Content-Type', 'application/json');
-		$httpResponse->setContent(json_encode($results));
+
+		if (!empty($results)) {
+			$httpResponse->setContent(json_encode($results));
+		}
 
 		return $httpResponse;
 	}

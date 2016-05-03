@@ -1,6 +1,6 @@
 <?php
 
-namespace Timiki\Bundle\RpcServerBundle;
+namespace Timiki\Bundle\RpcServerBundle\Test;
 
 use PHPUnit_Framework_TestCase;
 use Timiki\Bundle\RpcServerBundle\Rpc\JsonRequest;

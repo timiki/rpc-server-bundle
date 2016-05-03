@@ -19,6 +19,9 @@
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">./</directory>
+            <exclude>
+                <directory>./Method</directory>
+            </exclude>
         </whitelist>
     </filter>
 
