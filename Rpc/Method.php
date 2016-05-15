@@ -33,23 +33,26 @@ abstract class Method
 	 */
 	protected $error = [];
 
-	/**
-	 * Get granted roles
-	 *
-	 * @return array
-	 */
-	public function getRoles()
-	{
-		//
-		// Example code:
-		//
-		//  return [
-		//      ['user', 'admin']
-		//  ];
-		//
-
-		return [];
-	}
+//
+//  Add getRoles method for check roles
+//
+//	/**
+//	 * Get granted roles
+//	 *
+//	 * @return array
+//	 */
+//	public function getRoles()
+//	{
+//		//
+//		// Example code:
+//		//
+//		//  return [
+//		//      ['user', 'admin']
+//		//  ];
+//		//
+//
+//		return [];
+//	}
 
 	/**
 	 * Get the method params
@@ -74,13 +77,16 @@ abstract class Method
 		return [];
 	}
 
-	/**
-	 * Execute the server method
-	 */
-	public function execute()
-	{
-		// Your code
-	}
+//
+//  Add execute method
+//
+//	/**
+//	 * Execute the server method
+//	 */
+//	public function execute()
+//	{
+//		// Your code
+//	}
 
 	/**
 	 * Set new values

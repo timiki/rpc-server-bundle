@@ -5,6 +5,7 @@ namespace Timiki\Bundle\RpcServerBundle\Rpc;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Cookie;
 
 /**
  * RPC handler
@@ -217,24 +218,32 @@ class Handler
 
 		}
 
-		// Is granted
 
-		$isGranted = [];
+		$reflection = new  \ReflectionObject($method);
 
-		if ($this->container) {
-			foreach ($method->getRoles() as $role) {
-				$isGranted[] = $this->getContainer()->get('security.authorization_checker')->isGranted($role);
+
+		// Check roles
+
+		if ($reflection->hasMethod('getRoles')) {
+
+			$isGranted = [];
+
+			if ($this->container) {
+				foreach ($reflection->getMethod('getRoles')->invoke($method) as $role) {
+					$isGranted[] = $this->getContainer()->get('security.authorization_checker')->isGranted($role);
+				}
 			}
-		}
 
-		if (in_array(false, $isGranted, true)) {
+			if (in_array(false, $isGranted, true)) {
 
-			$jsonResponse = new JsonResponse();
-			$jsonResponse->setId($jsonRequest->getId());
-			$jsonResponse->setErrorCode('-32001');
-			$jsonResponse->setErrorMessage('Method not granted');
+				$jsonResponse = new JsonResponse();
+				$jsonResponse->setId($jsonRequest->getId());
+				$jsonResponse->setErrorCode('-32001');
+				$jsonResponse->setErrorMessage('Method not granted');
 
-			return $jsonResponse;
+				return $jsonResponse;
+			}
+
 		}
 
 		// Build and validate methods params
@@ -256,11 +265,36 @@ class Handler
 
 		$method->setValues($jsonRequest->getParams());
 
+
 		// Execute
 
-		try {
-			$result = $method->execute();
-		} catch (\Exception $e) {
+		if ($reflection->hasMethod('execute')) {
+			$args = [];
+			foreach ($reflection->getMethod('execute')->getParameters() as $param) {
+
+				if (array_key_exists($param->getName(), $jsonRequest->getParams())) {
+					$args[] = $jsonRequest->getParams()[$param->getName()];
+				} else {
+					$args[] = null;
+				}
+
+			}
+
+			// Execute
+
+			try {
+				$result = $reflection->getMethod('execute')->invokeArgs($method, $args);;
+			} catch (\Exception $e) {
+
+				$jsonResponse = new JsonResponse();
+				$jsonResponse->setId($jsonRequest->getId());
+				$jsonResponse->setErrorCode('-32603');
+				$jsonResponse->setErrorMessage('Internal error');
+
+				return $jsonResponse;
+			}
+
+		} else {
 
 			$jsonResponse = new JsonResponse();
 			$jsonResponse->setId($jsonRequest->getId());
@@ -268,7 +302,9 @@ class Handler
 			$jsonResponse->setErrorMessage('Internal error');
 
 			return $jsonResponse;
+
 		}
+
 
 		if (empty($method->getResult()) && !empty($result)) {
 			$method->result($result);
@@ -389,7 +425,7 @@ class Handler
 					}
 
 					if (in_array($cookeArray['name'], $cookiesForward)) {
-						$cookie = new \Symfony\Component\HttpFoundation\Cookie($cookeArray['name'], $cookeArray['value'], $cookeArray['expire'], $cookeArray['path'], $cookeArray['domain'], $cookeArray['secure'], $cookeArray['httpOnly']);
+						$cookie = new Cookie($cookeArray['name'], $cookeArray['value'], $cookeArray['expire'], $cookeArray['path'], $cookeArray['domain'], $cookeArray['secure'], $cookeArray['httpOnly']);
 						$httpResponse->headers->setCookie($cookie);
 					}
 

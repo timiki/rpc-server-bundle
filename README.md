@@ -6,9 +6,7 @@ JSON-RPC allows for notifications (data sent to the server that does not require
 [Wikipedia][1] | [Specification][2]
 
 
-
-
-
+## Install
 
 
 ## Configs
@@ -17,14 +15,40 @@ Add to you config.yml
     
     # RPC server
     rpc_server:
-        paths:
-           - {namespace: 'Methods namespace', path: 'Methods path'}
         methods:
-           - {name: 'Methods name', path: 'Methods class path'}
+           - {name: 'Methods name', class: 'Methods class'}
+        namespace:
+           - Namespace
 
+## Controller
+
+You can use you own controller for RPC request. For example:
+
+    <?php
+    
+    use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+    use Symfony\Component\HttpFoundation\Request;
+    
+    class RpcController extends Controller
+    {
+        public function indexAction(Request $request)
+        {
+            return $this->get('rpc.server')->handleHttpRequest($request);
+        }
+    }
+
+or add default rpc route (/rpc) to you routing.yml
+
+    rpc:
+        resource: "@RpcServerBundle/Controller/"
+        type:     annotation
+        
 
 ## Method
 
+### Create
+
+All RPC method class mast be extend from Timiki\Bundle\RpcServerBundle\Rpc\Method.
 
     <?php
     
@@ -56,54 +80,48 @@ Add to you config.yml
     
     }
     
+## Proxy
+
+You can proxy request to another RPC server if method not found.
+
+### Configs
+
+Add to you config rpc_server
     
-    
-    
-    
+    # RPC server
+    rpc_server:
+        proxy:
+            enable: boolean
+            address: array|string 
+            forwardHeaders: array
+            forwardCookies: array
+            forwardCookiesDomain: string
+            headers: array
+            cookies: array
 
-#### type (string)
-
-Type of RPC server
-
-#### paths (array)
-
-List dirs for search RPC server methods in next format:
-
-{namespace: Namespace methods, path: Path to methods dir}
-
-## Proxy configs
-
-#### enable (boolean)
+**enable** (boolean)
 
 Enable|Disable use proxy to forward requests to remote RPC server
 
-#### type (string)
-
-Type of remote RPC server
-
-#### address (array)
+**address** (array)
 
 Address of remote RPC server
 
-#### forwardHeaders (array)
+**forwardHeaders** (array)
 
 List headers to forward to remote RPC server
 
-#### forwardCookies (array)
+**forwardCookies** (array)
 
 List cookies to forward to remote RPC server
 
-#### forwardCookiesDomain (string)
+**forwardCookiesDomain** (string)
 
 Set cookies domain name
 
-#### forwardIp (boolean)
+**headers**
 
-Enable|Disable forward ip to remote RPC server
-
-#### forwardLocale (boolean)
-
-Enable|Disable forward locale to remote RPC server
+**cookies**
 
 
 [1]: https://en.wikipedia.org/wiki/JSON-RPC
