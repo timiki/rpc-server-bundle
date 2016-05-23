@@ -43,15 +43,72 @@ abstract class Method
 //	 */
 //	public function getRoles()
 //	{
-//		//
-//		// Example code:
-//		//
-//		//  return [
-//		//      ['user', 'admin']
-//		//  ];
-//		//
 //
-//		return [];
+//		 Example code:
+//
+//		  return [
+//		      ['user', 'admin']
+//		  ];
+//
+//	}
+
+//	/**
+//	 * Get validation constraints
+//	 *
+//	 * @return \Symfony\Component\Validator\Constraints\Collection
+//	 */
+//	public function getConstraints()
+//	{
+//
+//		Example code:
+//
+//		return new \Symfony\Component\Validator\Constraints\Collection(
+//			[
+//				'email'      => [
+//					new NotBlank(),
+//					new Email(),
+//					new Callback(
+//						[
+//							'methods' => [
+//								[$this, 'checkMailNotRegistered'],
+//							],
+//						]
+//					),
+//				],
+//				'pass'       => [
+//					new NotBlank(),
+//					new MinLength(['limit' => 8]),
+//					new MaxLength(['limit' => 22]),
+//				],
+//				'postcode'   => [
+//					new NotBlank(),
+//					new MinLength(['limit' => 5]),
+//					new MaxLength(['limit' => 5]),
+//					new Callback(
+//						[
+//							'methods' => [
+//								[$this, 'isValidPostalCode'],
+//							],
+//						]
+//					),
+//				],
+//				'termandcon' => [
+//					new NotNull(),
+//					new True(),
+//				],
+//			]
+//		);
+//	}
+
+//
+//  Add execute method
+//
+//	/**
+//	 * Execute the server method
+//	 */
+//	public function execute()
+//	{
+//		// Your code
 //	}
 
 	/**
@@ -65,28 +122,12 @@ abstract class Method
 		// Example code:
 		//
 		//  return [
-		//      ['param name'] // required by default
-		//  ];
-		//
-		//  return [
-		//      ['param name', 'validate rule', 'default value']
-		//      ......
+		//      'param name' => 'default'
 		//  ];
 		//
 
 		return [];
 	}
-
-//
-//  Add execute method
-//
-//	/**
-//	 * Execute the server method
-//	 */
-//	public function execute()
-//	{
-//		// Your code
-//	}
 
 	/**
 	 * Set new values
@@ -102,11 +143,9 @@ abstract class Method
 
 		if (array_keys($values) === range(0, count($values) - 1)) {
 
-			$params = $this->getParams();
-
-			foreach ($values as $key => $value) {
-				if (isset($params[$key])) {
-					$values[$params[$key][0]] = $value;
+			foreach (array_keys($this->getParams()) as $id => $key) {
+				if (isset($values[$id])) {
+					$values[$key] = $values[$id];
 				}
 			}
 
@@ -114,14 +153,12 @@ abstract class Method
 
 		// Process values
 
-		foreach ($this->getParams() as $param) {
+		foreach ($this->getParams() as $key => $default) {
 
-			if (array_key_exists($param[0], $values)) {
-				$this->values[$param[0]] = $values[$param[0]];
+			if (array_key_exists($key, $values)) {
+				$this->values[$key] = $values[$key];
 			} else {
-				if (isset($param[2])) {
-					$this->values[$param[0]] = $param[2];
-				}
+				$this->values[$key] = $default;
 			}
 
 		}
@@ -152,7 +189,7 @@ abstract class Method
 	 */
 	public function getValues()
 	{
-		return (array)$this->values;
+		return $this->values;
 	}
 
 	/**
