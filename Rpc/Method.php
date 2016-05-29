@@ -101,6 +101,19 @@ abstract class Method
 //	}
 
 //
+//  Add your validate logic
+//
+//	/**
+//	 * Execute the server method
+//   *
+//   * @return boolean
+//	 */
+//	public function validate()
+//	{
+//		// Your validate logic
+//	}
+
+//
 //  Add execute method
 //
 //	/**

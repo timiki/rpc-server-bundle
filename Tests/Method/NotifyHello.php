@@ -14,7 +14,7 @@ class NotifyHello extends Method
 	public function getParams()
 	{
 		return [
-			['a', null, 0],
+			'a' => null,
 		];
 	}
 

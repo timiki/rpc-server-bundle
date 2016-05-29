@@ -32,12 +32,12 @@ class HandlerTest extends PHPUnit_Framework_TestCase
 	 */
 	public function getHttpRequest($json)
 	{
-		$query      = array();
-		$request    = array();
-		$attributes = array();
-		$cookies    = array();
-		$files      = array();
-		$server     = array();
+		$query      = [];
+		$request    = [];
+		$attributes = [];
+		$cookies    = [];
+		$files      = [];
+		$server     = [];
 		$content    = $json;
 
 		return new Request($query, $request, $attributes, $cookies, $files, $server, $content);
@@ -101,7 +101,7 @@ class HandlerTest extends PHPUnit_Framework_TestCase
 		$request  = $this->getHttpRequest('{"jsonrpc": "2.0", "method": "foobar", "id": "1"}');
 		$response = $handler->handleHttpRequest($request);
 
-		$this->assertEquals('{"jsonrpc":"2.0","error":{"code":"-32601","message":"Method not found"},"id":"1"}', $response->getContent(), $response->getContent());
+		$this->assertEquals('{"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"},"id":"1"}', $response->getContent(), $response->getContent());
 	}
 
 	public function testHttpRequest_7()
@@ -110,7 +110,7 @@ class HandlerTest extends PHPUnit_Framework_TestCase
 		$request  = $this->getHttpRequest('{"jsonrpc": "2.0", "method": "foobar, "params": "bar", "baz]');
 		$response = $handler->handleHttpRequest($request);
 
-		$this->assertEquals('{"jsonrpc":"2.0","error":{"code":"-32700","message":"Parse error"},"id":null}', $response->getContent(), $response->getContent());
+		$this->assertEquals('{"jsonrpc":"2.0","error":{"code":-32700,"message":"Parse error"},"id":null}', $response->getContent(), $response->getContent());
 	}
 
 	public function testHttpRequest_8()
@@ -119,7 +119,7 @@ class HandlerTest extends PHPUnit_Framework_TestCase
 		$request  = $this->getHttpRequest('{"jsonrpc": "2.0", "method": 1, "params": "bar"}');
 		$response = $handler->handleHttpRequest($request);
 
-		$this->assertEquals('{"jsonrpc":"2.0","error":{"code":"-32600","message":"Invalid Request"},"id":null}', $response->getContent(), $response->getContent());
+		$this->assertEquals('{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}', $response->getContent(), $response->getContent());
 	}
 
 	public function testHttpRequest_9()
@@ -128,7 +128,7 @@ class HandlerTest extends PHPUnit_Framework_TestCase
 		$request  = $this->getHttpRequest('[{"jsonrpc": "2.0", "method": "sum", "params": [1,2,4], "id": "1"}, {"jsonrpc": "2.0", "method"]');
 		$response = $handler->handleHttpRequest($request);
 
-		$this->assertEquals('{"jsonrpc":"2.0","error":{"code":"-32700","message":"Parse error"},"id":null}', $response->getContent(), $response->getContent());
+		$this->assertEquals('{"jsonrpc":"2.0","error":{"code":-32700,"message":"Parse error"},"id":null}', $response->getContent(), $response->getContent());
 	}
 
 	public function testHttpRequest_10()
@@ -137,7 +137,7 @@ class HandlerTest extends PHPUnit_Framework_TestCase
 		$request  = $this->getHttpRequest('[]');
 		$response = $handler->handleHttpRequest($request);
 
-		$this->assertEquals('{"jsonrpc":"2.0","error":{"code":"-32600","message":"Invalid Request"},"id":null}', $response->getContent(), $response->getContent());
+		$this->assertEquals('{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}', $response->getContent(), $response->getContent());
 	}
 
 	public function testHttpRequest_11()
@@ -146,7 +146,7 @@ class HandlerTest extends PHPUnit_Framework_TestCase
 		$request  = $this->getHttpRequest('[1]');
 		$response = $handler->handleHttpRequest($request);
 
-		$this->assertEquals('[{"jsonrpc":"2.0","error":{"code":"-32600","message":"Invalid Request"},"id":null}]', $response->getContent(), $response->getContent());
+		$this->assertEquals('[{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}]', $response->getContent(), $response->getContent());
 	}
 
 	public function testHttpRequest_12()
@@ -155,7 +155,7 @@ class HandlerTest extends PHPUnit_Framework_TestCase
 		$request  = $this->getHttpRequest('[1,2,3]');
 		$response = $handler->handleHttpRequest($request);
 
-		$this->assertEquals('[{"jsonrpc":"2.0","error":{"code":"-32600","message":"Invalid Request"},"id":null},{"jsonrpc":"2.0","error":{"code":"-32600","message":"Invalid Request"},"id":null},{"jsonrpc":"2.0","error":{"code":"-32600","message":"Invalid Request"},"id":null}]', $response->getContent(), $response->getContent());
+		$this->assertEquals('[{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null},{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null},{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}]', $response->getContent(), $response->getContent());
 	}
 
 	public function testHttpRequest_13()
@@ -164,6 +164,6 @@ class HandlerTest extends PHPUnit_Framework_TestCase
 		$request  = $this->getHttpRequest('[{"jsonrpc": "2.0", "method": "sum", "params": [1,2,4], "id": "1"},{"jsonrpc": "2.0", "method": "notify_hello", "params": [7]},{"jsonrpc": "2.0", "method": "subtract", "params": [42,23], "id": "2"},{"foo": "boo"},{"jsonrpc": "2.0", "method": "foo.get", "params": {"name": "myself"}, "id": "5"},{"jsonrpc": "2.0", "method": "get_data", "id": "9"}]');
 		$response = $handler->handleHttpRequest($request);
 
-		$this->assertEquals('[{"jsonrpc":"2.0","result":7,"id":"1"},{"jsonrpc":"2.0","result":19,"id":"2"},{"jsonrpc":"2.0","error":{"code":"-32600","message":"Invalid Request"},"id":null},{"jsonrpc":"2.0","error":{"code":"-32601","message":"Method not found"},"id":"5"},{"jsonrpc":"2.0","result":["hello",5],"id":"9"}]', $response->getContent(), $response->getContent());
+		$this->assertEquals('[{"jsonrpc":"2.0","result":7,"id":"1"},{"jsonrpc":"2.0","result":19,"id":"2"},{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null},{"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"},"id":"5"},{"jsonrpc":"2.0","result":["hello",5],"id":"9"}]', $response->getContent(), $response->getContent());
 	}
 }

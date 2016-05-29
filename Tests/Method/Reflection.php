@@ -14,8 +14,8 @@ class Reflection extends Method
 	public function getParams()
 	{
 		return [
-			['a', null, 0],
-			['b', null, 0],
+			'a' => null,
+			'b' => null
 		];
 	}
 

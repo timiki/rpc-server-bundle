@@ -64,21 +64,35 @@ All RPC method class mast be extend from Timiki\Bundle\RpcServerBundle\Rpc\Metho
          */
         public function getParams()
         {   
-            return [
-                ['id', 'integer|required'],
-                ['name', 'string', '']
-            ];
+              return [
+                  'param' => 'default'
+              ];
         }
         
         /**
          * Execute the server method
          */
-        public function execute()
+        public function execute($param)
         {
-            // Your code
+              // Your code
         }
     
     }
+    
+    
+Minimal all object mast have getParams and execute method.
+    
+    
+### Params
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
 ## Proxy
 

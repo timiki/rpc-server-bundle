@@ -14,8 +14,8 @@ class Subtract extends Method
 	public function getParams()
 	{
 		return [
-			['subtrahend', null, 0],
-			['minuend', null, 0],
+			'subtrahend' => null,
+			'minuend'    => null,
 		];
 	}
 

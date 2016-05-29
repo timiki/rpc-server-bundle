@@ -6,6 +6,8 @@ use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\Validator\Constraints\Collection;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * RPC handler
@@ -159,6 +161,26 @@ class Handler
 	}
 
 	/**
+	 * Get response error
+	 *
+	 * @param int        $id
+	 * @param int        $errorCode
+	 * @param string     $errorMessage
+	 * @param mixed|null $errorData
+	 * @return JsonResponse
+	 */
+	public function responseError($id, $errorCode = -32603, $errorMessage = 'Internal error', $errorData = null)
+	{
+		$jsonResponse = new JsonResponse();
+		$jsonResponse->setId($id);
+		$jsonResponse->setErrorCode((integer)$errorCode);
+		$jsonResponse->setErrorMessage($errorMessage);
+		$jsonResponse->setErrorData($errorData);
+
+		return $jsonResponse;
+	}
+
+	/**
 	 * Handle json request
 	 *
 	 * @param JsonRequest $jsonRequest
@@ -166,16 +188,13 @@ class Handler
 	 */
 	public function handleJsonRequest(JsonRequest $jsonRequest)
 	{
+		// TODO: logging
+		// TODO: events
+
 		// Is valid request
 
 		if (!$jsonRequest->isValid()) {
-
-			$jsonResponse = new JsonResponse();
-			$jsonResponse->setId($jsonRequest->getId());
-			$jsonResponse->setErrorCode('-32600');
-			$jsonResponse->setErrorMessage('Invalid Request');
-
-			return $jsonResponse;
+			return $this->responseError($jsonRequest->getId(), -32600, 'Invalid Request');
 		}
 
 		// Get method
@@ -189,31 +208,15 @@ class Handler
 					if ($response = $proxy->handleJsonRequest($jsonRequest)) {
 						return $response;
 					} else {
-						$jsonResponse = new JsonResponse();
-						$jsonResponse->setId($jsonRequest->getId());
-						$jsonResponse->setErrorCode('-32601');
-						$jsonResponse->setErrorMessage('Method not found');
-
-						return $jsonResponse;
+						return $this->responseError($jsonRequest->getId(), -32601, 'Method not found');
 					}
 
 				} else {
+					return $this->responseError($jsonRequest->getId(), -32601, 'Method not found');
 
-					$jsonResponse = new JsonResponse();
-					$jsonResponse->setId($jsonRequest->getId());
-					$jsonResponse->setErrorCode('-32601');
-					$jsonResponse->setErrorMessage('Method not found');
-
-					return $jsonResponse;
 				}
 			} else {
-
-				$jsonResponse = new JsonResponse();
-				$jsonResponse->setId($jsonRequest->getId());
-				$jsonResponse->setErrorCode('-32601');
-				$jsonResponse->setErrorMessage('Method not found');
-
-				return $jsonResponse;
+				return $this->responseError($jsonRequest->getId(), -32601, 'Method not found');
 			}
 
 		}
@@ -235,73 +238,78 @@ class Handler
 			}
 
 			if (in_array(false, $isGranted, true)) {
-
-				$jsonResponse = new JsonResponse();
-				$jsonResponse->setId($jsonRequest->getId());
-				$jsonResponse->setErrorCode('-32001');
-				$jsonResponse->setErrorMessage('Method not granted');
-
-				return $jsonResponse;
+				return $this->responseError($jsonRequest->getId(), -32001, 'Method not granted');
 			}
 
-		}
-
-		// Build and validate methods params
-
-		$validator = new Validator();
-
-		if ($validatorResult = $validator->validate($method, $jsonRequest->getParams())) {
-
-			$jsonResponse = new JsonResponse();
-			$jsonResponse->setId($jsonRequest->getId());
-			$jsonResponse->setErrorCode('-32602');
-			$jsonResponse->setErrorMessage('Invalid params');
-			$jsonResponse->setErrorData($validatorResult);
-
-			return $jsonResponse;
 		}
 
 		// Set values
 
 		$method->setValues($jsonRequest->getParams());
 
+		// Check if set constraints
+
+		if ($reflection->hasMethod('getConstraints')) {
+
+			$constraints = $reflection->getMethod('getConstraints')->invoke($method);
+
+			if ($constraints instanceof Collection) {
+
+				/* @var ConstraintViolationListInterface $error */
+				$error = $this->getContainer('validator')->validate($method->getParams(), $constraints);
+
+				if ($error->count() > 0) {
+					return $this->responseError($jsonRequest->getId(), -32602, 'Invalid params', (array)$error);
+				}
+
+			} else {
+
+				return $this->responseError($jsonRequest->getId(), -32603, 'Internal error');
+
+			}
+
+		}
+
+		// Check if has validate
+
+		if ($reflection->hasMethod('validate')) {
+
+			if (!(bool)$reflection->getMethod('validate')->invoke($method)) {
+				return $this->responseError($jsonRequest->getId(), -32602, 'Invalid params');
+			}
+
+		}
 
 		// Execute
 
 		if ($reflection->hasMethod('execute')) {
+
+			// inject params
+
 			$args = [];
 			foreach ($reflection->getMethod('execute')->getParameters() as $param) {
 
-				if (array_key_exists($param->getName(), $jsonRequest->getParams())) {
-					$args[] = $jsonRequest->getParams()[$param->getName()];
+				if (array_key_exists($param->getName(), $method->getValues())) {
+					$args[] = $method->getValues()[$param->getName()];
 				} else {
 					$args[] = null;
 				}
 
 			}
 
-			// Execute
+			// call method
 
 			try {
 				$result = $reflection->getMethod('execute')->invokeArgs($method, $args);;
 			} catch (\Exception $e) {
 
-				$jsonResponse = new JsonResponse();
-				$jsonResponse->setId($jsonRequest->getId());
-				$jsonResponse->setErrorCode('-32603');
-				$jsonResponse->setErrorMessage('Internal error');
+				return $this->responseError($jsonRequest->getId(), -32603, 'Internal error');
 
-				return $jsonResponse;
 			}
 
 		} else {
 
-			$jsonResponse = new JsonResponse();
-			$jsonResponse->setId($jsonRequest->getId());
-			$jsonResponse->setErrorCode('-32603');
-			$jsonResponse->setErrorMessage('Internal error');
-
-			return $jsonResponse;
+			return $this->responseError($jsonRequest->getId(), -32603, 'Internal error');
 
 		}
 
@@ -337,7 +345,7 @@ class Handler
 		if (!$jsonRequests = $this->parserHttpRequest($httpRequest)) {
 
 			$jsonResponse = new JsonResponse();
-			$jsonResponse->setErrorCode('-32700');
+			$jsonResponse->setErrorCode(-32700);
 			$jsonResponse->setErrorMessage('Parse error');
 
 			return $jsonResponse->getHttpResponse();
