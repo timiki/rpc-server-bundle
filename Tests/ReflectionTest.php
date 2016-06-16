@@ -4,6 +4,7 @@ namespace Timiki\Bundle\RpcServerBundle\Test;
 
 use PHPUnit_Framework_TestCase;
 use Timiki\Bundle\RpcServerBundle\Rpc\Handler;
+use Timiki\Bundle\RpcServerBundle\Rpc\Manager;
 use Symfony\Component\HttpFoundation\Request;
 
 class ReflectionTest extends PHPUnit_Framework_TestCase
@@ -20,7 +21,7 @@ class ReflectionTest extends PHPUnit_Framework_TestCase
 
 		$namespace = [];
 
-		return new Handler($methods, $namespace);
+		return new Handler(new Manager($methods, $namespace));
 	}
 
 	/**
@@ -28,12 +29,12 @@ class ReflectionTest extends PHPUnit_Framework_TestCase
 	 */
 	public function getHttpRequest($json)
 	{
-		$query      = array();
-		$request    = array();
-		$attributes = array();
-		$cookies    = array();
-		$files      = array();
-		$server     = array();
+		$query      = [];
+		$request    = [];
+		$attributes = [];
+		$cookies    = [];
+		$files      = [];
+		$server     = [];
 		$content    = $json;
 
 		return new Request($query, $request, $attributes, $cookies, $files, $server, $content);

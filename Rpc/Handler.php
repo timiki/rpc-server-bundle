@@ -15,18 +15,11 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 class Handler
 {
 	/**
-	 * Server methods
+	 * Rpc manager
 	 *
-	 * @var array
+	 * @var Manager|null
 	 */
-	protected $methods = [];
-
-	/**
-	 * Server namespace methods
-	 *
-	 * @var array
-	 */
-	protected $namespace = [];
+	protected $manager;
 
 	/**
 	 * Container
@@ -36,17 +29,15 @@ class Handler
 	protected $container;
 
 	/**
-	 * Create new instance of JSON-RPC server
+	 * Create new instance of JSON-RPC handler
 	 *
-	 * @param array              $methods   Methods array [name => class]
-	 * @param array              $namespace Namespace array
+	 * @param Manager            $manager
 	 * @param ContainerInterface $container Instance of container
 	 */
-	public function __construct(array $methods = [], array $namespace = [], ContainerInterface $container = null)
+	public function __construct(Manager $manager = null, ContainerInterface $container = null)
 	{
+		$this->manager   = $manager;
 		$this->container = $container;
-		$this->methods   = $methods;
-		$this->namespace = $namespace;
 	}
 
 	/**
@@ -54,51 +45,9 @@ class Handler
 	 *
 	 * @return ContainerInterface|null
 	 */
-	public function &getContainer()
+	public function getContainer()
 	{
 		return $this->container;
-	}
-
-	/**
-	 * Get method
-	 *
-	 * @param string $method Method name
-	 * @return null|Method
-	 */
-	public function getMethod($method)
-	{
-
-		if (array_key_exists($method, $this->methods)) {
-
-			$class = $this->methods[$method];
-
-			if (class_exists($class)) {
-				/* @var Method $methodObject */
-				$methodObject = new $class();
-				$methodObject->setHandler($this);
-
-				return $methodObject;
-			}
-
-		}
-
-		foreach ($this->namespace as $namespace) {
-
-			$class = $namespace.'\\'.$method;
-			try {
-				if (class_exists($class)) {
-					/* @var Method $methodObject */
-					$methodObject = new $class();
-					$methodObject->setHandler($this);
-
-					return $methodObject;
-				}
-			} catch (\Exception $e) {
-			}
-
-		}
-
-		return null;
 	}
 
 	/**
@@ -199,7 +148,7 @@ class Handler
 
 		// Get method
 
-		if (!$method = $this->getMethod($jsonRequest->getMethod())) {
+		if (!$method = $this->manager->getMethod($jsonRequest->getMethod())) {
 
 			if ($proxy = $this->getProxy()) {
 
@@ -247,7 +196,7 @@ class Handler
 
 		$method->setValues($jsonRequest->getParams());
 
-		// Check if set constraints
+		// Check if has constraints
 
 		if ($reflection->hasMethod('getConstraints')) {
 
@@ -256,7 +205,7 @@ class Handler
 			if ($constraints instanceof Collection) {
 
 				/* @var ConstraintViolationListInterface $error */
-				$error = $this->getContainer('validator')->validate($method->getParams(), $constraints);
+				$error = $this->getContainer()->get('validator')->validate($method->getParams(), $constraints);
 
 				if ($error->count() > 0) {
 					return $this->responseError($jsonRequest->getId(), -32602, 'Invalid params', (array)$error);

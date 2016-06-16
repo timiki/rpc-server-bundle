@@ -4,15 +4,15 @@ namespace Timiki\Bundle\RpcServerBundle\Test;
 
 use PHPUnit_Framework_TestCase;
 use Timiki\Bundle\RpcServerBundle\Rpc\Handler;
+use Timiki\Bundle\RpcServerBundle\Rpc\Manager;
 use Symfony\Component\HttpFoundation\Request;
 
 class HandlerTest extends PHPUnit_Framework_TestCase
 {
-
 	/**
-	 * @return Handler
+	 * @return Manager
 	 */
-	public function getHandler()
+	public function getManager()
 	{
 		$methods = [
 			'subtract'     => \Timiki\Bundle\RpcServerBundle\Tests\Method\Subtract::class,
@@ -24,7 +24,15 @@ class HandlerTest extends PHPUnit_Framework_TestCase
 
 		$namespace = [];
 
-		return new Handler($methods, $namespace);
+		return new Manager($methods, $namespace);
+	}
+
+	/**
+	 * @return Handler
+	 */
+	public function getHandler()
+	{
+		return new Handler($this->getManager());
 	}
 
 	/**
@@ -45,9 +53,9 @@ class HandlerTest extends PHPUnit_Framework_TestCase
 
 	public function testFindMethod()
 	{
-		$handler = $this->getHandler();
+		$manager = $this->getManager();
 
-		$this->assertInstanceOf('Timiki\Bundle\RpcServerBundle\Rpc\Method', $handler->getMethod('subtract'));
+		$this->assertInstanceOf('Timiki\Bundle\RpcServerBundle\Rpc\Method', $manager->getMethod('subtract'));
 	}
 
 	public function testHttpRequest_1()

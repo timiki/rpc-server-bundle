@@ -10,28 +10,38 @@ use \Symfony\Component\DependencyInjection\ContainerInterface;
 abstract class Method
 {
 	/**
-	 * The handler instance
+	 * The container instance
 	 *
-	 * @var Handler
+	 * @var ContainerInterface
 	 */
-	protected $handler;
+	private $container;
 
 	/**
 	 * Params values
 	 *
 	 * @var array
 	 */
-	protected $values = [];
+	private $values = [];
 
 	/**
 	 * result
 	 */
-	protected $result = null;
+	private $result = null;
 
 	/**
 	 * error
 	 */
-	protected $error = [];
+	private $error = [];
+
+	/**
+	 * Create new instance
+	 *
+	 * @param ContainerInterface $container Instance of container
+	 */
+	public function __construct(ContainerInterface $container = null)
+	{
+		$this->container = $container;
+	}
 
 //
 //  Add getRoles method for check roles
@@ -210,15 +220,11 @@ abstract class Method
 	 *
 	 * @param     $id
 	 * @param int $invalidBehavior
-	 * @return object|null
+	 * @return object The associated service
 	 */
 	public function get($id, $invalidBehavior = ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE)
 	{
-		if ($this->handler->getContainer()) {
-			return $this->handler->getContainer()->get($id, $invalidBehavior);
-		}
-
-		return null;
+		return $this->container->get($id, $invalidBehavior);
 	}
 
 	/**
@@ -226,9 +232,9 @@ abstract class Method
 	 *
 	 * @return ContainerInterface|null
 	 */
-	public function getContainer()
+	public function &getContainer()
 	{
-		return $this->handler->getContainer();
+		return $this->container;
 	}
 
 	/**
@@ -279,29 +285,6 @@ abstract class Method
 		$className = explode('\\', $className);
 
 		return $className[count($className) - 1];
-	}
-
-	/**
-	 * Get header
-	 *
-	 * @return Handler
-	 */
-	public function getHandler()
-	{
-		return $this->handler;
-	}
-
-	/**
-	 * Set header
-	 *
-	 * @param Handler $handler
-	 * @return $this
-	 */
-	public function setHandler($handler)
-	{
-		$this->handler = $handler;
-
-		return $this;
 	}
 
 	/**

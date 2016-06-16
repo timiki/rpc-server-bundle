@@ -1,7 +1,13 @@
 services:
-      rpc.server:
-            class: Timiki\Bundle\RpcServerBundle\Rpc\Handler
+
+      rpc.server.manager:
+            class: Timiki\Bundle\RpcServerBundle\Rpc\Manager
             arguments: ['%rpc.server.methods%', '%rpc.server.namespace%', '@service_container']
+
+      rpc.server.handler:
+            class: Timiki\Bundle\RpcServerBundle\Rpc\Handler
+            arguments: ['@rpc.server.manager', '@service_container']
+
       rpc.proxy:
             class: Timiki\Bundle\RpcServerBundle\Rpc\Proxy
             arguments: ['%rpc.server.proxy%', '@service_container']
