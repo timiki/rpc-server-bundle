@@ -2,25 +2,18 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Tests\Method;
 
-use Timiki\Bundle\RpcServerBundle\Rpc\Method;
+use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
 
-class GetData extends Method
+/**
+ * @Rpc\Method("get_data")
+ */
+class GetData
 {
-	/**
-	 * Get the method params
-	 *
-	 * @return array
-	 */
-	public function getParams()
-	{
-		return [];
-	}
-
-	/**
-	 * Execute the server method
-	 */
-	public function execute()
-	{
-		$this->result(["hello", 5]);
-	}
+    /**
+     * @Rpc\Execute()
+     */
+    public function execute()
+    {
+        return ["hello", 5];
+    }
 }

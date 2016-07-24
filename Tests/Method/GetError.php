@@ -3,17 +3,18 @@
 namespace Timiki\Bundle\RpcServerBundle\Tests\Method;
 
 use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
+use Timiki\Bundle\RpcServerBundle\Server\Exceptions\MethodException;
 
 /**
- * @Rpc\Method("update")
+ * @Rpc\Method("get_error")
  */
-class Update
+class GetError
 {
     /**
      * @Rpc\Execute()
      */
     public function execute()
     {
-        // Notification
+        throw new MethodException('Exception data');
     }
 }

@@ -10,23 +10,15 @@
          beStrictAboutTodoAnnotatedTests="true"
          verbose="true">
 
+    <php>
+        <ini name="display_errors" value="On" />
+        <ini name="display_startup_errors" value="On" />
+    </php>
+
     <testsuites>
         <testsuite name="Timiki JSON-RPC Test Suite">
             <directory>./Tests/</directory>
         </testsuite>
     </testsuites>
-
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./</directory>
-            <exclude>
-                <directory>./Test</directory>
-                <directory>./vendor</directory>
-                <directory>./Controller</directory>
-                <directory>./DependencyInjection</directory>
-                <directory>./Resources</directory>
-            </exclude>
-        </whitelist>
-    </filter>
 
 </phpunit>

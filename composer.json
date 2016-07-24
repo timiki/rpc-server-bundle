@@ -2,14 +2,12 @@
   "name"        : "timiki/rpc-server-bundle",
   "type"        : "symfony-bundle",
   "description" : "JSON-RPC server bundle for symfony",
-  "branches"    : [
-    "master"
+  "keywords"    : [
+    "rpc",
+    "json-rpc",
+    "bundle"
   ],
-  "tags"        : [
-    "1.0.0",
-    "1.1.0"
-  ],
-  "keywords"    : [],
+  "license"     : "MIT",
   "authors"     : [
     {
       "name"  : "Netesin N",
@@ -17,9 +15,13 @@
     }
   ],
   "require"     : {
-    "php"               : ">=5.5|>=7.0",
-    "symfony/symfony"   : ">=2.7|>=3.0",
-    "timiki/rpc-client" : "dev-master"
+    "php"                          : ">=5.5 || >=7.0",
+    "doctrine/annotations"         : "1.*",
+    "doctrine/cache"               : "1.*",
+    "symfony/http-kernel"          : "~2.7 || ~3.0",
+    "symfony/http-foundation"      : "~2.7 || ~3.0",
+    "symfony/dependency-injection" : "~2.7 || ~3.0",
+    "timiki/rpc-client"            : "~2.0"
   },
   "require-dev" : {
     "phpunit/phpunit"           : "5.3.*",

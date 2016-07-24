@@ -2,27 +2,18 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Tests\Method;
 
-use Timiki\Bundle\RpcServerBundle\Rpc\Method;
+use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
 
-class NotifyHello extends Method
+/**
+ * @Rpc\Method("notify_hello")
+ */
+class NotifyHello
 {
-	/**
-	 * Get the method params
-	 *
-	 * @return array
-	 */
-	public function getParams()
-	{
-		return [
-			'a' => null,
-		];
-	}
-
-	/**
-	 * Execute the server method
-	 */
-	public function execute()
-	{
-		$this->result('Hello');
-	}
+    /**
+     * @Rpc\Execute()
+     */
+    public function execute()
+    {
+        return 'Hello';
+    }
 }

@@ -2,29 +2,33 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Tests\Method;
 
-use Timiki\Bundle\RpcServerBundle\Rpc\Method;
+use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
 
-class Sum extends Method
+/**
+ * @Rpc\Method("sum")
+ */
+class Sum
 {
-	/**
-	 * Get the method params
-	 *
-	 * @return array
-	 */
-	public function getParams()
-	{
-		return [
-			'a' => null,
-			'b' => null,
-			'c' => null,
-		];
-	}
+    /**
+     * @Rpc\Param()
+     */
+    protected $a;
 
-	/**
-	 * Execute the server method
-	 */
-	public function execute()
-	{
-		$this->result($this->getValue('a') + $this->getValue('b') + $this->getValue('c'));
-	}
+    /**
+     * @Rpc\Param()
+     */
+    protected $b;
+
+    /**
+     * @Rpc\Param()
+     */
+    protected $c;
+
+    /**
+     * @Rpc\Execute()
+     */
+    public function execute()
+    {
+        return $this->a + $this->b + $this->c;
+    }
 }

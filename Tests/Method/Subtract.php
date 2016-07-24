@@ -2,28 +2,28 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Tests\Method;
 
-use Timiki\Bundle\RpcServerBundle\Rpc\Method;
+use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
 
-class Subtract extends Method
+/**
+ * @Rpc\Method("subtract")
+ */
+class Subtract
 {
-	/**
-	 * Get the method params
-	 *
-	 * @return array
-	 */
-	public function getParams()
-	{
-		return [
-			'subtrahend' => null,
-			'minuend'    => null,
-		];
-	}
+    /**
+     * @Rpc\Param()
+     */
+    protected $subtrahend;
 
-	/**
-	 * Execute the server method
-	 */
-	public function execute()
-	{
-		$this->result($this->getValue('subtrahend') - $this->getValue('minuend'));
-	}
+    /**
+     * @Rpc\Param()
+     */
+    protected $minuend;
+
+    /**
+     * @Rpc\Execute()
+     */
+    public function execute()
+    {
+        return $this->subtrahend - $this->minuend;
+    }
 }

@@ -1,28 +1,76 @@
-# JSON-RPC
+JSON-RPC server bundle for symfony
+==================================
 
 JSON-RPC is a remote procedure call protocol encoded in JSON. It is a very simple protocol (and very similar to XML-RPC), defining only a handful of data types and commands. 
 JSON-RPC allows for notifications (data sent to the server that does not require a response) and for multiple calls to be sent to the server which may be answered out of order.
 
 [Wikipedia][1] | [Specification][2]
 
+Install
+-------
 
-## Install
+Add to composer from command line
 
+    composer require timiki/rpc-client
 
-## Configs
+or add in composer.json
 
-Add to you config.yml
+    "require"     : {
+        "timiki/rpc-server-bundle" : "^2.0"
+    }
+
+Configs
+-------
     
     # RPC server
     rpc_server:
-        methods:
-           - {name: 'Methods name', class: 'Methods class'}
-        namespace:
-           - Namespace
+        path: ~
+        cache: ~
+        proxy:
+            enable: false
+            address: ~
 
-## Controller
+Main configs:
 
-You can use you own controller for RPC request. For example:
+**path** Path to JSON-RPC methods. Default null (Search dir Method in all bundles).
+
+    // Methods in bundle
+     
+    path: 
+        - "@AppBundle/Method"
+        - "@MyBundle/Method"
+     
+    
+    path: "@AppBundle/Method"
+     
+    // Or methods by puth
+     
+    path: 
+        - "path/to/method"
+        - "path/to/other/method"
+        
+    path: "path/to/method"
+    
+**cache** Cache service id. Service must be instance of Doctrine\Common\Cache\CacheProvider.
+
+    cache: service.cache.id
+
+Proxy configs:
+
+**enable** Boolean Enable|disable Proxy not found method to another JSON-RPC server.
+
+**address** Boolean Proxy not found method to another JSON-RPC server.
+
+    address: "rpc.address"
+    
+    address: 
+        - "rpc.address.one"
+        - "rpc.address.two"
+
+Controller
+----------
+
+You can use you own controller for JSON-RPC request. For example:
 
     <?php
     
@@ -33,110 +81,105 @@ You can use you own controller for RPC request. For example:
     {
         public function indexAction(Request $request)
         {
-            return $this->get('rpc.server')->handleHttpRequest($request);
+            return $this->get('rpc.server.handler')->handleHttpRequest($request);
         }
     }
 
-or add default rpc route (/rpc) to you routing.yml
+or add default JSON-RPC route (default POST to /rpc) to you routing.yml
 
     rpc:
         resource: "@RpcServerBundle/Controller/"
         type:     annotation
-        
 
-## Method
 
-### Create
+If web site and JSON-RPC server located on a different domain remember about [CORS][3]. Use custom Controller for solve it.
 
-All RPC method class mast be extend from Timiki\Bundle\RpcServerBundle\Rpc\Method.
+Method
+------
 
     <?php
     
-    use Timiki\Bundle\RpcServerBundle\Rpc\Method
-    
-    
-    class MyMethod extend Method {
+    use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
+    use Symfony\Component\Validator\Constraints as Assert;
+
+    /**
+     * @Rpc\Method("name")
+     * @Rpc\Roles({
+     *   "ROLE_NAME"
+     * })
+     * @Rpc\Cache(lifetime=3600)
+     */
+    class Method
+    {
+        /**
+         * @Rpc\Param()
+         * @Assert\NotBlank()
+         */
+        protected $param;
     
         /**
-         * Get the method params
-         *
-         * @return array
+         * @Rpc\Execute()
          */
-        public function getParams()
-        {   
-              return [
-                  'param' => 'default'
-              ];
-        }
-        
-        /**
-         * Execute the server method
-         */
-        public function execute($param)
+        public function execute()
         {
-              // Your code
+            $param = $this->param;
+            
+            ...
+            
+            return $result;
         }
-    
     }
     
-    
-Minimal all object mast have getParams and execute method.
-    
-    
-### Params
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-## Proxy
+Annotation
+----------
 
-You can proxy request to another RPC server if method not found.
+**@Method**
 
-### Configs
+Define class as JSON-RPC method. 
 
-Add to you config rpc_server
-    
-    # RPC server
-    rpc_server:
-        proxy:
-            enable: boolean
-            address: array|string 
-            forwardHeaders: array
-            forwardCookies: array
-            forwardCookiesDomain: string
-            headers: array
-            cookies: array
+    @Method("method name")
 
-**enable** (boolean)
+**@Roles**
 
-Enable|Disable use proxy to forward requests to remote RPC server
+Set roles for access to method. If user not granted for access server return error with message "Method not granted" and code "-32001".
 
-**address** (array)
+     @Roles({
+       "ROLE_NAME",
+       "ROLE_OTHER",
+     })
 
-Address of remote RPC server
+**@Cache**
 
-**forwardHeaders** (array)
+If define cache in configs it set response lifetime.
 
-List headers to forward to remote RPC server
+    @Cache(lifetime=3600)
 
-**forwardCookies** (array)
+**@Param**
 
-List cookies to forward to remote RPC server
+Define JSON-RPC params. Use Symfony\Component\Validator\Constraints for validate it.
 
-**forwardCookiesDomain** (string)
+        /**
+         * @Param()
+         */
+        protected $param;
+        
+        /**
+         * @Param()
+         */
+        protected $param = null'; // Default value for param
 
-Set cookies domain name
+**@Execute**
 
-**headers**
+Define execute function in class.
 
-**cookies**
+        /**
+         * @Rpc\Execute()
+         */
+        public function someMethod()
+        {
+            // Code
+        }
 
-
-[1]: https://en.wikipedia.org/wiki/JSON-RPC
+[1]: https://wikipedia.org/wiki/JSON-RPC
 [2]: http://www.jsonrpc.org/specification
+[3]: https://wikipedia.org/wiki/Cross-origin_resource_sharing
