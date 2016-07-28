@@ -39,7 +39,7 @@ class MappingTest extends PHPUnit_Framework_TestCase
         $mapper = Utils::getMapper();
         $result = $mapper->loadFileMetadata(__DIR__.DIRECTORY_SEPARATOR.'InvalidMethod'.DIRECTORY_SEPARATOR.'NoRpcClass.php');
 
-        self::assertNull($result);
+        self::assertEmpty($result);
     }
 
 }

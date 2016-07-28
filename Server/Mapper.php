@@ -177,9 +177,13 @@ class Mapper implements ContainerAwareInterface
 
                 if ($file->isFile()) {
 
-                    if ($methodMeta = $this->loadFileMetadata($file->getRealPath())) {
+                    if ($methodsMeta = $this->loadFileMetadata($file->getRealPath())) {
 
-                        $meta[$methodMeta['class']] = $methodMeta;
+                        foreach ($methodsMeta as $methodMeta) {
+
+                            $meta[$methodMeta['class']] = $methodMeta;
+
+                        }
 
                     }
 
@@ -327,7 +331,11 @@ class Mapper implements ContainerAwareInterface
 
             // Process find class in file, foreach for extend
             foreach (array_diff(get_declared_classes(), $classes) as $class) {
-                $meta = $this->loadClassMetadata($class);
+
+                if ($data = $this->loadClassMetadata($class)) {
+                    $meta[] = $data;
+                }
+
             }
 
             self::$loadFiles[$file] = $meta;
