@@ -72,15 +72,18 @@ class Mapper implements ContainerAwareInterface
      * Add path for mapping rpc methods.
      *
      * @param string $path
-     * @return $this
+     *
+     * @return void
      */
     public function addPath($path)
     {
+        if ($path[0] === '@' & !$this->container) {
+            $path = $this->container->get('kernel')->locateResource($path);
+        }
+
         if (is_dir($path)) {
             $this->paths[] = $path;
         }
-
-        return $this;
     }
 
     /**
