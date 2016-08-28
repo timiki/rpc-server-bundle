@@ -77,8 +77,12 @@ class Mapper implements ContainerAwareInterface
      */
     public function addPath($path)
     {
-        if ($path[0] === '@' & !$this->container) {
-            $path = $this->container->get('kernel')->locateResource($path);
+        if ($path[0] === '@' & $this->container !== null) {
+            try {
+                $path = $this->container->get('kernel')->locateResource($path);
+            } catch (\Exception $e) {
+                return;
+            }
         }
 
         if (is_dir($path)) {
