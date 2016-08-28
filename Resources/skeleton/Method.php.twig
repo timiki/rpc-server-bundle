@@ -1,0 +1,34 @@
+<?php
+
+namespace {{ namespace }}\Method;
+
+use Timiki\Bundle\RpcServerBundle\Mapping as RPC;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+
+/**
+ * @RPC\Method("{{ name }}")
+ */
+class {{ class }} implements ContainerAwareInterface
+{
+    use ContainerAwareTrait;
+
+    /**
+     * @Rpc\Param()
+     */
+    protected $paramName;
+
+    /**
+     * @Rpc\Execute()
+     */
+    public function execute()
+    {
+
+        // Get input RPC params
+        // $this->paramName
+        // $this->anotherParamName
+
+        // Method code...
+
+    }
+}
