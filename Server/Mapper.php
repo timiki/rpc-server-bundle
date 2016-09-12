@@ -197,7 +197,7 @@ class Mapper implements ContainerAwareInterface
                 }
 
                 if ($file->isDir() && !$file->isDot()) {
-                    $this->loadPathMetadata($file->getRealPath());
+                    $meta += $this->loadPathMetadata($file->getRealPath());
                 }
 
             }

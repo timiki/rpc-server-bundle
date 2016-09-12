@@ -68,12 +68,13 @@ class RpcServerExtension extends Extension
             }
         }
 
+        // Set container
+        $mapper->addMethodCall('setContainer', [new Reference('service_container')]);
+
         // Add path to mapper for mapping RPC methods
         foreach ($mapping as $path) {
             $mapper->addMethodCall('addPath', [$path]);
         }
-
-        $mapper->addMethodCall('setContainer', [new Reference('service_container')]);
 
         $container->setDefinition('rpc.server.mapper', $mapper);
 
