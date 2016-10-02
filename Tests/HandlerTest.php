@@ -141,4 +141,14 @@ class HandlerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('{"jsonrpc":"2.0","error":{"code":-32002,"message":"Method exception","data":"Exception data"},"id":"1"}',
             $response->getContent(), $response->getContent());
     }
+
+    public function testHttpRequest_15()
+    {
+        $handler  = Utils::getHandler(__DIR__.DIRECTORY_SEPARATOR.'Method');
+        $request  = Utils::getHttpRequest('{"jsonrpc": "2.0", "method": "get_error", "id": "1"}');
+        $response = $handler->handleHttpRequest($request);
+
+        $this->assertEquals(500,
+            $response->getStatusCode(), $response->getStatusCode());
+    }
 }

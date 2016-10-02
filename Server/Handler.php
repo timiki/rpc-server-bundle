@@ -2,6 +2,8 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Server;
 
+use Symfony\Component\HttpKernel\DataCollector\ExceptionDataCollector;
+use Symfony\Component\HttpKernel\Profiler\Profile;
 use Timiki\Bundle\RpcServerBundle\Server\Exceptions;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -108,6 +110,7 @@ class Handler implements ContainerAwareInterface
 
             $request = new JsonRequest($method, $params, $id);
             $request->headers()->add($httpRequest->headers->all());
+            $request->setHttpRequest($httpRequest);
 
             return $request;
         };
@@ -155,9 +158,42 @@ class Handler implements ContainerAwareInterface
 
         $jsonResponses = $this->handleJsonRequest($jsonRequests);
 
-        // httpResponse content
+        // Response
 
         $httpResponse = HttpResponse::create();
+
+        // Is has exception?
+
+        if ($this->container && $this->container->has('profiler')) {
+
+            /* @var Profile $profiler */
+            $profiler = $this->container->get('profiler');
+
+            if (is_array($jsonResponses)) {
+
+                foreach ($jsonResponses as $jsonResponse) {
+
+                    if ($exception = $jsonResponse->getException()) {
+                        $collector = new ExceptionDataCollector();
+                        $collector->collect($httpRequest, $httpResponse, $exception);
+                        $profiler->add($collector);
+                    }
+
+                }
+
+            } else {
+
+                if ($exception = $jsonResponses->getException()) {
+                    $collector = new ExceptionDataCollector();
+                    $collector->collect($httpRequest, $httpResponse, $exception);
+                    $profiler->add($collector);
+                }
+
+            }
+
+        }
+
+        // Set httpResponse content.
 
         if (is_array($jsonResponses)) {
 
@@ -167,6 +203,10 @@ class Handler implements ContainerAwareInterface
 
                 if ($jsonResponse->isError() || $jsonResponse->getId()) {
                     $results[] = $jsonResponse;
+                }
+
+                if ($jsonResponse->isError()) {
+                    $httpResponse->setStatusCode(500);
                 }
 
             }
@@ -179,9 +219,13 @@ class Handler implements ContainerAwareInterface
                 $httpResponse->setContent(json_encode($jsonResponses));
             }
 
+            if ($jsonResponses->isError()) {
+                $httpResponse->setStatusCode(500);
+            }
+
         }
 
-        // httpResponse headers
+        // Set httpResponse headers.
 
         if (is_array($jsonResponses)) {
 
@@ -207,7 +251,7 @@ class Handler implements ContainerAwareInterface
     /**
      * Create new jsonResponse from exception.
      *
-     * @param \Exception       $exception
+     * @param \Exception $exception
      * @param JsonRequest|null $jsonRequest
      * @return JsonResponse
      */
@@ -227,6 +271,8 @@ class Handler implements ContainerAwareInterface
             $jsonResponse->setErrorMessage('Internal error');
 
         }
+
+        $jsonResponse->setException($exception);
 
         if ($jsonRequest) {
             $jsonResponse->setId($jsonRequest->getId());
@@ -269,12 +315,14 @@ class Handler implements ContainerAwareInterface
 
         $httpResponse->headers->set('Content-Type', 'application/json');
         $httpResponse->setContent(json_encode($json));
+        $httpResponse->setStatusCode(500);
 
         return $httpResponse;
     }
 
     /**
      * Load methods metadata.
+     *
      * @return array
      * @throws \Timiki\Bundle\RpcServerBundle\Server\Exceptions\InvalidMappingException
      */
@@ -328,10 +376,10 @@ class Handler implements ContainerAwareInterface
             // Validate request
 
             if (
-                empty($jsonRequest->getMethod()) ||
-                (
-                    !empty($jsonRequest->getParams()) &&
-                    !is_array($jsonRequest->getParams())
+                empty($jsonRequest->getMethod())
+                || (
+                    !empty($jsonRequest->getParams())
+                    && !is_array($jsonRequest->getParams())
                 )
             ) {
 
