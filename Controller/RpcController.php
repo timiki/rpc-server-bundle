@@ -10,9 +10,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 class RpcController extends Controller
 {
     /**
-     * @Route("/rpc")
+     * @Route("/rpc", name="rpc")
      * @Method("POST")
      * @param Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function rpcAction(Request $request)
