@@ -4,12 +4,12 @@ namespace Timiki\Bundle\RpcServerBundle\Server;
 
 use Symfony\Component\HttpKernel\DataCollector\ExceptionDataCollector;
 use Symfony\Component\HttpKernel\Profiler\Profile;
+use Symfony\Component\Validator\ConstraintViolation;
 use Timiki\Bundle\RpcServerBundle\Server\Exceptions;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
-
 
 /**
  * RPC handler
@@ -77,6 +77,7 @@ class Handler implements ContainerAwareInterface
      * Parser HttpRequestRequest to JsonRequest.
      *
      * @param HttpRequest $httpRequest
+     *
      * @return JsonRequest|JsonRequest[]
      * @throws Exceptions\ParseException
      */
@@ -92,6 +93,7 @@ class Handler implements ContainerAwareInterface
          * Create new JsonRequest
          *
          * @param $json
+         *
          * @return JsonRequest
          */
         $createJsonRequest = function ($json) use ($httpRequest) {
@@ -140,6 +142,7 @@ class Handler implements ContainerAwareInterface
      * Handle http request.
      *
      * @param HttpRequest $httpRequest
+     *
      * @return HttpResponse
      */
     public function handleHttpRequest(HttpRequest $httpRequest)
@@ -251,8 +254,9 @@ class Handler implements ContainerAwareInterface
     /**
      * Create new jsonResponse from exception.
      *
-     * @param \Exception $exception
+     * @param \Exception       $exception
      * @param JsonRequest|null $jsonRequest
+     *
      * @return JsonResponse
      */
     public function createJsonResponseFromException(\Exception $exception, JsonRequest $jsonRequest = null)
@@ -285,6 +289,7 @@ class Handler implements ContainerAwareInterface
      * Create new HttpResponse from exception.
      *
      * @param \Exception $exception
+     *
      * @return HttpResponse
      */
     protected function createHttpResponseFromException(\Exception $exception)
@@ -335,6 +340,7 @@ class Handler implements ContainerAwareInterface
      * Handle json request.
      *
      * @param JsonRequest|JsonRequest[] $jsonRequest
+     *
      * @throws Exceptions\InvalidRequestException
      * @return JsonResponse|JsonResponse[]
      */
@@ -447,6 +453,7 @@ class Handler implements ContainerAwareInterface
      * Get RPC method from request.
      *
      * @param JsonRequest $jsonRequest
+     *
      * @return object
      * @throws \Timiki\Bundle\RpcServerBundle\Server\Exceptions\InvalidMappingException
      */
@@ -471,6 +478,7 @@ class Handler implements ContainerAwareInterface
      *
      * @param             $object
      * @param JsonRequest $jsonRequest
+     *
      * @return mixed
      * @throws \Timiki\Bundle\RpcServerBundle\Server\Exceptions\InvalidMappingException
      */
@@ -533,7 +541,22 @@ class Handler implements ContainerAwareInterface
             $result    = $validator->validate($object);
 
             if ($result->count() > 0) {
-                throw new Exceptions\InvalidParamsException((array)$result);
+
+                $data = [];
+
+                /* @var ConstraintViolation $constraintViolation */
+                foreach ($result as $constraintViolation) {
+
+                    $name = $constraintViolation->getPropertyPath() ? $constraintViolation->getPropertyPath() : 'violations';
+
+                    if (!isset($data[$name])) {
+                        $data[$name] = [];
+                    }
+
+                    $data[$name][] = $constraintViolation->getMessage();
+                }
+
+                throw new Exceptions\InvalidParamsException($data);
             }
 
         }
