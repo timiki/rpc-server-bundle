@@ -81,7 +81,7 @@ class Handler implements ContainerAwareInterface
      * @return JsonRequest|JsonRequest[]
      * @throws Exceptions\ParseException
      */
-    protected function parserHttpRequest(HttpRequest $httpRequest)
+    public function parserHttpRequest(HttpRequest $httpRequest)
     {
         $json = json_decode($httpRequest->getContent(), true);
 
