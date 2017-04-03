@@ -292,7 +292,7 @@ class Handler implements ContainerAwareInterface
      *
      * @return HttpResponse
      */
-    protected function createHttpResponseFromException(\Exception $exception)
+    public function createHttpResponseFromException(\Exception $exception)
     {
         $httpResponse    = HttpResponse::create();
         $json            = [];
