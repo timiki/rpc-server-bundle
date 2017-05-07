@@ -210,7 +210,7 @@ class Mapper
                 }
 
                 if ($file->isDir() && !$file->isDot()) {
-                    $meta += $this->loadPathMetadata($file->getRealPath());
+                    array_push($meta, ...$this->loadPathMetadata($file->getRealPath()));
                 }
 
             }
