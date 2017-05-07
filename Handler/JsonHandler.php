@@ -59,7 +59,7 @@ class JsonHandler implements ContainerAwareInterface
     public function isDebug()
     {
         if ($this->container && $this->container->has('kernel')) {
-            return $this->container->get('kernel')->isDebug;
+            return $this->container->get('kernel')->isDebug();
         }
 
         return true;
