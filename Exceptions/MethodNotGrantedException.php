@@ -1,6 +1,6 @@
 <?php
 
-namespace Timiki\Bundle\RpcServerBundle\Server\Exceptions;
+namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 /**
  * Not granted exception.
@@ -8,6 +8,8 @@ namespace Timiki\Bundle\RpcServerBundle\Server\Exceptions;
 class MethodNotGrantedException extends ErrorException
 {
     /**
+     * MethodNotGrantedException constructor.
+     *
      * @param null $data
      * @param null $id
      */

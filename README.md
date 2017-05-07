@@ -24,54 +24,47 @@ Configs
     
     # RPC server
     rpc_server:
-        path: ~
+        mapping: ~
         cache: ~
-        proxy:
-            enable: false
-            address: ~
-
+        serializer: ~
+        
 Main configs:
 
-**path** Path to JSON-RPC methods. Default null (Search dir Method in all bundles).
+**mapping** Path to JSON-RPC methods. Default null (Search dir Method in all bundles).
 
     // Methods in bundle
      
-    path: 
+    mapping: 
         - "@AppBundle/Method"
         - "@MyBundle/Method"
      
     
-    path: "@AppBundle/Method"
+    mapping: "@AppBundle/Method"
      
-    // Or methods by puth
+    // Or methods by path
      
-    path: 
+    mapping: 
         - "path/to/method"
         - "path/to/other/method"
         
-    path: "path/to/method"
+    mapping: "path/to/method"
     
 **cache** Cache service id. Service must be instance of Doctrine\Common\Cache\CacheProvider.
 
     cache: service.cache.id
 
-Proxy configs:
+**serializer** Serializer service id. Service must be instance of Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface.
 
-**enable** Boolean Enable|disable Proxy not found method to another JSON-RPC server.
-
-**address** Boolean Proxy not found method to another JSON-RPC server.
-
-    address: "rpc.address"
-    
-    address: 
-        - "rpc.address.one"
-        - "rpc.address.two"
+    cache: service.cache.id
 
 Controller
 ----------
 
+Default:
+
 You can use you own controller for JSON-RPC request. For example:
 
+```php
     <?php
     
     use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -81,9 +74,10 @@ You can use you own controller for JSON-RPC request. For example:
     {
         public function indexAction(Request $request)
         {
-            return $this->get('rpc.server.handler')->handleHttpRequest($request);
+            return $this->get('rpc.server.http_handler')->handleHttpRequest($request);
         }
     }
+```
 
 or add default JSON-RPC route (default POST to /rpc) to you routing.yml
 
@@ -94,8 +88,13 @@ or add default JSON-RPC route (default POST to /rpc) to you routing.yml
 
 If web site and JSON-RPC server located on a different domain remember about [CORS][3]. Use custom Controller for solve it.
 
+
+
+
 Method
 ------
+
+```php
 
     <?php
     
@@ -108,6 +107,7 @@ Method
      *   "ROLE_NAME"
      * })
      * @Rpc\Cache(lifetime=3600)
+     * @Rpc\Version(1)
      */
     class Method
     {
@@ -130,6 +130,8 @@ Method
         }
     }
     
+```
+
 Annotation
 ----------
 
@@ -137,48 +139,58 @@ Annotation
 
 Define class as JSON-RPC method. 
 
+```php
     @Method("method name")
+```
 
 **@Roles**
 
 Set roles for access to method. If user not granted for access server return error with message "Method not granted" and code "-32001".
 
-     @Roles({
-       "ROLE_NAME",
-       "ROLE_OTHER",
-     })
+```php
+    @Roles({
+      "ROLE_NAME",
+      "ROLE_OTHER",
+    })
+```
 
 **@Cache**
 
 If define cache in configs it set response lifetime.
 
+```php
     @Cache(lifetime=3600)
+```
 
 **@Param**
 
 Define JSON-RPC params. Use Symfony\Component\Validator\Constraints for validate it.
 
-        /**
-         * @Param()
-         */
-        protected $param;
-        
-        /**
-         * @Param()
-         */
-        protected $param = null'; // Default value for param
+```php
+    /**
+     * @Param()
+     */
+    protected $param;
+    
+    /**
+     * @Param()
+     */
+    protected $param = null'; // Default value for param
+```
 
 **@Execute**
 
 Define execute function in class.
 
-        /**
-         * @Rpc\Execute()
-         */
-        public function someMethod()
-        {
-            // Code
-        }
+```php
+    /**
+     * @Rpc\Execute()
+     */
+    public function someMethod()
+    {
+        // Code
+    }
+```
 
 [1]: https://wikipedia.org/wiki/JSON-RPC
 [2]: http://www.jsonrpc.org/specification

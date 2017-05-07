@@ -1,23 +1,23 @@
 <?php
 
-namespace Timiki\Bundle\RpcServerBundle\Server;
+namespace Timiki\Bundle\RpcServerBundle\Mapper;
 
-use Timiki\Bundle\RpcServerBundle\Server\Traits\CacheTrait;
-use Timiki\Bundle\RpcServerBundle\Server\Exceptions\InvalidMappingException;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\HttpKernel\KernelInterface;
+use Timiki\Bundle\RpcServerBundle\Exceptions\InvalidMappingException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\DocParser;
+use Timiki\Bundle\RpcServerBundle\Traits\CacheTrait;
+use Timiki\Bundle\RpcServerBundle\Traits\StopwatchTrait;
 
 /**
  * RPC Mapper.
  *
  * Service for found RPC methods in bundles and mapping methods metadata.
  */
-class Mapper implements ContainerAwareInterface
+class Mapper
 {
-    use ContainerAwareTrait;
     use CacheTrait;
+    use StopwatchTrait;
 
     /**
      * @var AnnotationReader
@@ -40,9 +40,9 @@ class Mapper implements ContainerAwareInterface
     protected $meta = [];
 
     /**
-     * @var boolean
+     * @var KernelInterface
      */
-    protected $debug;
+    protected $kernel;
 
     /**
      * @var array
@@ -50,12 +50,21 @@ class Mapper implements ContainerAwareInterface
     protected static $loadFiles = [];
 
     /**
-     * @param bool $debug
+     * Mapper constructor.
      */
-    public function __construct($debug = false)
+    public function __construct()
     {
         $this->reader = new AnnotationReader(new DocParser());
-        $this->debug  = $debug;
+    }
+
+    /**
+     * Set Kernel.
+     *
+     * @param KernelInterface $kernel
+     */
+    public function setKernel(KernelInterface $kernel = null)
+    {
+        $this->kernel = $kernel;
     }
 
     /**
@@ -77,9 +86,9 @@ class Mapper implements ContainerAwareInterface
      */
     public function addPath($path)
     {
-        if ($path[0] === '@' & $this->container !== null) {
+        if ($path[0] === '@' && $this->kernel) {
             try {
-                $path = $this->container->get('kernel')->locateResource($path);
+                $path = $this->kernel->locateResource($path);
             } catch (\Exception $e) {
                 return;
             }
@@ -95,7 +104,7 @@ class Mapper implements ContainerAwareInterface
      *
      * @param string $file
      * @return $this
-     * @throws \Timiki\Bundle\RpcServerBundle\Server\Exceptions\InvalidMappingException
+     * @throws \Timiki\Bundle\RpcServerBundle\Exceptions\InvalidMappingException
      */
     public function addFile($file)
     {
@@ -115,50 +124,58 @@ class Mapper implements ContainerAwareInterface
 
     /**
      * Load all metadata from mapping path.
+     *
      * @return array
      * @throws InvalidMappingException
      */
     public function loadMetadata()
     {
-
         if (!empty($this->meta)) {
             return $this->meta;
         }
 
-        if ($this->cache && !$this->debug && $meta = $this->cache->fetch('rpc.meta')) {
+        $cacheId = 'rpc.meta.'.md5(implode(',', $this->paths));
 
-            $this->meta = $meta;
-
-            return $meta;
+        if ($this->cache && !$this->kernel->isDebug() && $meta = $this->cache->fetch($cacheId)) {
+            return $this->meta = $meta;
         }
 
-        if ($this->container && $this->container->has('debug.stopwatch')) {
-            $stopwatch = $this->container->get('debug.stopwatch');
-            $stopwatch->start('rpc.mapping');
+        if ($this->stopwatch) {
+            $this->stopwatch->start('rpc.mapping');
         }
 
-        $meta = [];
+        $meta = [
+            'methods' => [],
+            'classes' => [],
+        ];
+
+        $processMeta = function ($methodMeta) use (&$meta) {
+            $meta['methods'][$methodMeta['method']->value] = $methodMeta;
+            $meta['classes'][$methodMeta['class']]         = $methodMeta;
+        };
 
         // Process files
         foreach ($this->files as $file) {
             if ($methodMeta = $this->loadFileMetadata($file)) {
-                $meta[$methodMeta['class']] = $methodMeta;
+                $processMeta($methodMeta);
             }
         }
 
         // Process dirs
         foreach ($this->paths as $path) {
-            $meta += $this->loadPathMetadata($path);
+            foreach ($this->loadPathMetadata($path) as $methodMeta) {
+                $processMeta($methodMeta);
+            }
         }
 
         if ($this->cache) {
-            $this->cache->save('rpc.meta', $meta);
+            $this->cache->save($cacheId, $meta);
         }
 
         $this->meta = $meta;
 
-        if (isset($stopwatch)) {
-            $stopwatch->stop('rpc.mapping');
+        if ($this->stopwatch) {
+            $this->stopwatch->stop('rpc.mapping');
         }
 
         return $meta;
@@ -171,7 +188,7 @@ class Mapper implements ContainerAwareInterface
      * @return array
      * @throws InvalidMappingException
      */
-    public function loadPathMetadata($path)
+    private function loadPathMetadata($path)
     {
         $meta = [];
 
@@ -185,13 +202,9 @@ class Mapper implements ContainerAwareInterface
                 if ($file->isFile()) {
 
                     if ($methodsMeta = $this->loadFileMetadata($file->getRealPath())) {
-
                         foreach ($methodsMeta as $methodMeta) {
-
-                            $meta[$methodMeta['class']] = $methodMeta;
-
+                            $meta[] = $methodMeta;
                         }
-
                     }
 
                 }
@@ -230,7 +243,6 @@ class Mapper implements ContainerAwareInterface
      */
     public function loadClassMetadata($class)
     {
-
         if (array_key_exists($class, $this->meta)) {
             return $this->meta[$class];
         }
@@ -241,9 +253,7 @@ class Mapper implements ContainerAwareInterface
 
             $reflectionClass = new \ReflectionClass($class);
 
-            if ($method = $this->reader->getClassAnnotation($reflectionClass,
-                'Timiki\Bundle\RpcServerBundle\Mapping\Method')
-            ) {
+            if ($method = $this->reader->getClassAnnotation($reflectionClass, 'Timiki\Bundle\RpcServerBundle\Mapping\Method')) {
 
                 $meta = [];
 
@@ -261,24 +271,24 @@ class Mapper implements ContainerAwareInterface
                 $meta['file']   = $reflectionClass->getFileName();
 
                 // Cache
-                $meta['cache'] = $this->reader->getClassAnnotation($reflectionClass,
-                    'Timiki\Bundle\RpcServerBundle\Mapping\Cache');
+                $meta['cache'] = $this->reader->getClassAnnotation(
+                    $reflectionClass,
+                    'Timiki\Bundle\RpcServerBundle\Mapping\Cache'
+                );
 
-                // Roles
-                $meta['roles'] = $this->reader->getClassAnnotation($reflectionClass,
-                    'Timiki\Bundle\RpcServerBundle\Mapping\Roles');
+                // Cache
+                $meta['cache'] = $this->reader->getClassAnnotation(
+                    $reflectionClass,
+                    'Timiki\Bundle\RpcServerBundle\Mapping\Cache'
+                );
 
                 // Method execute. On in class
                 $meta['executeMethod'] = null;
 
                 foreach ($reflectionClass->getMethods() as $reflectionMethod) {
 
-                    if ($paramMeta = $this->reader->getMethodAnnotation($reflectionMethod,
-                        'Timiki\Bundle\RpcServerBundle\Mapping\Execute')
-                    ) {
-
+                    if ($paramMeta = $this->reader->getMethodAnnotation($reflectionMethod, 'Timiki\Bundle\RpcServerBundle\Mapping\Execute')) {
                         $meta['executeMethod'] = $reflectionMethod->name;
-
                     }
 
                 }
@@ -297,12 +307,8 @@ class Mapper implements ContainerAwareInterface
 
                 foreach ($reflectionClass->getProperties() as $reflectionProperty) {
 
-                    if ($paramMeta = $this->reader->getPropertyAnnotation($reflectionProperty,
-                        'Timiki\Bundle\RpcServerBundle\Mapping\Param')
-                    ) {
-
+                    if ($paramMeta = $this->reader->getPropertyAnnotation($reflectionProperty, 'Timiki\Bundle\RpcServerBundle\Mapping\Param')) {
                         $meta['params'][$reflectionProperty->name] = $paramMeta;
-
                     }
 
                 }

@@ -26,7 +26,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-				->variableNode('path')
+				->variableNode('mapping')
 					->info('Array paths or path for find RPC methods class. If it empty RPC server will try find RPC methods in all bundle in directory "Method".')
 					->defaultValue(null)
 				->end()
@@ -34,12 +34,9 @@ class Configuration implements ConfigurationInterface
 					->defaultValue(null)
 					->info('Id cache service. Cache service must be instance of "Doctrine\Common\Cache\CacheProvider". By default use file cache in %kernel.cache_dir%/rpc')
 				->end()
-                ->arrayNode('proxy')
-                    ->addDefaultsIfNotSet(['enable'=>false,'address' => []])
-                    ->children()
-                        ->variableNode('enable')->defaultValue(false)->end()
-                        ->variableNode('address')->defaultValue([])->end()
-                    ->end()
+                ->scalarNode('serializer')
+                    ->defaultValue(null)
+                    ->info('Id serializer service. By default use Symfony serializer')
                 ->end()
             ->end()
         ;

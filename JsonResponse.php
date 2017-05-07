@@ -1,6 +1,6 @@
 <?php
 
-namespace Timiki\Bundle\RpcServerBundle\Server;
+namespace Timiki\Bundle\RpcServerBundle;
 
 use Timiki\RpcClient\JsonResponse as BaseJsonResponse;
 use Exception;

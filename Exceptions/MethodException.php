@@ -1,6 +1,6 @@
 <?php
 
-namespace Timiki\Bundle\RpcServerBundle\Server\Exceptions;
+namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 /**
  * Exception in method
@@ -8,6 +8,8 @@ namespace Timiki\Bundle\RpcServerBundle\Server\Exceptions;
 class MethodException extends ErrorException
 {
     /**
+     * MethodException constructor.
+     *
      * @param null $data
      * @param null $id
      */

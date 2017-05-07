@@ -18,6 +18,6 @@ class RpcController extends Controller
      */
     public function rpcAction(Request $request)
     {
-        return $this->get('rpc.server.handler')->handleHttpRequest($request);
+        return $this->get('rpc.server.http_handler')->handleHttpRequest($request);
     }
 }

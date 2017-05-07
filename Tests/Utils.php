@@ -2,8 +2,11 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Tests;
 
-use Timiki\Bundle\RpcServerBundle\Server\Handler;
-use Timiki\Bundle\RpcServerBundle\Server\Mapper;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Timiki\Bundle\RpcServerBundle\EventSubscriber;
+use Timiki\Bundle\RpcServerBundle\Handler\HttpHandler;
+use Timiki\Bundle\RpcServerBundle\Handler\JsonHandler;
+use Timiki\Bundle\RpcServerBundle\Mapper\Mapper;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -11,8 +14,8 @@ class Utils
 {
     /**
      * @param $path
-     * @return \Timiki\Bundle\RpcServerBundle\Server\Mapper
-     * @throws \Timiki\Bundle\RpcServerBundle\Server\Exceptions\InvalidMappingException
+     * @return \Timiki\Bundle\RpcServerBundle\Mapper\Mapper
+     * @throws \Timiki\Bundle\RpcServerBundle\Exceptions\InvalidMappingException
      */
     public static function getMapper($path = null)
     {
@@ -21,6 +24,7 @@ class Utils
         AnnotationRegistry::registerFile(dirname(__DIR__).DIRECTORY_SEPARATOR.'Mapping'.DIRECTORY_SEPARATOR.'Method.php');
         AnnotationRegistry::registerFile(dirname(__DIR__).DIRECTORY_SEPARATOR.'Mapping'.DIRECTORY_SEPARATOR.'Param.php');
         AnnotationRegistry::registerFile(dirname(__DIR__).DIRECTORY_SEPARATOR.'Mapping'.DIRECTORY_SEPARATOR.'Roles.php');
+
 
         $mapper = new Mapper();
 
@@ -33,18 +37,24 @@ class Utils
 
     /**
      * @param $path
-     * @return \Timiki\Bundle\RpcServerBundle\Server\Handler
-     * @throws \Timiki\Bundle\RpcServerBundle\Server\Exceptions\InvalidMappingException
+     * @return HttpHandler
      */
     public static function getHandler($path = null)
     {
-        $mapper  = self::getMapper($path);
-        $handler = new Handler();
+        $mapper      = self::getMapper($path);
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addSubscriber(new EventSubscriber\ValidateRequestSubscriber());
+        $eventDispatcher->addSubscriber(new EventSubscriber\ValidatorSubscriber());
 
-        $handler->setMapper($mapper);
+        $jsonHandler = new JsonHandler($mapper);
+        $httpHandler = new HttpHandler($jsonHandler);
 
-        return $handler;
+        $jsonHandler->setEventDispatcher($eventDispatcher);
+        $httpHandler->setEventDispatcher($eventDispatcher);
+
+        return $httpHandler;
     }
+
     /**
      * @param $json
      * @return \Symfony\Component\HttpFoundation\Request

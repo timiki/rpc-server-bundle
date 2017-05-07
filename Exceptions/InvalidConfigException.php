@@ -1,6 +1,6 @@
 <?php
 
-namespace Timiki\Bundle\RpcServerBundle\Server\Exceptions;
+namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 use Exception;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Timiki\Bundle\RpcServerBundle\Server;
+namespace Timiki\Bundle\RpcServerBundle;
 
 use Timiki\RpcClient\JsonRequest as BaseJsonRequest;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
@@ -17,9 +17,11 @@ class JsonRequest extends BaseJsonRequest
     protected $httpRequest;
 
     /**
+     * JsonRequest constructor.
+     *
      * @param string $method
      * @param array $params
-     * @param string $id
+     * @param null $id
      */
     public function __construct($method, $params = [], $id = null)
     {

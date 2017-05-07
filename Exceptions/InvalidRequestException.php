@@ -1,6 +1,6 @@
 <?php
 
-namespace Timiki\Bundle\RpcServerBundle\Server\Exceptions;
+namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 /**
  * Invalid request exception.
@@ -8,6 +8,8 @@ namespace Timiki\Bundle\RpcServerBundle\Server\Exceptions;
 class InvalidRequestException extends ErrorException
 {
     /**
+     * InvalidRequestException constructor.
+     *
      * @param null $data
      * @param null $id
      */

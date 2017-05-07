@@ -1,6 +1,6 @@
 <?php
 
-namespace Timiki\Bundle\RpcServerBundle\Server\Exceptions;
+namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 use RuntimeException;
 
@@ -24,10 +24,12 @@ class ErrorException extends RuntimeException
     private $id;
 
     /**
+     * ErrorException constructor.
+     *
      * @param string $message
-     * @param int    $code
-     * @param mixed  $data
-     * @param null   $id
+     * @param int $code
+     * @param null $data
+     * @param null $id
      */
     public function __construct($message = '', $code = 0, $data = null, $id = null)
     {

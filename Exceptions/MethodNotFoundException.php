@@ -1,6 +1,6 @@
 <?php
 
-namespace Timiki\Bundle\RpcServerBundle\Server\Exceptions;
+namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 /**
  * Method not found exception.
@@ -8,6 +8,8 @@ namespace Timiki\Bundle\RpcServerBundle\Server\Exceptions;
 class MethodNotFoundException extends ErrorException
 {
     /**
+     * MethodNotFoundException constructor.
+     *
      * @param null $data
      * @param null $id
      */

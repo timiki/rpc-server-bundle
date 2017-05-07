@@ -3,7 +3,7 @@
 namespace Timiki\Bundle\RpcServerBundle\Tests\Method;
 
 use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
-use Timiki\Bundle\RpcServerBundle\Server\Exceptions\MethodException;
+use Timiki\Bundle\RpcServerBundle\Exceptions\MethodException;
 
 /**
  * @Rpc\Method("get_error")

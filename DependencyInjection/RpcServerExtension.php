@@ -2,11 +2,13 @@
 
 namespace Timiki\Bundle\RpcServerBundle\DependencyInjection;
 
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
-use Timiki\Bundle\RpcServerBundle\Server\Exceptions\InvalidConfigException;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -23,43 +25,132 @@ class RpcServerExtension extends Extension
         $configuration = new Configuration();
         $config        = $this->processConfiguration($configuration, $configs);
 
-        // Set handler
-        $this->setHandler($container);
+        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.xml');
 
-        // Set mapper
-        $this->setMapper($config['path'], $container);
+        /**
+         * Cache
+         */
 
-        // Set proxy
-        $this->setProxy($config['proxy'], $container);
+        $cacheId = empty($config['cache']) ? 'rpc.server.cache' : $config['cache'];
 
-        // Set cache
-        $this->setCache($config['cache'], $container);
-    }
+        if (!$container->hasDefinition($cacheId)) {
+            $container->setDefinition(
+                $cacheId,
+                new Definition(
+                    'Doctrine\Common\Cache\FilesystemCache',
+                    ['%kernel.cache_dir%/rpc', '',]
+                )
+            );
+        }
 
-    /**
-     * RPC handler.
-     *
-     * @param ContainerBuilder $container
-     */
-    public function setHandler(ContainerBuilder $container)
-    {
-        $handler = new Definition('Timiki\Bundle\RpcServerBundle\Server\Handler');
+        /**
+         * Serializer
+         */
 
-        $handler->addMethodCall('setContainer', [new Reference('service_container')]);
+        $serializerId = empty($config['serializer']) ? 'rpc.server.serializer' : $config['serializer'];
 
-        $container->setDefinition('rpc.server.handler', $handler);
-    }
+        if (!$container->hasDefinition($serializerId)) {
+            $container->setDefinition(
+                $serializerId,
+                new Definition(
+                    'Timiki\Bundle\RpcServerBundle\Serializer\BaseSerializer',
+                    [new Reference('serializer', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
+                )
+            );
+        }
 
-    /**
-     * RPC mapping.
-     *
-     * @param array            $mapping
-     * @param ContainerBuilder $container
-     */
-    public function setMapper($mapping, ContainerBuilder $container)
-    {
-        $mapper = new Definition('Timiki\Bundle\RpcServerBundle\Server\Mapper',
-            [$container->getParameter('kernel.debug')]);
+        /**
+         * Mapping
+         *
+         * @param $name
+         * @param $paths
+         */
+
+        $createMapping = function ($name, $paths) use ($cacheId, $serializerId, $container) {
+
+            // Mapper
+
+            $mapperId = empty($name) ? 'rpc.server.mapper' : 'rpc.server.mapper.'.$name;
+            $mapper   = new Definition('Timiki\Bundle\RpcServerBundle\Mapper\Mapper');
+
+            $mapper->addMethodCall(
+                'setKernel',
+                [new Reference('kernel', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
+            );
+
+            $mapper->addMethodCall(
+                'setStopwatch',
+                [new Reference('debug.stopwatch', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
+            );
+
+            $mapper->addMethodCall(
+                'setCache',
+                [new Reference($cacheId, ContainerInterface::NULL_ON_INVALID_REFERENCE)]
+            );
+
+            // Add path to mapper for mapping RPC methods
+            foreach ($paths as $path) {
+                $mapper->addMethodCall('addPath', [$path]);
+            }
+
+            // Json Handler
+
+            $jsonHandlerId = empty($name) ? 'rpc.server.json_handler' : 'rpc.server.json_handler.'.$name;
+            $jsonHandler   = new Definition(
+                'Timiki\Bundle\RpcServerBundle\Handler\JsonHandler',
+                [
+                    new Reference($mapperId),
+                    new Reference($serializerId)
+                ]
+            );
+
+            $jsonHandler->addMethodCall(
+                'setEventDispatcher',
+                [new Reference('rpc.server.event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
+            );
+
+            $jsonHandler->addMethodCall(
+                'setProfiler',
+                [new Reference('profiler', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
+            );
+
+            $jsonHandler->addMethodCall(
+                'setCache',
+                [new Reference($cacheId, ContainerInterface::NULL_ON_INVALID_REFERENCE)]
+            );
+
+            $jsonHandler->addMethodCall(
+                'setContainer',
+                [new Reference('service_container')]
+            );
+
+            $mapper->addMethodCall(
+                'setStopwatch',
+                [new Reference('debug.stopwatch', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
+            );
+
+            // Http handler
+
+            $httpHandlerId = empty($name) ? 'rpc.server.http_handler' : 'rpc.server.http_handler.'.$name;
+            $httpHandler   = new Definition(
+                'Timiki\Bundle\RpcServerBundle\Handler\HttpHandler', [new Reference($jsonHandlerId)]
+            );
+
+            $httpHandler->addMethodCall(
+                'setEventDispatcher',
+                [new Reference('rpc.server.event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
+            );
+
+            // Set definitions
+
+            $container->setDefinition($mapperId, $mapper);
+            $container->setDefinition($jsonHandlerId, $jsonHandler);
+            $container->setDefinition($httpHandlerId, $httpHandler);
+        };
+
+        $defaultMapping = [];
+        $mapping        = $config['mapping'];
 
         if (empty($mapping)) {
             $mapping = [];
@@ -68,73 +159,16 @@ class RpcServerExtension extends Extension
             }
         }
 
-        // Set container
-        $mapper->addMethodCall('setContainer', [new Reference('service_container')]);
-
-        // Add path to mapper for mapping RPC methods
-        foreach ($mapping as $path) {
-            $mapper->addMethodCall('addPath', [$path]);
+        foreach ((array)$mapping as $key => $value) {
+            if (is_numeric($key)) {
+                $defaultMapping[] = $value;
+            } elseif (is_string($key) && !empty($value)) {
+                $createMapping($key, (array)$value);
+            }
         }
 
-        $container->setDefinition('rpc.server.mapper', $mapper);
-
-        $handler = $container->getDefinition('rpc.server.handler');
-        $handler->addMethodCall('setMapper', [new Reference('rpc.server.mapper')]);
-
-    }
-
-    /**
-     * RPC proxy.
-     *
-     * @param                  $configs
-     * @param ContainerBuilder $container
-     */
-    public function setProxy($configs, ContainerBuilder $container)
-    {
-        if ($configs['enable']) {
-
-            $handler = $container->getDefinition('rpc.server.handler');
-
-            $proxy = new Definition(
-                'Timiki\Bundle\RpcServerBundle\Server\Proxy',
-                [
-                    $configs['address'],
-                    new Reference('rpc.server.handler'),
-                ]);
-
-            $proxy->addMethodCall('setContainer', [new Reference('service_container')]);
-
-            $container->setDefinition('rpc.server.proxy', $proxy);
-
-            $handler->addMethodCall('setProxy', [new Reference('rpc.server.proxy')]);
-
+        if (!empty($defaultMapping)) {
+            $createMapping(null, (array)$defaultMapping);
         }
     }
-
-    /**
-     * RPC cache driver.
-     *
-     * @param array            $configs
-     * @param ContainerBuilder $container
-     * @throws InvalidConfigException
-     */
-    public function setCache($configs, ContainerBuilder $container)
-    {
-
-        if (empty($configs)) {
-
-            $cache = new Definition('Doctrine\Common\Cache\FilesystemCache', ['%kernel.cache_dir%/rpc', '']);
-            $container->setDefinition('rpc.server.cache', $cache);
-
-            $configs = 'rpc.server.cache';
-
-        }
-
-        $mapper  = $container->getDefinition('rpc.server.mapper');
-        $handler = $container->getDefinition('rpc.server.handler');
-
-        $mapper->addMethodCall('setCache', [new Reference($configs)]);
-        $handler->addMethodCall('setCache', [new Reference($configs)]);
-    }
-
 }
