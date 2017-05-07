@@ -136,8 +136,8 @@ class Mapper
 
         $cacheId = 'rpc.meta.'.md5(implode(',', $this->paths));
 
-        if ($this->cache && !$this->kernel->isDebug() && $meta = $this->cache->fetch($cacheId)) {
-            return $this->meta = $meta;
+        if ($this->cache && !$this->kernel->isDebug() && $this->cache->fetch($cacheId)) {
+            return $this->meta = $this->cache->fetch($cacheId);
         }
 
         if ($this->stopwatch) {
