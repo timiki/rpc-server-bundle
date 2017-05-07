@@ -12,7 +12,7 @@ class MappingTest extends PHPUnit_Framework_TestCase
 
             $mapper = Utils::getMapper(__DIR__.DIRECTORY_SEPARATOR.'Method');
 
-            self::assertCount(6, $mapper->loadMetadata());
+            self::assertCount(6, $mapper->loadMetadata()['methods']);
 
         } catch (\Exception $e) {
             self::fail($e->getMessage());

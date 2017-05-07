@@ -2,12 +2,15 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Handler;
 
+use Symfony\Component\HttpKernel\DataCollector\ExceptionDataCollector;
 use Timiki\Bundle\RpcServerBundle\Exceptions;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Timiki\Bundle\RpcServerBundle\JsonRequest;
 use Timiki\Bundle\RpcServerBundle\Event;
+use Timiki\Bundle\RpcServerBundle\JsonResponse;
 use Timiki\Bundle\RpcServerBundle\Traits\EventDispatcherTrait;
+use Timiki\Bundle\RpcServerBundle\Traits\ProfilerTrait;
 
 /**
  * RPC http handler
@@ -15,6 +18,7 @@ use Timiki\Bundle\RpcServerBundle\Traits\EventDispatcherTrait;
 class HttpHandler
 {
     use EventDispatcherTrait;
+    use ProfilerTrait;
 
     /**
      * Json handler.
@@ -121,28 +125,27 @@ class HttpHandler
         $jsonResponses = $this->jsonHandler->handleJsonRequest($jsonRequests);
         $httpResponse  = HttpResponse::create();
 
-//        if ($this->profiler) {
-//
-//            $profiler = $this->profiler;
-//            $collect  = function (JsonResponse $jsonResponse) use ($profiler, $httpRequest, $httpResponse) {
-//
-//                if ($exception = $jsonResponse->getException()) {
-//                    $collector = new ExceptionDataCollector();
-//                    $collector->collect($httpRequest, $httpResponse, $exception);
-//                    $this->profiler->add($collector);
-//                }
-//
-//            };
-//
-//            if (is_array($jsonResponses)) {
-//                foreach ($jsonResponses as $jsonResponse) {
-//                    $collect($jsonResponse);
-//                }
-//            } else {
-//                $collect($jsonResponses);
-//            }
-//
-//        }
+        if ($this->profiler) {
+
+            /**
+             * @param JsonResponse|JsonResponse[] $jsonResponse
+             */
+            $collect = function ($jsonResponse) use (&$collect, $httpRequest, $httpResponse) {
+
+                if (is_array($jsonResponse)) {
+                    foreach ($jsonResponse as $value) {
+                        $collect($value);
+                    }
+                } else {
+                    if ($jsonResponse->getException()) {
+                        $this->collectException($httpRequest, $httpResponse, $jsonResponse->getException());
+                    }
+                }
+
+            };
+
+            $collect($jsonResponses);
+        }
 
         // Set httpResponse content.
 
@@ -243,5 +246,21 @@ class HttpHandler
         );
 
         return $httpResponse;
+    }
+
+    /**
+     * Collect exception.
+     *
+     * @param $httpRequest
+     * @param $httpResponse
+     * @param $exception
+     */
+    protected function collectException($httpRequest, $httpResponse, $exception)
+    {
+        if ($this->profiler) {
+            $collector = new ExceptionDataCollector();
+            $collector->collect($httpRequest, $httpResponse, $exception);
+            $this->profiler->add($collector);
+        }
     }
 }

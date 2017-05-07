@@ -111,11 +111,6 @@ class RpcServerExtension extends Extension
             );
 
             $jsonHandler->addMethodCall(
-                'setProfiler',
-                [new Reference('profiler', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
-            );
-
-            $jsonHandler->addMethodCall(
                 'setCache',
                 [new Reference($cacheId, ContainerInterface::NULL_ON_INVALID_REFERENCE)]
             );
@@ -140,6 +135,11 @@ class RpcServerExtension extends Extension
             $httpHandler->addMethodCall(
                 'setEventDispatcher',
                 [new Reference('rpc.server.event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
+            );
+
+            $httpHandler->addMethodCall(
+                'setProfiler',
+                [new Reference('profiler', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
             );
 
             // Set definitions
