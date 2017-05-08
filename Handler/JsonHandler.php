@@ -83,7 +83,7 @@ class JsonHandler implements ContainerAwareInterface
      */
     public function serialize($data)
     {
-        if (is_array($data) || is_numeric($data) || is_string($data) || empty($data) || $data instanceof \JsonSerializable) {
+        if (is_numeric($data) || is_string($data) || empty($data) || $data instanceof \JsonSerializable) {
             return $data;
         }
 
