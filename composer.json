@@ -36,5 +36,8 @@
     "psr-4": {
       "Timiki\\Bundle\\RpcServerBundle\\": ""
     }
+  },
+  "config"     : {
+    "bin-dir": "bin"
   }
 }

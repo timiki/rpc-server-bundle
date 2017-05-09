@@ -10,4 +10,4 @@ install:
   - composer install --prefer-dist
 
 script:
-  - bin/phpunit -c tests/
+  - bin/phpunit
