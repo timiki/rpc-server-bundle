@@ -1,0 +1,13 @@
+language: php
+
+sudo: false
+
+php:
+  - 5.6
+  - 7.0
+
+install:
+  - composer install --prefer-dist
+
+script:
+  - bin/phpunit -c tests/
