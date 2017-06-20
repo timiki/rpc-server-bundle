@@ -9,56 +9,75 @@ JSON-RPC allows for notifications (data sent to the server that does not require
 
 [Wikipedia][1] | [Specification][2]
 
+**Requirements**
+
+```
+- php >= 7.1.3
+- symfony ^3.3
+```
+
 Install
 -------
 
 Add to composer from command line
 
-    composer require timiki/rpc-client
+    composer timiki/rpc-server-bundle
 
 or add in composer.json
 
     "require"     : {
-        "timiki/rpc-server-bundle" : "^2.0"
+        "timiki/rpc-server-bundle" : "^3.0"
     }
 
 Configs
 -------
+
+Add to etc/packages rpc_server.yml
+
+```yaml
+
+rpc_server:
+    mapping: ~
+    cache: ~
+    serializer: ~
     
-    # RPC server
-    rpc_server:
-        mapping: ~
-        cache: ~
-        serializer: ~
-        
+``` 
+
 Main configs:
 
 **mapping** Path to JSON-RPC methods. Default null (Search dir Method in all bundles).
 
-    // Methods in bundle
-     
-    mapping: 
-        - "@AppBundle/Method"
-        - "@MyBundle/Method"
-     
+```yaml
+
+// Methods in bundle
+
+mapping: 
+    - "@AppBundle/Method"
+    - "@MyBundle/Method"
+ 
+mapping: "@AppBundle/Method"
+ 
+// Or methods by path
+ 
+mapping: 
+    - "path/to/method"
+    - "path/to/other/method"
     
-    mapping: "@AppBundle/Method"
-     
-    // Or methods by path
-     
-    mapping: 
-        - "path/to/method"
-        - "path/to/other/method"
-        
-    mapping: "path/to/method"
+mapping: "path/to/method"
+
+```
     
 **cache** Cache service id. Service must be instance of Doctrine\Common\Cache\CacheProvider.
 
-    cache: service.cache.id
+```yaml
+cache: service.cache.id
+```
 
 **serializer** Serializer service id. Service must be instance of Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface.
 
-    cache: service.cache.id
+```yaml
+cache: service.cache.id
+```
 
 Controller
 ----------
@@ -68,26 +87,27 @@ Default:
 You can use you own controller for JSON-RPC request. For example:
 
 ```php
-    <?php
-    
-    use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-    use Symfony\Component\HttpFoundation\Request;
-    
-    class RpcController extends Controller
+<?php
+
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+
+class RpcController extends Controller
+{
+    public function indexAction(Request $request)
     {
-        public function indexAction(Request $request)
-        {
-            return $this->get('rpc.server.http_handler')->handleHttpRequest($request);
-        }
+        return $this->get('rpc.server.http_handler')->handleHttpRequest($request);
     }
+}
 ```
 
 or add default JSON-RPC route (default POST to /rpc) to you routing.yml
 
-    rpc:
-        resource: "@RpcServerBundle/Controller/"
-        type:     annotation
-
+```yaml
+rpc:
+    resource: "@RpcServerBundle/Controller/"
+    type: annotation
+```
 
 If web site and JSON-RPC server located on a different domain remember about [CORS][3]. Use custom Controller for solve it.
 
@@ -98,40 +118,39 @@ Method
 ------
 
 ```php
+<?php
 
-    <?php
-    
-    use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
-    use Symfony\Component\Validator\Constraints as Assert;
+use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * @Rpc\Method("name")
+ * @Rpc\Roles({
+ *   "ROLE_NAME"
+ * })
+ * @Rpc\Cache(lifetime=3600)
+ * @Rpc\Version(1)
+ */
+class Method
+{
+    /**
+     * @Rpc\Param()
+     * @Assert\NotBlank()
+     */
+    protected $param;
 
     /**
-     * @Rpc\Method("name")
-     * @Rpc\Roles({
-     *   "ROLE_NAME"
-     * })
-     * @Rpc\Cache(lifetime=3600)
-     * @Rpc\Version(1)
+     * @Rpc\Execute()
      */
-    class Method
+    public function execute()
     {
-        /**
-         * @Rpc\Param()
-         * @Assert\NotBlank()
-         */
-        protected $param;
-    
-        /**
-         * @Rpc\Execute()
-         */
-        public function execute()
-        {
-            $param = $this->param;
-            
-            ...
-            
-            return $result;
-        }
+        $param = $this->param;
+        
+        ...
+        
+        return $result;
     }
+}
     
 ```
 
@@ -143,7 +162,7 @@ Annotation
 Define class as JSON-RPC method. 
 
 ```php
-    @Method("method name")
+@Method("method name")
 ```
 
 **@Roles**
@@ -151,10 +170,10 @@ Define class as JSON-RPC method.
 Set roles for access to method. If user not granted for access server return error with message "Method not granted" and code "-32001".
 
 ```php
-    @Roles({
-      "ROLE_NAME",
-      "ROLE_OTHER",
-    })
+@Roles({
+  "ROLE_NAME",
+  "ROLE_OTHER",
+})
 ```
 
 **@Cache**
@@ -162,7 +181,7 @@ Set roles for access to method. If user not granted for access server return err
 If define cache in configs it set response lifetime.
 
 ```php
-    @Cache(lifetime=3600)
+@Cache(lifetime=3600)
 ```
 
 **@Param**
@@ -170,15 +189,15 @@ If define cache in configs it set response lifetime.
 Define JSON-RPC params. Use Symfony\Component\Validator\Constraints for validate it.
 
 ```php
-    /**
-     * @Param()
-     */
-    protected $param;
-    
-    /**
-     * @Param()
-     */
-    protected $param = null'; // Default value for param
+/**
+ * @Param()
+ */
+protected $param;
+
+/**
+ * @Param()
+ */
+protected $param = null'; // Default value for param
 ```
 
 **@Execute**
@@ -186,13 +205,13 @@ Define JSON-RPC params. Use Symfony\Component\Validator\Constraints for validate
 Define execute function in class.
 
 ```php
-    /**
-     * @Rpc\Execute()
-     */
-    public function someMethod()
-    {
-        // Code
-    }
+/**
+ * @Rpc\Execute()
+ */
+public function someMethod()
+{
+    // Code
+}
 ```
 
 [1]: https://wikipedia.org/wiki/JSON-RPC

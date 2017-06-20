@@ -2,18 +2,15 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Tests;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class MappingTest extends PHPUnit_Framework_TestCase
+class MappingTest extends TestCase
 {
     public function testMapping()
     {
         try {
-
             $mapper = Utils::getMapper(__DIR__.DIRECTORY_SEPARATOR.'Method');
-
             self::assertCount(6, $mapper->loadMetadata()['methods']);
-
         } catch (\Exception $e) {
             self::fail($e->getMessage());
         }
@@ -24,11 +21,8 @@ class MappingTest extends PHPUnit_Framework_TestCase
         $mapper = Utils::getMapper();
 
         try {
-
             $mapper->loadFileMetadata(__DIR__.DIRECTORY_SEPARATOR.'InvalidMethod'.DIRECTORY_SEPARATOR.'NoExecuteMethod.php');
-
             self::fail('Need exception');
-
         } catch (\Exception $e) {
             self::assertTrue(true);
         }

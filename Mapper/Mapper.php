@@ -2,6 +2,7 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Mapper;
 
+use Doctrine\Common\Annotations\AnnotationRegistry;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Timiki\Bundle\RpcServerBundle\Exceptions\InvalidMappingException;
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -55,6 +56,12 @@ class Mapper
     public function __construct()
     {
         $this->reader = new AnnotationReader(new DocParser());
+
+        AnnotationRegistry::registerFile(__DIR__.'/../Mapping/Param.php');
+        AnnotationRegistry::registerFile(__DIR__.'/../Mapping/Execute.php');
+        AnnotationRegistry::registerFile(__DIR__.'/../Mapping/Cache.php');
+        AnnotationRegistry::registerFile(__DIR__.'/../Mapping/Method.php');
+        AnnotationRegistry::registerFile(__DIR__.'/../Mapping/Roles.php');
     }
 
     /**

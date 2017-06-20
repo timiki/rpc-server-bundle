@@ -2,9 +2,9 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Tests;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class HandlerTest extends PHPUnit_Framework_TestCase
+class HandlerTest extends TestCase
 {
     public function testHttpRequest_1()
     {
