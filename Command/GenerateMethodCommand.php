@@ -16,9 +16,9 @@ class GenerateMethodCommand extends ContainerAwareCommand
         $this
             ->setName('generate:method')
             ->setDescription('Generates a new RPC method')
-            ->addArgument('bundle', InputArgument::OPTIONAL, 'The bundle where the method is generated')
             ->addArgument('name', InputArgument::OPTIONAL, 'The method name')
-            ->setHelp(<<<EOT
+            ->setHelp(
+                <<<EOT
 The <info>generate:method</info> command helps you generate new RPC method
 inside bundles. Provide the bundle name as the first argument and the method
 name as the second argument:
@@ -41,42 +41,31 @@ EOT
 
         $io->title('Generate new RPC method');
 
-        // Bundle name
-
-        $bundle = $io->ask('Bundle name', null, function ($answer) use ($container) {
-            try {
-                $container->get('kernel')->getBundle($answer);
-            } catch (\Exception $e) {
-                throw new \RuntimeException(sprintf(
-                    'Bundle "%s" does not exist.',
-                    $answer
-                ));
-            }
-
-            return $answer;
-        });
-
-        $input->setArgument('bundle', $bundle);
-
         // Method name
 
-        $name = $io->ask('Method name', null, function ($answer) use ($container, $bundle) {
+        $name = $io->ask(
+            'Method name',
+            null,
+            function ($answer) use ($container, $bundle) {
 
-            if (empty($answer)) {
-                throw new \RuntimeException('Method name can`t be empty.');
+                if (empty($answer)) {
+                    throw new \RuntimeException('Method name can`t be empty.');
+                }
+
+                $answer = str_replace(' ', ':', $answer);
+
+                if ($this->isMethodExist($container->get('kernel')->getBundle($bundle), $answer)) {
+                    throw new \RuntimeException(
+                        sprintf(
+                            'Method "%s" already exist.',
+                            $answer
+                        )
+                    );
+                }
+
+                return $answer;
             }
-
-            $answer = str_replace(' ', ':', $answer);
-
-            if ($this->isMethodExist($container->get('kernel')->getBundle($bundle), $answer)) {
-                throw new \RuntimeException(sprintf(
-                    'Method "%s" already exist.',
-                    $answer
-                ));
-            }
-
-            return $answer;
-        });
+        );
 
         $input->setArgument('name', $name);
     }
@@ -84,72 +73,64 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $io         = new SymfonyStyle($input, $output);
-        $bundle     = $input->getArgument('bundle');
-        $name       = str_replace(' ', ':', $input->getArgument('name'));
+        $io        = new SymfonyStyle($input, $output);
+        $name      = str_replace(' ', ':', $input->getArgument('name'));
 
-        try {
-            $bundle = $this->getContainer()->get('kernel')->getBundle($bundle);
-        } catch (\Exception $e) {
-            throw new \RuntimeException(sprintf(
-                'Bundle "%s" does not exist.',
-                $bundle
-            ));
-        }
-
-        if ($this->isMethodExist($bundle, $name)) {
-            throw new \RuntimeException(sprintf(
+        if ($this->isMethodExist($name)) {
+            throw new \RuntimeException(
+                sprintf(
                     'Method "%s" already exist.',
-                    $name)
+                    $name
+                )
             );
         }
 
         $methodClassName = $this->classify($name);
-        $methodFile      = $this->getMethodPath($bundle, $name);
+        $methodFile      = $this->getMethodPath($name);
 
         if (file_exists($methodFile)) {
-            throw new \RuntimeException(sprintf(
-                'Method "%s" already exists',
-                $name
-            ));
+            throw new \RuntimeException(
+                sprintf(
+                    'Method "%s" already exists',
+                    $name
+                )
+            );
         }
 
         $parameters = [
-            'namespace' => $bundle->getNamespace(),
             'class'     => $methodClassName,
             'name'      => $name,
         ];
 
         $this->renderFile('Method.php.twig', $methodFile, $parameters);
 
-        $io->success(sprintf(
-            'Method "%s" was generate in file "%s".',
-            $name,
-            $methodFile
-        ));
+        $io->success(
+            sprintf(
+                'Method "%s" was generate in file "%s".',
+                $name,
+                $methodFile
+            )
+        );
     }
 
     /**
-     * @param BundleInterface $bundle
      * @param string $name
      * @return boolean
      */
-    protected function isMethodExist($bundle, $name)
+    protected function isMethodExist($name)
     {
-        return file_exists($this->getMethodPath($bundle, $name));
+        return file_exists($this->getMethodPath($name));
     }
 
     /**
-     * @param BundleInterface $bundle
      * @param string $name
      * @return string
      */
-    protected function getMethodPath($bundle, $name)
+    protected function getMethodPath($name)
     {
-        $bundleDir = $bundle->getPath();
-        $methodDir = $bundleDir . '/Method';
+        $methodDir = $this->getContainer()->getParameter('kernel.root_dir').'/Method';
 
-        return $methodDir . '/' . $this->classify($name) . '.php';
+        return $methodDir.'/'.$this->classify($name).'.php';
     }
 
     /**
@@ -158,7 +139,7 @@ EOT
      */
     protected function classify($string)
     {
-        return str_replace(' ', '', ucwords(strtr($string, '_-:', '   '))) . 'Method';
+        return str_replace(' ', '', ucwords(strtr($string, '_-:', '   '))).'Method';
     }
 
 
@@ -182,14 +163,18 @@ EOT
      */
     protected function getTwigEnvironment()
     {
-        return new \Twig_Environment(new \Twig_Loader_Filesystem([
-            dirname(__DIR__) . '/Resources/skeleton',
-        ]), [
-            'debug'            => true,
-            'cache'            => false,
-            'strict_variables' => true,
-            'autoescape'       => false,
-        ]);
+        return new \Twig_Environment(
+            new \Twig_Loader_Filesystem(
+                [
+                    dirname(__DIR__).'/Resources/skeleton',
+                ]
+            ), [
+                'debug'            => true,
+                'cache'            => false,
+                'strict_variables' => true,
+                'autoescape'       => false,
+            ]
+        );
     }
 
     /**
