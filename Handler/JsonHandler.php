@@ -294,7 +294,7 @@ class JsonHandler implements ContainerAwareInterface
 
         $this->dispatch(
             Event\JsonExecuteEvent::EVENT,
-            new Event\JsonExecuteEvent($object)
+            new Event\JsonExecuteEvent($object, $metadata)
         );
 
         return $object->{$metadata['executeMethod']}();

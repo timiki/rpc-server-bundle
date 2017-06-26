@@ -111,10 +111,8 @@ class HttpHandler
      */
     public function handleHttpRequest(HttpRequest $httpRequest)
     {
-        $this->dispatch(
-            Event\JsonExecuteEvent::EVENT,
-            new Event\JsonExecuteEvent($httpRequest)
-        );
+        $event       = $this->dispatch(Event\HttpRequestEvent::EVENT, new Event\HttpRequestEvent($httpRequest));
+        $httpRequest = $event->getHttpRequest();
 
         try {
             $jsonRequests = $this->parserHttpRequest($httpRequest);

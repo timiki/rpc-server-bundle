@@ -20,18 +20,18 @@ class JsonExecuteEvent extends Event
     /**
      * @var array
      */
-    private $meta;
+    private $metadata;
 
     /**
      * JsonExecuteEvent constructor.
      *
      * @param $object
-     * @param array $meta
+     * @param array $metadata
      */
-    public function __construct($object, array $meta = [])
+    public function __construct($object, array $metadata = [])
     {
-        $this->object = $object;
-        $this->meta   = $meta;
+        $this->object   = $object;
+        $this->metadata = $metadata;
     }
 
     /**
@@ -45,12 +45,12 @@ class JsonExecuteEvent extends Event
     }
 
     /**
-     * Get meta.
+     * Get metadata.
      *
      * @return array
      */
-    public function getMeta()
+    public function getMetadata()
     {
-        return $this->meta;
+        return $this->metadata;
     }
 }

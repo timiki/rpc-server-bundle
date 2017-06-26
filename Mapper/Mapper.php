@@ -278,26 +278,18 @@ class Mapper
                 $meta['file']   = $reflectionClass->getFileName();
 
                 // Cache
-                $meta['cache'] = $this->reader->getClassAnnotation(
-                    $reflectionClass,
-                    'Timiki\Bundle\RpcServerBundle\Mapping\Cache'
-                );
+                $meta['cache'] = $this->reader->getClassAnnotation($reflectionClass, 'Timiki\Bundle\RpcServerBundle\Mapping\Cache');
 
-                // Cache
-                $meta['cache'] = $this->reader->getClassAnnotation(
-                    $reflectionClass,
-                    'Timiki\Bundle\RpcServerBundle\Mapping\Cache'
-                );
+                // Roles
+                $meta['roles'] = $this->reader->getClassAnnotation($reflectionClass, 'Timiki\Bundle\RpcServerBundle\Mapping\Roles');
 
                 // Method execute. On in class
                 $meta['executeMethod'] = null;
 
                 foreach ($reflectionClass->getMethods() as $reflectionMethod) {
-
                     if ($paramMeta = $this->reader->getMethodAnnotation($reflectionMethod, 'Timiki\Bundle\RpcServerBundle\Mapping\Execute')) {
                         $meta['executeMethod'] = $reflectionMethod->name;
                     }
-
                 }
 
                 if (empty($meta['executeMethod'])) {
@@ -313,11 +305,9 @@ class Mapper
                 $meta['params'] = [];
 
                 foreach ($reflectionClass->getProperties() as $reflectionProperty) {
-
                     if ($paramMeta = $this->reader->getPropertyAnnotation($reflectionProperty, 'Timiki\Bundle\RpcServerBundle\Mapping\Param')) {
                         $meta['params'][$reflectionProperty->name] = $paramMeta;
                     }
-
                 }
 
             }
