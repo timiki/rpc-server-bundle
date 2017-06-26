@@ -7,11 +7,11 @@
             <argument type="service" id="validator" on-invalid="null"/>
         </service>
         <service id="rpc.server.event_subscriber.authorization_checker" class="Timiki\Bundle\RpcServerBundle\EventSubscriber\AuthorizationCheckerSubscriber">
-            <tag name="rpc.server.event_dispatcher"/>
+            <tag name="rpc.server.event_subscriber"/>
             <argument type="service" id="security.authorization_checker" on-invalid="null"/>
         </service>
         <service id="rpc.server.event_subscriber.validate_request" class="Timiki\Bundle\RpcServerBundle\EventSubscriber\ValidateRequestSubscriber">
-            <tag name="rpc.server.event_dispatcher"/>
+            <tag name="rpc.server.event_subscriber"/>
         </service>
     </services>
 </container>
