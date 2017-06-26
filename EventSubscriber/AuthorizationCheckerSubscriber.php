@@ -44,7 +44,11 @@ class AuthorizationCheckerSubscriber implements EventSubscriberInterface
      */
     public function execute(JsonExecuteEvent $event)
     {
-        if ($this->authChecker && !$this->authChecker->isGranted((array)$event->getMetadata()['roles']->value)) {
+        if (!$this->authChecker || !isset($event->getMetadata()['roles'])) {
+            return;
+        }
+
+        if (!$this->authChecker->isGranted($event->getMetadata()['roles']->value)) {
             throw new MethodNotGrantedException();
         }
     }
