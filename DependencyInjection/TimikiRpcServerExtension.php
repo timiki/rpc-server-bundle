@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\Reference;
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
-class RpcServerExtension extends Extension
+class TimikiRpcServerExtension extends Extension
 {
     /**
      * {@inheritdoc}
