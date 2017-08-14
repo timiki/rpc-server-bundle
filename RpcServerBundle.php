@@ -6,7 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class TimikiRpcServerBundle extends Bundle
+class RpcServerBundle extends Bundle
 {
     /**
      * @inheritdoc
