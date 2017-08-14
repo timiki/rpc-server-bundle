@@ -19,12 +19,10 @@
     "symfony/annotations-pack"     : "^1.0",
     "symfony/http-kernel"          : "^3.3",
     "symfony/http-foundation"      : "^3.3",
-    "symfony/validator"            : "^3.3",
     "symfony/dependency-injection" : "^3.3",
     "symfony/event-dispatcher"     : "^3.3",
     "symfony/serializer"           : "^3.3",
     "symfony/stopwatch"            : "^3.3",
-    "symfony/security-bundle"      : "^3.3",
     "sensio/framework-extra-bundle": "^3.0",
     "timiki/rpc-client"            : "^3.0"
   },
@@ -33,10 +31,8 @@
     "phpunit/php-code-coverage": "^5.2"
   },
   "suggest"    : {
-    "symfony/event-dispatcher": "",
-    "symfony/filesystem"      : "",
-    "symfony/process"         : "",
-    "psr/log"                 : "For using the console logger"
+    "symfony/security-bundle": "For check security",
+    "symfony/validator"      : "For valid params"
   },
   "autoload"   : {
     "psr-4": {
