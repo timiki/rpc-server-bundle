@@ -15,24 +15,23 @@
     }
   ],
   "require"    : {
-    "php"                          : "^7.1.3",
-    "symfony/annotations-pack"     : "^1.0",
-    "symfony/http-kernel"          : "^3.3",
-    "symfony/http-foundation"      : "^3.3",
-    "symfony/dependency-injection" : "^3.3",
-    "symfony/event-dispatcher"     : "^3.3",
-    "symfony/serializer"           : "^3.3",
-    "symfony/stopwatch"            : "^3.3",
-    "sensio/framework-extra-bundle": "^3.0",
-    "timiki/rpc-client"            : "^3.0"
+    "php"                         : "^7.1.3",
+    "symfony/annotations-pack"    : "^1.0",
+    "symfony/http-kernel"         : "^3.3",
+    "symfony/http-foundation"     : "^3.3",
+    "symfony/dependency-injection": "^3.3",
+    "symfony/event-dispatcher"    : "^3.3",
+    "symfony/serializer"          : "^3.3",
+    "symfony/stopwatch"           : "^3.3",
+    "timiki/rpc-client"           : "^3.0"
   },
   "require-dev": {
     "phpunit/phpunit"          : "^6.2",
     "phpunit/php-code-coverage": "^5.2"
   },
   "suggest"    : {
-    "symfony/security-bundle": "For check security",
-    "symfony/validator"      : "For valid params"
+    "symfony/security-bundle": "For add check security for method",
+    "symfony/validator"      : "For add validate params for method"
   },
   "autoload"   : {
     "psr-4": {

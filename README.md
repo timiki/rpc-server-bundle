@@ -103,15 +103,14 @@ class RpcController extends Controller
 
 or add default JSON-RPC route (default POST to /rpc) to you routing.yml
 
-```yaml
+```yaml    
 rpc:
-    resource: "@RpcServerBundle/Controller/"
-    type: annotation
+    path:     /rpc
+    defaults: { _controller: RpcServerBundle:Rpc:handler }
+    methods:  [POST]
 ```
 
-If web site and JSON-RPC server located on a different domain remember about [CORS][3]. Use custom Controller for solve it.
-
-
+If web site and JSON-RPC server located on a different domain remember about [CORS][3].
 
 
 Method
@@ -129,7 +128,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   "ROLE_NAME"
  * })
  * @Rpc\Cache(lifetime=3600)
- * @Rpc\Version(1)
  */
 class Method
 {
