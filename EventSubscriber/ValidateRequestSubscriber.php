@@ -6,9 +6,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Timiki\Bundle\RpcServerBundle\Event\JsonRequestEvent;
 use Timiki\Bundle\RpcServerBundle\Exceptions\InvalidRequestException;
 
-/**
- * ValidateRequestSubscriber
- */
 class ValidateRequestSubscriber implements EventSubscriberInterface
 {
     /**

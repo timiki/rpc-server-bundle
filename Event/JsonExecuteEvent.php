@@ -3,14 +3,10 @@
 namespace Timiki\Bundle\RpcServerBundle\Event;
 
 use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\HttpFoundation\Request as HttpRequest;
 
-/**
- * JsonExecuteEvent event
- */
 class JsonExecuteEvent extends Event
 {
-    const EVENT = 'json.execute';
+    const EVENT = 'rpc.server.json.execute';
 
     /**
      * @var object

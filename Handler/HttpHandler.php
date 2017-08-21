@@ -12,9 +12,6 @@ use Timiki\Bundle\RpcServerBundle\JsonResponse;
 use Timiki\Bundle\RpcServerBundle\Traits\EventDispatcherTrait;
 use Timiki\Bundle\RpcServerBundle\Traits\ProfilerTrait;
 
-/**
- * RPC http handler
- */
 class HttpHandler
 {
     use EventDispatcherTrait;

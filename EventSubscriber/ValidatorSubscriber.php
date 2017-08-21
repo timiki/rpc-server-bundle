@@ -8,11 +8,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Timiki\Bundle\RpcServerBundle\Event\JsonExecuteEvent;
 use Timiki\Bundle\RpcServerBundle\Exceptions\InvalidParamsException;
 
-/**
- * ValidatorSubscriber
- *
- * Validate params by Symfony Validator.
- */
 class ValidatorSubscriber implements EventSubscriberInterface
 {
     /**

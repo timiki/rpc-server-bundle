@@ -2,15 +2,11 @@
 
 namespace Timiki\Bundle\RpcServerBundle;
 
-use Timiki\RpcClient\JsonResponse as BaseJsonResponse;
 use Exception;
+use Timiki\RpcCommon\JsonResponse as BaseJsonResponse;
 
-/**
- * Class JsonResponse.
- */
 class JsonResponse extends BaseJsonResponse
 {
-
     /**
      * @var null|Exception
      */

@@ -2,9 +2,6 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
-/**
- * Exception in method
- */
 class MethodException extends ErrorException
 {
     /**

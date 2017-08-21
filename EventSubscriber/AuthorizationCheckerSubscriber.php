@@ -7,11 +7,6 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Timiki\Bundle\RpcServerBundle\Event\JsonExecuteEvent;
 use Timiki\Bundle\RpcServerBundle\Exceptions\MethodNotGrantedException;
 
-/**
- * AuthorizationCheckerSubscriber
- *
- * Check access by ROLE grant by Symfony security.
- */
 class AuthorizationCheckerSubscriber implements EventSubscriberInterface
 {
     /**

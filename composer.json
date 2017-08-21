@@ -23,7 +23,7 @@
     "symfony/event-dispatcher"    : "^3.3",
     "symfony/serializer"          : "^3.3",
     "symfony/stopwatch"           : "^3.3",
-    "timiki/rpc-client"           : "^3.0"
+    "timiki/rpc-common"           : "^1.0"
   },
   "require-dev": {
     "phpunit/phpunit"          : "^6.2",

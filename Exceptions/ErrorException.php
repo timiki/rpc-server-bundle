@@ -4,9 +4,6 @@ namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 use RuntimeException;
 
-/**
- * RPC error exception.
- */
 class ErrorException extends RuntimeException
 {
     /**

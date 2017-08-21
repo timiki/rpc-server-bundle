@@ -2,7 +2,6 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Handler;
 
-use Symfony\Component\HttpKernel\DataCollector\ExceptionDataCollector;
 use Timiki\Bundle\RpcServerBundle\JsonRequest;
 use Timiki\Bundle\RpcServerBundle\JsonResponse;
 use Timiki\Bundle\RpcServerBundle\Mapper\Mapper;
@@ -15,9 +14,6 @@ use Timiki\Bundle\RpcServerBundle\Traits\EventDispatcherTrait;
 use Timiki\Bundle\RpcServerBundle\Traits\StopwatchTrait;
 use Timiki\Bundle\RpcServerBundle\Event;
 
-/**
- * RPC handler
- */
 class JsonHandler implements ContainerAwareInterface
 {
     use ContainerAwareTrait;

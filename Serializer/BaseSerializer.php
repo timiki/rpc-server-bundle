@@ -6,9 +6,6 @@ use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
-/**
- * Base Symfony serialize.
- */
 class BaseSerializer implements SerializerInterface
 {
     /**

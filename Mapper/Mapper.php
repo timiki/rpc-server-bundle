@@ -10,11 +10,6 @@ use Doctrine\Common\Annotations\DocParser;
 use Timiki\Bundle\RpcServerBundle\Traits\CacheTrait;
 use Timiki\Bundle\RpcServerBundle\Traits\StopwatchTrait;
 
-/**
- * RPC Mapper.
- *
- * Service for found RPC methods in bundles and mapping methods metadata.
- */
 class Mapper
 {
     use CacheTrait;

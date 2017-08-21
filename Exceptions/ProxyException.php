@@ -2,9 +2,6 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
-/**
- * Proxy exception.
- */
 class ProxyException extends ErrorException
 {
     /**

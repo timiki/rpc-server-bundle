@@ -2,9 +2,6 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
-/**
- * Method not found exception.
- */
 class MethodNotFoundException extends ErrorException
 {
     /**

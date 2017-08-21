@@ -2,9 +2,6 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
-/**
- * Not granted exception.
- */
 class MethodNotGrantedException extends ErrorException
 {
     /**

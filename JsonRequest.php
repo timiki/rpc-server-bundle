@@ -2,34 +2,15 @@
 
 namespace Timiki\Bundle\RpcServerBundle;
 
-use Timiki\RpcClient\JsonRequest as BaseJsonRequest;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
+use Timiki\RpcCommon\JsonRequest as BaseJsonRequest;
 
-/**
- * Class JsonRequest.
- */
 class JsonRequest extends BaseJsonRequest
 {
-
     /**
      * @var null|HttpRequest
      */
     protected $httpRequest;
-
-    /**
-     * JsonRequest constructor.
-     *
-     * @param string $method
-     * @param array $params
-     * @param null $id
-     */
-    public function __construct($method, $params = [], $id = null)
-    {
-        parent::__construct($method, (array)$params, $id);
-
-        // Fix input params as mixed
-        $this->params = $params;
-    }
 
     /**
      * Set http request.

@@ -2,9 +2,6 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
-/**
- * Json parse exception.
- */
 class ParseException extends ErrorException
 {
     /**

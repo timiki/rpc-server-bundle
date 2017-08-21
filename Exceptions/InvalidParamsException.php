@@ -2,9 +2,6 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
-/**
- * Invalid params exception.
- */
 class InvalidParamsException extends ErrorException
 {
     /**

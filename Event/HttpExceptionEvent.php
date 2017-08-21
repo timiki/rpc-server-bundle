@@ -4,12 +4,9 @@ namespace Timiki\Bundle\RpcServerBundle\Event;
 
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
-/**
- * HttpException event
- */
 class HttpExceptionEvent extends HttpResponseEvent
 {
-    const EVENT = 'http.exception';
+    const EVENT = 'rpc.server.http.exception';
 
     /**
      * @var \Exception

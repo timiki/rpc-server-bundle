@@ -2,9 +2,6 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
-/**
- * Failed serialise method data exception.
- */
 class FailedSerializeException extends ErrorException
 {
     /**
