@@ -25,7 +25,6 @@ class Utils
         AnnotationRegistry::registerFile(dirname(__DIR__).DIRECTORY_SEPARATOR.'Mapping'.DIRECTORY_SEPARATOR.'Param.php');
         AnnotationRegistry::registerFile(dirname(__DIR__).DIRECTORY_SEPARATOR.'Mapping'.DIRECTORY_SEPARATOR.'Roles.php');
 
-
         $mapper = new Mapper();
 
         if ($path) {

@@ -3,7 +3,7 @@
 namespace Timiki\Bundle\RpcServerBundle\Event;
 
 use Symfony\Component\EventDispatcher\Event;
-use Timiki\Bundle\RpcServerBundle\JsonRequest;
+use Timiki\RpcCommon\JsonRequest;
 
 class JsonRequestEvent extends Event
 {

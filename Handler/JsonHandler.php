@@ -2,8 +2,6 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Handler;
 
-use Timiki\Bundle\RpcServerBundle\JsonRequest;
-use Timiki\Bundle\RpcServerBundle\JsonResponse;
 use Timiki\Bundle\RpcServerBundle\Mapper\Mapper;
 use Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface;
 use Timiki\Bundle\RpcServerBundle\Exceptions;
@@ -13,6 +11,8 @@ use Timiki\Bundle\RpcServerBundle\Traits\CacheTrait;
 use Timiki\Bundle\RpcServerBundle\Traits\EventDispatcherTrait;
 use Timiki\Bundle\RpcServerBundle\Traits\StopwatchTrait;
 use Timiki\Bundle\RpcServerBundle\Event;
+use Timiki\RpcCommon\JsonResponse;
+use Timiki\RpcCommon\JsonRequest;
 
 class JsonHandler implements ContainerAwareInterface
 {
@@ -43,7 +43,7 @@ class JsonHandler implements ContainerAwareInterface
      */
     public function __construct(Mapper $mapper, SerializerInterface $serializer = null)
     {
-        $this->mapper     = $mapper;
+        $this->mapper = $mapper;
         $this->serializer = $serializer;
     }
 
@@ -97,7 +97,7 @@ class JsonHandler implements ContainerAwareInterface
     }
 
     /**
-     * Create new jsonResponse from exception.
+     * Create new JsonResponse from exception.
      *
      * @param \Exception $exception
      * @param JsonRequest|null $jsonRequest
@@ -116,8 +116,6 @@ class JsonHandler implements ContainerAwareInterface
             $jsonResponse->setErrorCode(-32603);
             $jsonResponse->setErrorMessage('Internal error');
         }
-
-        $jsonResponse->setException($exception);
 
         if ($jsonRequest) {
             $jsonResponse->setId($jsonRequest->getId());
@@ -145,9 +143,7 @@ class JsonHandler implements ContainerAwareInterface
      */
     public function handleJsonRequest($jsonRequest)
     {
-
         // Batch requests
-
         if (is_array($jsonRequest)) {
 
             $jsonResponse = [];
@@ -159,42 +155,36 @@ class JsonHandler implements ContainerAwareInterface
             return $jsonResponse;
         }
 
+        if ($this->stopwatch) {
+            $this->stopwatch->start('rpc.execute');
+        }
+
         try {
 
             $this->dispatch(Event\JsonRequestEvent::EVENT, new Event\JsonRequestEvent($jsonRequest));
 
-            $jsonResponse   = new JsonResponse($jsonRequest);
-            $isCacheSupport = $jsonRequest->getId() && !$this->isDebug() && $this->getCache();
+            $jsonResponse = new JsonResponse($jsonRequest);
+            $object = $this->getMethod($jsonRequest);
+            $metadata = $this->mapper->loadObjectMetadata($object);
 
             // Cache
-
-            if ($isCacheSupport) {
-                if ($result = $this->getCache()->fetch($jsonRequest->getHash())) {
-                    $jsonResponse->setResult($result);;
-                }
+            if ($this->isCacheSupport($jsonRequest)) {
+                $jsonResponse->setResult($this->getCache()->fetch($jsonRequest->getHash()));
             } else {
-
-                $object   = $this->getMethod($jsonRequest);
-                $metadata = $this->mapper->loadObjectMetadata($object);
-
-                if ($this->stopwatch) {
-                    $this->stopwatch->start('rpc.execute');
-                }
 
                 $result = $this->executeJsonRequest($object, $jsonRequest);
 
-                if ($this->stopwatch) {
-                    $this->stopwatch->stop('rpc.execute');
+                if ($result instanceof JsonResponse) {
+                    $jsonResponse = $result;
+                } else {
+                    $jsonResponse->setResult($this->serialize($result));
                 }
 
-                $jsonResponse->setResult($this->serialize($result));
+            }
 
-                // Save cache?
-
-                if ($isCacheSupport) {
-                    $this->cache->save($jsonRequest->getHash(), $result, $metadata['cache']->lifetime);
-                }
-
+            // Save cache
+            if ($this->isCacheSupport($jsonRequest)) {
+                $this->cache->save($jsonRequest->getHash(), $jsonResponse->getResult(), $metadata['cache']->lifetime);
             }
 
             $this->dispatch(Event\JsonResponseEvent::EVENT, new Event\JsonResponseEvent($jsonResponse));
@@ -203,7 +193,34 @@ class JsonHandler implements ContainerAwareInterface
             $jsonResponse = $this->createJsonResponseFromException($exception, $jsonRequest);
         }
 
+        if ($this->stopwatch) {
+            $this->stopwatch->stop('rpc.execute');
+        }
+
         return $jsonResponse;
+    }
+
+    /**
+     * Check is cache support for JsonRequest.
+     *
+     * @param JsonRequest $jsonRequest
+     * @return bool
+     */
+    private function isCacheSupport(JsonRequest $jsonRequest)
+    {
+        try {
+
+            $object = $this->getMethod($jsonRequest);
+            $metadata = $this->mapper->loadObjectMetadata($object);
+
+            return $jsonRequest->getId()
+                && $metadata['cache']
+                && !$this->isDebug()
+                && $this->getCache();
+
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -216,7 +233,7 @@ class JsonHandler implements ContainerAwareInterface
      */
     protected function getMethod($jsonRequest)
     {
-        $method   = $jsonRequest->getMethod();
+        $method = $jsonRequest->getMethod();
         $metadata = $this->loadMetadata();
 
         if (isset($metadata['methods'][$method])) {
@@ -255,23 +272,17 @@ class JsonHandler implements ContainerAwareInterface
             $params = [];
 
             foreach (array_keys($metadata['params']) as $id => $key) {
-
                 if (isset($values[$id])) {
                     $params[$key] = $values[$id];
                 }
-
             }
 
         } else {
-
             // Given name => value
-
             $params = $jsonRequest->getParams();
-
         }
 
         // Inject params
-
         $reflection = new \ReflectionObject($object);
 
         foreach ($params as $name => $value) {
@@ -283,7 +294,6 @@ class JsonHandler implements ContainerAwareInterface
             $reflectionProperty = $reflection->getProperty($name);
             $reflectionProperty->setAccessible(true);
             $reflectionProperty->setValue($object, $value);
-
         }
 
         // Dispatch execute json

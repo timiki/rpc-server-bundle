@@ -15,11 +15,6 @@ class HttpResponseEvent extends Event
     private $httpResponse;
 
     /**
-     * @var \Exception
-     */
-    private $exception;
-
-    /**
      * HttpResponseEvent constructor.
      *
      * @param HttpResponse $httpResponse
