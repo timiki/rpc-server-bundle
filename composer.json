@@ -22,6 +22,7 @@
     "symfony/dependency-injection": "^3.3",
     "symfony/event-dispatcher"    : "^3.3",
     "symfony/serializer"          : "^3.3",
+    "symfony/property-access"     : "^3.3",
     "symfony/stopwatch"           : "^3.3",
     "timiki/rpc-common"           : "^1.0"
   },
