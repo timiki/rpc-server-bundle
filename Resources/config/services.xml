@@ -3,7 +3,7 @@
     <services>
         <service id="rpc.server.event_dispatcher" class="Symfony\Component\EventDispatcher\EventDispatcher"/>
         <service id="rpc.server.event_subscriber.validate" class="Timiki\Bundle\RpcServerBundle\EventSubscriber\ValidatorSubscriber">
-            <tag name="rpc.server.event_dispatcher"/>
+            <tag name="rpc.server.event_subscriber"/>
             <argument type="service" id="validator" on-invalid="null"/>
         </service>
         <service id="rpc.server.event_subscriber.authorization_checker" class="Timiki\Bundle\RpcServerBundle\EventSubscriber\AuthorizationCheckerSubscriber">
