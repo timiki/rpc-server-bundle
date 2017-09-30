@@ -52,11 +52,7 @@ class Mapper
     {
         $this->reader = new AnnotationReader(new DocParser());
 
-        AnnotationRegistry::registerFile(__DIR__.'/../Mapping/Param.php');
-        AnnotationRegistry::registerFile(__DIR__.'/../Mapping/Execute.php');
-        AnnotationRegistry::registerFile(__DIR__.'/../Mapping/Cache.php');
-        AnnotationRegistry::registerFile(__DIR__.'/../Mapping/Method.php');
-        AnnotationRegistry::registerFile(__DIR__.'/../Mapping/Roles.php');
+        AnnotationRegistry::registerLoader('class_exists');
     }
 
     /**
