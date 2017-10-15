@@ -177,6 +177,7 @@ class JsonHandler implements ContainerAwareInterface
 
                 if ($result instanceof JsonResponse) {
                     $jsonResponse = $result;
+                    $jsonResponse->setRequest($jsonRequest);
                 } else {
                     $jsonResponse->setResult($this->serialize($result));
                 }
