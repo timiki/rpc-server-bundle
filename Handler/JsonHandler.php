@@ -113,9 +113,8 @@ class JsonHandler implements ContainerAwareInterface
             $jsonResponse->setErrorMessage($exception->getMessage());
             $jsonResponse->setErrorData($exception->getData());
         } else {
-            $jsonResponse->setErrorCode(-32603);
+            $jsonResponse->setErrorCode($exception->getCode() !== 0 ? $exception->getCode() : -32603);
             $jsonResponse->setErrorMessage($this->isDebug() ? $exception->getMessage() : 'Internal error');
-            $jsonResponse->setErrorData($exception->getMessage());
         }
 
         if ($jsonRequest) {
