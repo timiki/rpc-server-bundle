@@ -35,13 +35,14 @@ class RpcServerExtension extends Extension
         $cacheId = empty($config['cache']) ? 'rpc.server.cache' : $config['cache'];
 
         if (!$container->hasDefinition($cacheId)) {
-            $container->setDefinition(
-                $cacheId,
-                new Definition(
-                    'Doctrine\Common\Cache\FilesystemCache',
-                    ['%kernel.cache_dir%/rpc', '',]
-                )
+
+            $cacheDefinition = new Definition(
+                'Doctrine\Common\Cache\FilesystemCache',
+                ['%kernel.cache_dir%/rpc', '',]
             );
+
+            $cacheDefinition->setPublic(true);
+            $container->setDefinition($cacheId, $cacheDefinition);
         }
 
         /**
@@ -51,13 +52,14 @@ class RpcServerExtension extends Extension
         $serializerId = empty($config['serializer']) ? 'rpc.server.serializer' : $config['serializer'];
 
         if (!$container->hasDefinition($serializerId)) {
-            $container->setDefinition(
-                $serializerId,
-                new Definition(
-                    'Timiki\Bundle\RpcServerBundle\Serializer\BaseSerializer',
-                    [new Reference('serializer', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
-                )
+
+            $serializerDefinition = new Definition(
+                'Timiki\Bundle\RpcServerBundle\Serializer\BaseSerializer',
+                [new Reference('serializer', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
             );
+
+            $serializerDefinition->setPublic(true);
+            $container->setDefinition($serializerId, $serializerDefinition);
         }
 
         /**
@@ -74,6 +76,7 @@ class RpcServerExtension extends Extension
             $mapperId = empty($name) ? 'rpc.server.mapper' : 'rpc.server.mapper.'.$name;
             $mapper   = new Definition('Timiki\Bundle\RpcServerBundle\Mapper\Mapper');
 
+            $mapper->setPublic(true);
             $mapper->addMethodCall(
                 'setKernel',
                 [new Reference('kernel', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
@@ -105,6 +108,7 @@ class RpcServerExtension extends Extension
                 ]
             );
 
+            $jsonHandler->setPublic(true);
             $jsonHandler->addMethodCall(
                 'setEventDispatcher',
                 [new Reference('rpc.server.event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
@@ -132,6 +136,7 @@ class RpcServerExtension extends Extension
                 'Timiki\Bundle\RpcServerBundle\Handler\HttpHandler', [new Reference($jsonHandlerId)]
             );
 
+            $httpHandler->setPublic(true);
             $httpHandler->addMethodCall(
                 'setEventDispatcher',
                 [new Reference('rpc.server.event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
