@@ -20,26 +20,25 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('rpc_server');
 
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
-
         $rootNode
             ->children()
-				->variableNode('mapping')
-					->info('Array paths or path for find RPC methods class. If it empty RPC server will try find RPC methods in all bundle in directory "Method".')
-					->defaultValue(null)
-				->end()
-				->scalarNode('cache')
-					->defaultValue(null)
-					->info('Id cache service. Cache service must be instance of "Doctrine\Common\Cache\CacheProvider". By default use file cache in %kernel.cache_dir%/rpc')
-				->end()
+                ->variableNode('mapping')
+                    ->info('Array paths or path for find RPC methods class. If it empty RPC server will try find RPC methods in all bundle in directory "Method".')
+                    ->defaultValue(null)
+                ->end()
+                ->scalarNode('cache')
+                    ->defaultValue(null)
+                    ->info('Id cache service. Cache service must be instance of "Doctrine\Common\Cache\CacheProvider". By default use file cache in %kernel.cache_dir%/rpc')
+                ->end()
                 ->scalarNode('serializer')
                     ->defaultValue(null)
                     ->info('Id serializer service. By default use Symfony serializer')
                 ->end()
-            ->end()
-        ;
+                ->scalarNode('error_code')
+                    ->info('Error response code')
+                    ->defaultValue(200)
+                ->end()
+            ->end();
 
         return $treeBuilder;
     }

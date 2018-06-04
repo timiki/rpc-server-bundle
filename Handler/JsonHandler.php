@@ -26,14 +26,14 @@ class JsonHandler implements ContainerAwareInterface
      *
      * @var Mapper|null
      */
-    protected $mapper;
+    private $mapper;
 
     /**
      * Serializer.
      *
      * @var SerializerInterface
      */
-    protected $serializer;
+    private $serializer;
 
     /**
      * JsonHandler constructor.
@@ -130,7 +130,7 @@ class JsonHandler implements ContainerAwareInterface
      * @return array
      * @throws \Timiki\Bundle\RpcServerBundle\Exceptions\InvalidMappingException
      */
-    protected function loadMetadata()
+    private function loadMetadata()
     {
         return $this->mapper === null ? [] : $this->mapper->loadMetadata();
     }
@@ -160,7 +160,6 @@ class JsonHandler implements ContainerAwareInterface
         }
 
         try {
-
             $this->dispatch(Event\JsonRequestEvent::EVENT, new Event\JsonRequestEvent($jsonRequest));
 
             $jsonResponse = new JsonResponse($jsonRequest);
@@ -180,7 +179,6 @@ class JsonHandler implements ContainerAwareInterface
                 } else {
                     $jsonResponse->setResult($this->serialize($result));
                 }
-
             }
 
             // Save cache
@@ -189,7 +187,6 @@ class JsonHandler implements ContainerAwareInterface
             }
 
             $this->dispatch(Event\JsonResponseEvent::EVENT, new Event\JsonResponseEvent($jsonResponse));
-
         } catch (\Exception $exception) {
             $jsonResponse = $this->createJsonResponseFromException($exception, $jsonRequest);
         }
@@ -210,7 +207,6 @@ class JsonHandler implements ContainerAwareInterface
     private function isCacheSupport(JsonRequest $jsonRequest)
     {
         try {
-
             $object = $this->getMethod($jsonRequest);
             $metadata = $this->mapper->loadObjectMetadata($object);
 
@@ -218,7 +214,6 @@ class JsonHandler implements ContainerAwareInterface
                 && $metadata['cache']
                 && !$this->isDebug()
                 && $this->getCache();
-
         } catch (\Exception $e) {
             return false;
         }
@@ -232,7 +227,7 @@ class JsonHandler implements ContainerAwareInterface
      * @return object
      * @throws \Timiki\Bundle\RpcServerBundle\Exceptions\InvalidMappingException
      */
-    protected function getMethod($jsonRequest)
+    private function getMethod($jsonRequest)
     {
         $method = $jsonRequest->getMethod();
         $metadata = $this->loadMetadata();
@@ -253,7 +248,7 @@ class JsonHandler implements ContainerAwareInterface
      * @return mixed
      * @throws \Timiki\Bundle\RpcServerBundle\Exceptions\InvalidMappingException
      */
-    protected function executeJsonRequest($object, JsonRequest $jsonRequest)
+    private function executeJsonRequest($object, JsonRequest $jsonRequest)
     {
         $metadata = $this->mapper->loadObjectMetadata($object);
 
@@ -264,12 +259,9 @@ class JsonHandler implements ContainerAwareInterface
         }
 
         // Get params
-
         if (array_keys($jsonRequest->getParams()) === range(0, count($jsonRequest->getParams()) - 1)) {
-
             // Given only values
-
-            $values = $jsonRequest->getParams();
+            $values = $jsonRequest->getParams();  // Given only values
             $params = [];
 
             foreach (array_keys($metadata['params']) as $id => $key) {
@@ -277,7 +269,6 @@ class JsonHandler implements ContainerAwareInterface
                     $params[$key] = $values[$id];
                 }
             }
-
         } else {
             // Given name => value
             $params = $jsonRequest->getParams();
@@ -287,7 +278,6 @@ class JsonHandler implements ContainerAwareInterface
         $reflection = new \ReflectionObject($object);
 
         foreach ($params as $name => $value) {
-
             if (!$reflection->hasProperty($name)) {
                 throw new Exceptions\InvalidParamsException(null, $jsonRequest->getId());
             }
@@ -298,7 +288,6 @@ class JsonHandler implements ContainerAwareInterface
         }
 
         // Dispatch execute json
-
         $this->dispatch(
             Event\JsonExecuteEvent::EVENT,
             new Event\JsonExecuteEvent($object, $metadata)

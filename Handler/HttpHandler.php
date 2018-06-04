@@ -22,16 +22,25 @@ class HttpHandler
      *
      * @var JsonHandler|null
      */
-    protected $jsonHandler;
+    private $jsonHandler;
+
+    /**
+     * Response error code.
+     *
+     * @var integer
+     */
+    private $errorCode;
 
     /**
      * HttpHandler constructor.
      *
      * @param JsonHandler $jsonHandler
+     * @param integer $errorCode
      */
-    public function __construct(JsonHandler $jsonHandler)
+    public function __construct(JsonHandler $jsonHandler, $errorCode = 200)
     {
         $this->jsonHandler = $jsonHandler;
+        $this->errorCode = $errorCode;
     }
 
     /**
@@ -58,17 +67,14 @@ class HttpHandler
          * @return JsonRequest
          */
         $createJsonRequest = function ($json) use ($httpRequest) {
-
             $id = null;
             $method = null;
             $params = [];
 
             if (is_array($json)) {
-
                 $id = array_key_exists('id', $json) ? $json['id'] : null;
                 $method = array_key_exists('method', $json) ? $json['method'] : null;
                 $params = array_key_exists('params', $json) ? $json['params'] : [];
-
             }
 
             $request = new JsonRequest($method, $params, $id);
@@ -77,22 +83,14 @@ class HttpHandler
             return $request;
         };
 
+        // If batch request
         if (array_keys($json) === range(0, count($json) - 1)) {
-
-            // Batch request
-
             $requests = [];
-
             foreach ($json as $part) {
                 $requests[] = $createJsonRequest($part);
             }
-
         } else {
-
-            // Single request
-
             $requests = $createJsonRequest($json);
-
         }
 
         return $requests;
@@ -140,7 +138,6 @@ class HttpHandler
                         );
                     }
                 }
-
             };
 
             $collect($jsonResponses);
@@ -159,9 +156,8 @@ class HttpHandler
                 }
 
                 if ($jsonResponse->isError()) {
-                    $httpResponse->setStatusCode(500);
+                    $httpResponse->setStatusCode($this->errorCode);
                 }
-
             }
 
             $httpResponse->setContent(json_encode($results));
@@ -173,21 +169,17 @@ class HttpHandler
             }
 
             if ($jsonResponses->isError()) {
-                $httpResponse->setStatusCode(500);
+                $httpResponse->setStatusCode($this->errorCode);
             }
-
         }
 
         // Set httpResponse headers
-
         if (is_array($jsonResponses)) {
-
             foreach ($jsonResponses as $jsonResponse) {
                 if ($jsonResponse->isError() || $jsonResponse->getId()) {
                     $httpResponse->headers->add($jsonResponse->headers()->all());
                 }
             }
-
         } else {
             $httpResponse->headers->add($jsonResponses->headers()->all());
         }
@@ -217,7 +209,6 @@ class HttpHandler
         $json['error'] = [];
 
         if ($exception instanceof Exceptions\ErrorException) {
-
             $json['error']['code'] = $exception->getCode();
             $json['error']['message'] = $exception->getMessage();
 
@@ -226,18 +217,15 @@ class HttpHandler
             }
 
             $json['id'] = $exception->getId();
-
         } else {
-
             $json['error']['code'] = -32603;
             $json['error']['message'] = 'Internal error';
             $json['id'] = null;
-
         }
 
         $httpResponse->headers->set('Content-Type', 'application/json');
         $httpResponse->setContent(json_encode($json));
-        $httpResponse->setStatusCode(500);
+        $httpResponse->setStatusCode($this->errorCode);
 
         $this->dispatch(
             Event\HttpResponseEvent::EVENT,
@@ -254,7 +242,7 @@ class HttpHandler
      * @param $httpResponse
      * @param $exception
      */
-    protected function collectException($httpRequest, $httpResponse, $exception)
+    private function collectException($httpRequest, $httpResponse, $exception)
     {
         if ($this->profiler) {
             $collector = new ExceptionDataCollector();

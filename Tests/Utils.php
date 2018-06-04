@@ -40,7 +40,7 @@ class Utils
      */
     public static function getHandler($path = null)
     {
-        $mapper      = self::getMapper($path);
+        $mapper = self::getMapper($path);
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addSubscriber(new EventSubscriber\ValidateRequestSubscriber());
         $eventDispatcher->addSubscriber(new EventSubscriber\ValidatorSubscriber());
@@ -60,13 +60,13 @@ class Utils
      */
     public static function getHttpRequest($json)
     {
-        $query      = [];
-        $request    = [];
+        $query = [];
+        $request = [];
         $attributes = [];
-        $cookies    = [];
-        $files      = [];
-        $server     = [];
-        $content    = $json;
+        $cookies = [];
+        $files = [];
+        $server = [];
+        $content = $json;
 
         return new Request($query, $request, $attributes, $cookies, $files, $server, $content);
     }

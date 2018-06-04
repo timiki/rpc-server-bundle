@@ -23,10 +23,10 @@ class RpcServerExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
-        $config        = $this->processConfiguration($configuration, $configs);
-
+        $config = $this->processConfiguration($configuration, $configs);
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
+        $errorCode = empty($config['error_code']) ? 200 : $config['error_code'];
 
         /**
          * Cache
@@ -35,7 +35,6 @@ class RpcServerExtension extends Extension
         $cacheId = empty($config['cache']) ? 'rpc.server.cache' : $config['cache'];
 
         if (!$container->hasDefinition($cacheId)) {
-
             $cacheDefinition = new Definition(
                 'Doctrine\Common\Cache\FilesystemCache',
                 ['%kernel.cache_dir%/rpc', '',]
@@ -52,7 +51,6 @@ class RpcServerExtension extends Extension
         $serializerId = empty($config['serializer']) ? 'rpc.server.serializer' : $config['serializer'];
 
         if (!$container->hasDefinition($serializerId)) {
-
             $serializerDefinition = new Definition(
                 'Timiki\Bundle\RpcServerBundle\Serializer\BaseSerializer',
                 [new Reference('serializer', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
@@ -69,12 +67,10 @@ class RpcServerExtension extends Extension
          * @param $paths
          */
 
-        $createMapping = function ($name, $paths) use ($cacheId, $serializerId, $container) {
-
+        $createMapping = function ($name, $paths) use ($cacheId, $serializerId, $container, $errorCode) {
             // Mapper
-
             $mapperId = empty($name) ? 'rpc.server.mapper' : 'rpc.server.mapper.'.$name;
-            $mapper   = new Definition('Timiki\Bundle\RpcServerBundle\Mapper\Mapper');
+            $mapper = new Definition('Timiki\Bundle\RpcServerBundle\Mapper\Mapper');
 
             $mapper->setPublic(true);
             $mapper->addMethodCall(
@@ -100,11 +96,11 @@ class RpcServerExtension extends Extension
             // Json Handler
 
             $jsonHandlerId = empty($name) ? 'rpc.server.json_handler' : 'rpc.server.json_handler.'.$name;
-            $jsonHandler   = new Definition(
+            $jsonHandler = new Definition(
                 'Timiki\Bundle\RpcServerBundle\Handler\JsonHandler',
                 [
                     new Reference($mapperId),
-                    new Reference($serializerId)
+                    new Reference($serializerId),
                 ]
             );
 
@@ -132,8 +128,8 @@ class RpcServerExtension extends Extension
             // Http handler
 
             $httpHandlerId = empty($name) ? 'rpc.server.http_handler' : 'rpc.server.http_handler.'.$name;
-            $httpHandler   = new Definition(
-                'Timiki\Bundle\RpcServerBundle\Handler\HttpHandler', [new Reference($jsonHandlerId)]
+            $httpHandler = new Definition(
+                'Timiki\Bundle\RpcServerBundle\Handler\HttpHandler', [new Reference($jsonHandlerId), $errorCode]
             );
 
             $httpHandler->setPublic(true);
@@ -148,14 +144,13 @@ class RpcServerExtension extends Extension
             );
 
             // Set definitions
-
             $container->setDefinition($mapperId, $mapper);
             $container->setDefinition($jsonHandlerId, $jsonHandler);
             $container->setDefinition($httpHandlerId, $httpHandler);
         };
 
         $defaultMapping = [];
-        $mapping        = $config['mapping'];
+        $mapping = $config['mapping'];
 
         if (empty($mapping)) {
             $mapping = [];
