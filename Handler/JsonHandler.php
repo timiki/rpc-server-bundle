@@ -167,7 +167,7 @@ class JsonHandler implements ContainerAwareInterface
             $metadata = $this->mapper->loadObjectMetadata($object);
 
             // Cache
-            if ($this->isCacheSupport($jsonRequest)) {
+            if ($this->isCacheSupport($jsonRequest) && $this->getCache()->contains($jsonRequest->getHash())) {
                 $jsonResponse->setResult($this->getCache()->fetch($jsonRequest->getHash()));
             } else {
 
