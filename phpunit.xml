@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/5.3/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
-         backupGlobals="false"
-         colors="true"
-         beStrictAboutCoversAnnotation="true"
-         beStrictAboutOutputDuringTests="true"
-         beStrictAboutTestsThatDoNotTestAnything="true"
-         beStrictAboutTodoAnnotatedTests="true"
-         verbose="true">
 
+<phpunit colors="true" bootstrap="./vendor/autoload.php">
     <php>
-        <ini name="display_errors" value="On" />
-        <ini name="display_startup_errors" value="On" />
+        <server name="KERNEL_DIR" value="dev"/>
+        <server name="KERNEL_CLASS" value="\AppKernel"/>
     </php>
-
     <testsuites>
         <testsuite name="Timiki JSON-RPC Test Suite">
-            <directory>./Tests/</directory>
+            <directory>./tests</directory>
         </testsuite>
     </testsuites>
 
+    <filter>
+        <whitelist>
+            <directory>./src</directory>
+            <exclude>
+                <directory>./dev</directory>
+            </exclude>
+        </whitelist>
+    </filter>
 </phpunit>

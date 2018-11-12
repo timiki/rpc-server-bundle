@@ -1,0 +1,17 @@
+imports:
+    - { resource: services.yml }
+
+framework:
+    secret: test
+    router:
+        resource: '%kernel.root_dir%/config/routing.yml'
+    session:
+        handler_id: ~
+
+rpc_server:
+    mapping:
+       v1:
+          - '%kernel.root_dir%/../tests/Method'
+       v2:
+          - '%kernel.root_dir%/../tests/Method/SubMethod'
+

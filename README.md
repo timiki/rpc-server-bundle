@@ -45,25 +45,20 @@ rpc_server:
 
 Main configs:
 
-**mapping** Path to JSON-RPC methods. Default null (Search dir Method in all bundles).
+**mapping** Path to JSON-RPC methods.
 
-```yaml
-
-// Methods in bundle
-
-mapping: 
-    - "@AppBundle/Method"
-    - "@MyBundle/Method"
- 
-mapping: "@AppBundle/Method"
- 
-// Or methods by path
+```yaml 
+//  methods by path
  
 mapping: 
     - "path/to/method"
     - "path/to/other/method"
     
 mapping: "path/to/method"
+
+mapping: 
+      v1:
+       - "path/to/method/v1"
 
 ```
     
