@@ -13,5 +13,6 @@ install:
   - composer install --prefer-dist
 
 script:
+  - php bin/phpstan analyse -l 5 -c phpstan.neon src
   - bin/php-cs-fixer fix --dry-run -v --using-cache=no
   - bin/phpunit

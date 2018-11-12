@@ -33,7 +33,7 @@ class JsonExecuteEvent extends Event
     /**
      * JsonExecuteEvent constructor.
      *
-     * @param $object
+     * @param object         $object
      * @param MethodMetaData $metadata
      * @param JsonRequest    $jsonRequest
      */
@@ -57,7 +57,7 @@ class JsonExecuteEvent extends Event
     /**
      * Get metadata.
      *
-     * @return array
+     * @return MethodMetaData
      */
     public function getMetadata(): MethodMetaData
     {

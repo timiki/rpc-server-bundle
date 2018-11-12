@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\Serializer;
 class BaseSerializer implements SerializerInterface
 {
     /**
-     * @var Serializer
+     * @var null|Serializer
      */
     protected $serializer;
 

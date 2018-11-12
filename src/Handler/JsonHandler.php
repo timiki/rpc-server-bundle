@@ -32,7 +32,7 @@ class JsonHandler implements ContainerAwareInterface
     /**
      * Serializer.
      *
-     * @var SerializerInterface
+     * @var null|SerializerInterface
      */
     private $serializer;
 
@@ -55,7 +55,7 @@ class JsonHandler implements ContainerAwareInterface
      */
     public function isDebug()
     {
-        if ($this->container && $this->container->has('kernel')) {
+        if (null !== $this->container && $this->container->has('kernel')) {
             return $this->container->get('kernel')->isDebug();
         }
 
@@ -75,7 +75,7 @@ class JsonHandler implements ContainerAwareInterface
     /**
      * Serialize data.
      *
-     * @param $data
+     * @param mixed $data
      *
      * @return null|array|int|\JsonSerializable|string
      */
@@ -111,8 +111,8 @@ class JsonHandler implements ContainerAwareInterface
         $jsonResponse = new JsonResponse();
 
         if ($exception instanceof Exceptions\ErrorException) {
-            $jsonResponse->setErrorCode($exception->getCode());
-            $jsonResponse->setErrorMessage($exception->getMessage());
+            $jsonResponse->setErrorCode(0 !== $exception->getCode() ? $exception->getCode() : -32603);
+            $jsonResponse->setErrorMessage(!empty($exception->getMessage()) ? $exception->getMessage() : 'Internal error');
             $jsonResponse->setErrorData($exception->getData());
         } else {
             $jsonResponse->setErrorCode(0 !== $exception->getCode() ? $exception->getCode() : -32603);
@@ -200,10 +200,8 @@ class JsonHandler implements ContainerAwareInterface
     private function isCacheSupport(JsonRequest $jsonRequest)
     {
         try {
-            $object = $this->getMethod($jsonRequest);
-
             return $jsonRequest->getId()
-                && null !== $object->getCache()
+                && null !== $this->getMethod($jsonRequest)->getCache()
                 && !$this->isDebug()
                 && $this->getCache();
         } catch (\Exception $e) {
@@ -212,7 +210,7 @@ class JsonHandler implements ContainerAwareInterface
     }
 
     /**
-     * @param $jsonRequest
+     * @param JsonRequest $jsonRequest
      *
      * @return MethodMetaData
      */
@@ -238,7 +236,7 @@ class JsonHandler implements ContainerAwareInterface
         $method = clone $this->container->get($methodMetaData->getMethod());
 
         // Inject container
-        if ($method instanceof ContainerAwareInterface && $this->container) {
+        if ($method instanceof ContainerAwareInterface && null !== $this->container) {
             $method->setContainer($this->container);
         }
 

@@ -4,9 +4,6 @@ namespace Timiki\Bundle\RpcServerBundle\Traits;
 
 use Symfony\Component\Stopwatch\Stopwatch;
 
-/**
- * Stop watch trait.
- */
 trait StopwatchTrait
 {
     /**

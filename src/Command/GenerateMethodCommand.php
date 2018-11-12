@@ -52,7 +52,7 @@ EOT
 
                 $answer = \str_replace(' ', ':', $answer);
 
-                if ($this->isMethodExist($container->get('kernel')->getBundle($bundle), $answer)) {
+                if ($this->isMethodExist($container->get('kernel')->getBundle($bundle))) {
                     throw new \RuntimeException(
                         \sprintf(
                             'Method "%s" already exist.',
@@ -70,8 +70,8 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $io        = new SymfonyStyle($input, $output);
-        $name      = \str_replace(' ', ':', $input->getArgument('name'));
+        $io   = new SymfonyStyle($input, $output);
+        $name = \str_replace(' ', ':', $input->getArgument('name'));
 
         if ($this->isMethodExist($name)) {
             throw new \RuntimeException(
@@ -95,8 +95,8 @@ EOT
         }
 
         $parameters = [
-            'class'     => $methodClassName,
-            'name'      => $name,
+            'class' => $methodClassName,
+            'name'  => $name,
         ];
 
         $this->renderFile('Method.php.twig', $methodFile, $parameters);
@@ -143,8 +143,8 @@ EOT
     }
 
     /**
-     * @param $template
-     * @param $parameters
+     * @param string $template
+     * @param array  $parameters
      *
      * @throws \Twig_Error_Loader
      * @throws \Twig_Error_Runtime
@@ -180,9 +180,9 @@ EOT
     }
 
     /**
-     * @param $template
-     * @param $target
-     * @param $parameters
+     * @param string $template
+     * @param string $target
+     * @param array  $parameters
      *
      * @throws \Twig_Error_Loader
      * @throws \Twig_Error_Runtime

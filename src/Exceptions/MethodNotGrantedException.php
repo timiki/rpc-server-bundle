@@ -7,8 +7,8 @@ class MethodNotGrantedException extends ErrorException
     /**
      * MethodNotGrantedException constructor.
      *
-     * @param null $data
-     * @param null $id
+     * @param mixed $data
+     * @param mixed $id
      */
     public function __construct($data = null, $id = null)
     {

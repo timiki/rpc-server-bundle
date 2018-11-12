@@ -27,6 +27,8 @@ class RpcServerExtension extends Extension
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \Exception
      */
     public function load(array $configs, ContainerBuilder $container)
     {
@@ -74,8 +76,8 @@ class RpcServerExtension extends Extension
         /**
          * Mapping.
          *
-         * @param $name
-         * @param $paths
+         * @param string       $name
+         * @param array|string $paths
          */
         $createMapping = function ($name, $paths) use ($cacheId, $serializerId, $container, $errorCode) {
             // Mapper
@@ -175,9 +177,12 @@ class RpcServerExtension extends Extension
                     ->setAutowired(true)
                     ->setAutoconfigured(true)
                     ->setPublic(true)
-                    ->addTag(MethodInterface::class, [
-                        'mapperId' => $mapperId,
-                    ]);
+                    ->addTag(
+                        MethodInterface::class,
+                        [
+                            'mapperId' => $mapperId,
+                        ]
+                    );
             }
         }
     }
@@ -216,7 +221,7 @@ class RpcServerExtension extends Extension
 
                 $classes = $this->loadedMethodPath[$path]['classes'] ?? [];
                 // merge all classes to parent
-                $this->loadedMethodPath[$path]['classes'] = \array_merge($classes, (array) $diff ?? []);
+                $this->loadedMethodPath[$path]['classes'] = \array_merge($classes, $diff ?? []);
             }
         }
     }

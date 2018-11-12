@@ -4,15 +4,12 @@ namespace Timiki\Bundle\RpcServerBundle\Traits;
 
 use Symfony\Component\HttpKernel\Profiler\Profiler;
 
-/**
- * Profiler trait.
- */
 trait ProfilerTrait
 {
     /**
      * Profiler.
      *
-     * @var Profiler
+     * @var null|Profiler
      */
     protected $profiler;
 

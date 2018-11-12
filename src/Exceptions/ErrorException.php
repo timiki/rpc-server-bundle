@@ -28,9 +28,10 @@ class ErrorException extends RuntimeException
      * @param null   $data
      * @param null   $id
      */
-    public function __construct($message = '', $code = 0, $data = null, $id = null)
+    public function __construct($message = '', $code = -32603, $data = null, $id = null)
     {
         $this->data = $data;
+        $this->id   = $id;
 
         parent::__construct($message, $code);
     }

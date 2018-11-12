@@ -20,7 +20,7 @@ class MethodMetaData
     private $params;
 
     /**
-     * @var int
+     * @var null|int
      */
     private $cache;
 
@@ -63,9 +63,9 @@ class MethodMetaData
     }
 
     /**
-     * @return int
+     * @return null|int
      */
-    public function getCache(): ?int
+    public function getCache()
     {
         return $this->cache;
     }

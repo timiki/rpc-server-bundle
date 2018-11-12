@@ -10,7 +10,7 @@ use Timiki\Bundle\RpcServerBundle\Exceptions\MethodNotGrantedException;
 class AuthorizationCheckerSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var AuthorizationCheckerInterface
+     * @var null|AuthorizationCheckerInterface
      */
     private $authChecker;
 

@@ -5,15 +5,12 @@ namespace Timiki\Bundle\RpcServerBundle\Traits;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Event dispatcher trait.
- */
 trait EventDispatcherTrait
 {
     /**
      * Event dispatcher.
      *
-     * @var EventDispatcherInterface
+     * @var null|EventDispatcherInterface
      */
     protected $eventDispatcher;
 

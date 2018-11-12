@@ -21,9 +21,8 @@ class HttpExceptionEvent extends HttpResponseEvent
      */
     public function __construct(HttpResponse $httpResponse, \Exception $exception)
     {
+        $this->exception = $exception;
         parent::__construct($httpResponse);
-
-        $this->exception = $httpResponse;
     }
 
     /**

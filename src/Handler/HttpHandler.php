@@ -63,7 +63,7 @@ class HttpHandler
         /**
          * Create new JsonRequest.
          *
-         * @param $json
+         * @param array $json
          *
          * @return JsonRequest
          */
@@ -234,9 +234,9 @@ class HttpHandler
     /**
      * Collect exception.
      *
-     * @param $httpRequest
-     * @param $httpResponse
-     * @param $exception
+     * @param HttpRequest  $httpRequest
+     * @param HttpResponse $httpResponse
+     * @param \Exception   $exception
      */
     private function collectException($httpRequest, $httpResponse, $exception)
     {

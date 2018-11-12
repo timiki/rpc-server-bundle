@@ -4,13 +4,10 @@ namespace Timiki\Bundle\RpcServerBundle\Traits;
 
 use Doctrine\Common\Cache\CacheProvider;
 
-/**
- * Cache trait.
- */
 trait CacheTrait
 {
     /**
-     * @var CacheProvider
+     * @var null|CacheProvider
      */
     protected $cache;
 
@@ -27,7 +24,7 @@ trait CacheTrait
     /**
      * Get cache.
      *
-     * @return CacheProvider
+     * @return null|CacheProvider
      */
     public function getCache()
     {
