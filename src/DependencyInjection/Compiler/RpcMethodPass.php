@@ -40,10 +40,10 @@ class RpcMethodPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        $methods = $container->findTaggedServiceIds(MethodInterface::class);
+        $taggedMethods = $container->findTaggedServiceIds(MethodInterface::class);
 
         // Collect meta data from methods tags
-        foreach ($methods as $methodId => $attrs) {
+        foreach ($taggedMethods as $methodId => $attrs) {
             foreach ($attrs as $attr) {
                 $cacheForMapperId = $attr['mapperId'];
 
@@ -57,15 +57,14 @@ class RpcMethodPass implements CompilerPassInterface
             }
         }
 
-        $mappers = $container->findTaggedServiceIds(MapperInterface::class);
+        $taggedMappers = $container->findTaggedServiceIds(MapperInterface::class);
 
+        $methodsMetaData = [];
         // Inject method meta data to mapper
-        foreach ($mappers as $mapperId => $mapperAttr) {
+        foreach ($taggedMappers as $mapperId => $mapperAttr) {
             if (false === isset($this->methodMeta[$mapperId])) {
                 continue; // Method not exists
             }
-
-            $definition = $container->getDefinition($mapperId);
 
             $methodsMeta = $this->methodMeta[$mapperId];
 
@@ -74,18 +73,21 @@ class RpcMethodPass implements CompilerPassInterface
                     continue;
                 }
 
-                $definition->addMethodCall('addMethod', [
-                    $meta['method'],
-                    [
-                        $methodId,
-                        $meta['executeMethod'],
-                        $meta['params'],
-                        $meta['cache'],
-                        $meta['roles'],
-                        $meta['cache'],
-                    ],
-                ]);
+                $methodsMetaData[$mapperId][$meta['method']] = [
+                    $methodId,
+                    $meta['executeMethod'],
+                    $meta['params'],
+                    $meta['cache'],
+                    $meta['roles'],
+                    $meta['cache'],
+                ];
             }
+        }
+
+        // Inject method meta data to mapper
+        foreach ($methodsMetaData as $mapperId => $methods) {
+            $definition = $container->getDefinition($mapperId);
+            $definition->addMethodCall('addMethods', [$methods]);
         }
     }
 
