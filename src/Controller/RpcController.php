@@ -19,7 +19,7 @@ class RpcController extends Controller
         $handler = 'rpc.server.http_handler';
 
         if (null !== $version && '' !== $version) {
-            $handler .= '.' . \mb_strtolower(\str_replace('.', '', $version));
+            $handler .= '.'.\mb_strtolower(\str_replace('.', '', $version));
         }
 
         if (true === $this->has($handler)) {

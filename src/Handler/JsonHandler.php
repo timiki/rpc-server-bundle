@@ -44,7 +44,7 @@ class JsonHandler implements ContainerAwareInterface
      */
     public function __construct(Mapper $mapper, SerializerInterface $serializer = null)
     {
-        $this->mapper     = $mapper;
+        $this->mapper = $mapper;
         $this->serializer = $serializer;
     }
 
@@ -153,8 +153,8 @@ class JsonHandler implements ContainerAwareInterface
             $this->dispatch(Event\JsonRequestEvent::EVENT, new Event\JsonRequestEvent($jsonRequest));
 
             $metadata = $this->getMethod($jsonRequest);
-            $isCache  = $this->isCacheSupport($jsonRequest);
-            $cacheId  = $jsonRequest->getHash();
+            $isCache = $this->isCacheSupport($jsonRequest);
+            $cacheId = $jsonRequest->getHash();
 
             $jsonResponse = new JsonResponse($jsonRequest);
             // Cache

@@ -118,12 +118,12 @@ class RpcMethodPass implements CompilerPassInterface
         }
 
         $meta['method'] = $method->value;
-        $meta['class']  = $reflectionClass->getName();
-        $meta['file']   = $reflectionClass->getFileName();
+        $meta['class'] = $reflectionClass->getName();
+        $meta['file'] = $reflectionClass->getFileName();
 
         // Cache
         $meta['cache'] = null;
-        $cache         = $this->reader->getClassAnnotation($reflectionClass, Mapping\Cache::class);
+        $cache = $this->reader->getClassAnnotation($reflectionClass, Mapping\Cache::class);
         /** @var Mapping\Cache $cache */
         if (null !== $cache) {
             $meta['cache'] = (int) $cache->lifetime;
@@ -131,7 +131,7 @@ class RpcMethodPass implements CompilerPassInterface
 
         // Roles
         $meta['roles'] = null;
-        $roles         = $this->reader->getClassAnnotation($reflectionClass, Mapping\Roles::class);
+        $roles = $this->reader->getClassAnnotation($reflectionClass, Mapping\Roles::class);
         /** @var Mapping\Roles $roles */
         if (null !== $roles) {
             $meta['roles'] = (array) $roles->value;

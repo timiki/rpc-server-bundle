@@ -40,7 +40,7 @@ class HttpHandler
     public function __construct(JsonHandler $jsonHandler, $errorCode = 200)
     {
         $this->jsonHandler = $jsonHandler;
-        $this->errorCode   = $errorCode;
+        $this->errorCode = $errorCode;
     }
 
     /**
@@ -68,12 +68,12 @@ class HttpHandler
          * @return JsonRequest
          */
         $createJsonRequest = function ($json) use ($httpRequest) {
-            $id     = null;
+            $id = null;
             $method = null;
             $params = [];
 
             if (\is_array($json)) {
-                $id     = \array_key_exists('id', $json) ? $json['id'] : null;
+                $id = \array_key_exists('id', $json) ? $json['id'] : null;
                 $method = \array_key_exists('method', $json) ? $json['method'] : null;
                 $params = \array_key_exists('params', $json) ? $json['params'] : [];
             }
@@ -107,7 +107,7 @@ class HttpHandler
     public function handleHttpRequest(HttpRequest $httpRequest)
     {
         // @var Event\HttpRequestEvent $event
-        $event       = $this->dispatch(Event\HttpRequestEvent::EVENT, new Event\HttpRequestEvent($httpRequest));
+        $event = $this->dispatch(Event\HttpRequestEvent::EVENT, new Event\HttpRequestEvent($httpRequest));
         $httpRequest = $event->getHttpRequest();
 
         try {
@@ -117,10 +117,9 @@ class HttpHandler
         }
 
         $jsonResponses = $this->jsonHandler->handleJsonRequest($jsonRequests);
-        $httpResponse  = HttpResponse::create();
+        $httpResponse = HttpResponse::create();
 
         if ($this->profiler) {
-
             /**
              * @param JsonResponse|JsonResponse[] $jsonResponse
              */
@@ -199,13 +198,13 @@ class HttpHandler
      */
     public function createHttpResponseFromException(\Exception $exception)
     {
-        $httpResponse    = HttpResponse::create();
-        $json            = [];
+        $httpResponse = HttpResponse::create();
+        $json = [];
         $json['jsonrpc'] = '2.0';
-        $json['error']   = [];
+        $json['error'] = [];
 
         if ($exception instanceof Exceptions\ErrorException) {
-            $json['error']['code']    = $exception->getCode();
+            $json['error']['code'] = $exception->getCode();
             $json['error']['message'] = $exception->getMessage();
 
             if ($exception->getData()) {
@@ -214,9 +213,9 @@ class HttpHandler
 
             $json['id'] = $exception->getId();
         } else {
-            $json['error']['code']    = -32603;
+            $json['error']['code'] = -32603;
             $json['error']['message'] = 'Internal error';
-            $json['id']               = null;
+            $json['id'] = null;
         }
 
         $httpResponse->headers->set('Content-Type', 'application/json');
@@ -245,5 +244,15 @@ class HttpHandler
             $collector->collect($httpRequest, $httpResponse, $exception);
             $this->profiler->add($collector);
         }
+    }
+
+    /**
+     * Get Json handler.
+     *
+     * @return null|\Timiki\Bundle\RpcServerBundle\Handler\JsonHandler
+     */
+    public function getJsonHandler()
+    {
+        return $this->jsonHandler;
     }
 }

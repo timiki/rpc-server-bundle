@@ -29,7 +29,7 @@ class RpcServerExtensionTest extends TestCase
                    'testMapping',
                    'forTestName' => 'testNameMapping',
                 ],
-                'cache'      => 'myTestCache',
+                'cache' => 'myTestCache',
                 'serializer' => 'myTestSerializer',
                 'error_code' => 302,
             ],

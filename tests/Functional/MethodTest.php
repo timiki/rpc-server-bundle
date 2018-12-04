@@ -56,15 +56,15 @@ class MethodTest extends WebTestCase
         $data = [
             [
                 'jsonrpc' => '2.0',
-                'method'  => 'get_data',
-                'params'  => [
+                'method' => 'get_data',
+                'params' => [
                     'a' => 1111,
                 ],
-                'id'      => 9,
+                'id' => 9,
             ],
             [
                 'jsonrpc' => '2.0',
-                'result'  => [
+                'result' => [
                     'hello',
                     5,
                 ],
@@ -80,73 +80,73 @@ class MethodTest extends WebTestCase
         $data = [
             [
                 'jsonrpc' => '2.0',
-                'method'  => 'sum',
-                'params'  => [1, 2, 4],
-                'id'      => 1,
+                'method' => 'sum',
+                'params' => [1, 2, 4],
+                'id' => 1,
             ],
             [
                 'jsonrpc' => '2.0',
-                'method'  => 'notify_hello',
-                'params'  => [7],
+                'method' => 'notify_hello',
+                'params' => [7],
             ],
             [
                 'jsonrpc' => '2.0',
-                'method'  => 'subtract',
-                'params'  => [42, 23],
-                'id'      => 2,
+                'method' => 'subtract',
+                'params' => [42, 23],
+                'id' => 2,
             ],
             [
                 'foo' => 'boo',
             ],
             [
                 'jsonrpc' => '2.0',
-                'method'  => 'foo.get',
-                'params'  => [
+                'method' => 'foo.get',
+                'params' => [
                     'name' => 'myself',
                 ],
-                'id'      => 5,
+                'id' => 5,
             ],
             [
                 'jsonrpc' => '2.0',
-                'method'  => 'get_data',
-                'id'      => 9,
+                'method' => 'get_data',
+                'id' => 9,
             ],
         ];
 
         $expected = [
             [
                 'jsonrpc' => '2.0',
-                'result'  => 7,
-                'id'      => 1,
+                'result' => 7,
+                'id' => 1,
             ],
             [
                 'jsonrpc' => '2.0',
-                'result'  => 19,
-                'id'      => 2,
+                'result' => 19,
+                'id' => 2,
             ],
             [
                 'jsonrpc' => '2.0',
-                'error'   => [
-                     'code'   => -32600,
+                'error' => [
+                     'code' => -32600,
                     'message' => 'Invalid Request',
                 ],
                 'id' => null,
             ],
             [
                 'jsonrpc' => '2.0',
-                'error'   => [
-                     'code'   => -32601,
+                'error' => [
+                     'code' => -32601,
                     'message' => 'Method not found',
-                     'data'   => 'foo.get',
+                     'data' => 'foo.get',
                 ],
                 'id' => 5,
             ],
             [
                 'jsonrpc' => '2.0',
-                'error'   => [
-                    'code'    => -32602,
+                'error' => [
+                    'code' => -32602,
                     'message' => 'Invalid params',
-                    'data'    => [
+                    'data' => [
                         'a' => [
                             'This value should not be blank.',
                         ],
@@ -154,7 +154,6 @@ class MethodTest extends WebTestCase
                 ],
                 'id' => 9,
             ],
-
         ];
 
         return [$data, $expected];
@@ -164,16 +163,16 @@ class MethodTest extends WebTestCase
     {
         $data = [
             'jsonrpc' => '2.0',
-            'method'  => 'get_error',
-            'id'      => 1,
+            'method' => 'get_error',
+            'id' => 1,
         ];
 
         $expected = [
             'jsonrpc' => '2.0',
-            'error'   => [
-                'code'    => -32002,
+            'error' => [
+                'code' => -32002,
                 'message' => 'Method exception',
-                'data'    => 'Exception data',
+                'data' => 'Exception data',
             ],
             'id' => 1,
         ];
@@ -185,15 +184,15 @@ class MethodTest extends WebTestCase
     {
         $data = [
             'jsonrpc' => '2.0',
-            'method'  => 'subtract',
-            'params'  => [42, 23],
-            'id'      => 1,
+            'method' => 'subtract',
+            'params' => [42, 23],
+            'id' => 1,
         ];
 
         $expected = [
             'jsonrpc' => '2.0',
-            'result'  => 19,
-            'id'      => 1,
+            'result' => 19,
+            'id' => 1,
         ];
 
         return [$data, $expected];
@@ -203,15 +202,15 @@ class MethodTest extends WebTestCase
     {
         $data = [
             'jsonrpc' => '2.0',
-            'method'  => 'subtract',
-            'params'  => [23, 42],
-            'id'      => 1,
+            'method' => 'subtract',
+            'params' => [23, 42],
+            'id' => 1,
         ];
 
         $expected = [
             'jsonrpc' => '2.0',
-            'result'  => -19,
-            'id'      => 1,
+            'result' => -19,
+            'id' => 1,
         ];
 
         return [$data, $expected];
@@ -221,15 +220,15 @@ class MethodTest extends WebTestCase
     {
         $data = [
             'jsonrpc' => '2.0',
-            'method'  => 'subtract',
-            'params'  => ['subtrahend' => 23, 'minuend' => 42],
-            'id'      => 1,
+            'method' => 'subtract',
+            'params' => ['subtrahend' => 23, 'minuend' => 42],
+            'id' => 1,
         ];
 
         $expected = [
             'jsonrpc' => '2.0',
-            'result'  => -19,
-            'id'      => 1,
+            'result' => -19,
+            'id' => 1,
         ];
 
         return [$data, $expected];
@@ -239,8 +238,8 @@ class MethodTest extends WebTestCase
     {
         $data = [
             'jsonrpc' => '2.0',
-            'method'  => 'update',
-            'params'  => [1, 2, 3, 4, 5],
+            'method' => 'update',
+            'params' => [1, 2, 3, 4, 5],
         ];
 
         $expected = '';
@@ -252,16 +251,16 @@ class MethodTest extends WebTestCase
     {
         $data = [
             'jsonrpc' => '2.0',
-            'method'  => 'foobar',
-            'id'      => 1,
+            'method' => 'foobar',
+            'id' => 1,
         ];
 
         $expected = [
             'jsonrpc' => '2.0',
-            'error'   => [
-                'code'    => -32601,
+            'error' => [
+                'code' => -32601,
                 'message' => 'Method not found',
-                'data'    => 'foobar',
+                'data' => 'foobar',
             ],
             'id' => 1,
         ];
@@ -275,8 +274,8 @@ class MethodTest extends WebTestCase
 
         $expected = [
             'jsonrpc' => '2.0',
-            'error'   => [
-                'code'    => -32700,
+            'error' => [
+                'code' => -32700,
                 'message' => 'Parse error',
             ],
             'id' => null,
@@ -291,8 +290,8 @@ class MethodTest extends WebTestCase
 
         $expected = [
             'jsonrpc' => '2.0',
-            'error'   => [
-                'code'    => -32700,
+            'error' => [
+                'code' => -32700,
                 'message' => 'Parse error',
             ],
             'id' => null,
@@ -305,14 +304,14 @@ class MethodTest extends WebTestCase
     {
         $data = [
             'jsonrpc' => '2.0',
-            'method'  => 1,
-            'params'  => 'bar',
+            'method' => 1,
+            'params' => 'bar',
         ];
 
         $expected = [
             'jsonrpc' => '2.0',
-            'error'   => [
-                'code'    => -32600,
+            'error' => [
+                'code' => -32600,
                 'message' => 'Invalid Request',
             ],
             'id' => null,
@@ -327,8 +326,8 @@ class MethodTest extends WebTestCase
 
         $expected = [
             'jsonrpc' => '2.0',
-            'error'   => [
-                'code'    => -32600,
+            'error' => [
+                'code' => -32600,
                 'message' => 'Invalid Request',
             ],
             'id' => null,
@@ -344,8 +343,8 @@ class MethodTest extends WebTestCase
         $expected = [
            [
                'jsonrpc' => '2.0',
-               'error'   => [
-                   'code'    => -32600,
+               'error' => [
+                   'code' => -32600,
                    'message' => 'Invalid Request',
                ],
                'id' => null,
@@ -361,8 +360,8 @@ class MethodTest extends WebTestCase
 
         $expectedSnapshot = [
             'jsonrpc' => '2.0',
-            'error'   => [
-                'code'    => -32600,
+            'error' => [
+                'code' => -32600,
                 'message' => 'Invalid Request',
             ],
             'id' => null,
@@ -383,7 +382,7 @@ class MethodTest extends WebTestCase
             $data = \json_encode($data);
         }
 
-        $this->client->request(Request::METHOD_POST, '/' . $version, [], [], [], $data);
+        $this->client->request(Request::METHOD_POST, '/'.$version, [], [], [], $data);
 
         return $this->client->getResponse();
     }

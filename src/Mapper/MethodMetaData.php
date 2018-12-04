@@ -31,11 +31,11 @@ class MethodMetaData
 
     public function __construct(string $method, string $execute, array $params = [], $cache = null, array $roles = null)
     {
-        $this->method  = $method;
+        $this->method = $method;
         $this->execute = $execute;
-        $this->params  = $params;
-        $this->cache   = $cache;
-        $this->roles   = $roles;
+        $this->params = $params;
+        $this->cache = $cache;
+        $this->roles = $roles;
     }
 
     /**

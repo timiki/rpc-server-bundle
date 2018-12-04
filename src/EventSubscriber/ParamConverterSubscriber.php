@@ -23,7 +23,7 @@ class ParamConverterSubscriber implements EventSubscriberInterface
      */
     public function convert(JsonExecuteEvent $event)
     {
-        $jsonRequest    = $event->getJsonRequest();
+        $jsonRequest = $event->getJsonRequest();
         $methodMetaData = $event->getMetadata();
 
         // Get params
@@ -43,7 +43,7 @@ class ParamConverterSubscriber implements EventSubscriberInterface
         }
 
         // Inject params
-        $reflection    = $event->getObjectReflection();
+        $reflection = $event->getObjectReflection();
         $methodHandler = $event->getObject();
 
         foreach ($params as $name => $value) {

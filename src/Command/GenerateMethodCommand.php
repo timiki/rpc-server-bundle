@@ -29,9 +29,9 @@ EOT
 
     public function interact(InputInterface $input, OutputInterface $output)
     {
-        $io        = new SymfonyStyle($input, $output);
-        $bundle    = $input->getArgument('bundle');
-        $name      = $input->getArgument('name');
+        $io = new SymfonyStyle($input, $output);
+        $bundle = $input->getArgument('bundle');
+        $name = $input->getArgument('name');
         $container = $this->getContainer();
 
         if (null !== $bundle && null !== $name) {
@@ -70,7 +70,7 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $io   = new SymfonyStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $name = \str_replace(' ', ':', $input->getArgument('name'));
 
         if ($this->isMethodExist($name)) {
@@ -83,7 +83,7 @@ EOT
         }
 
         $methodClassName = $this->classify($name);
-        $methodFile      = $this->getMethodPath($name);
+        $methodFile = $this->getMethodPath($name);
 
         if (\file_exists($methodFile)) {
             throw new \RuntimeException(
@@ -96,7 +96,7 @@ EOT
 
         $parameters = [
             'class' => $methodClassName,
-            'name'  => $name,
+            'name' => $name,
         ];
 
         $this->renderFile('Method.php.twig', $methodFile, $parameters);
@@ -127,9 +127,9 @@ EOT
      */
     protected function getMethodPath($name)
     {
-        $methodDir = $this->getContainer()->getParameter('kernel.root_dir') . '/Method';
+        $methodDir = $this->getContainer()->getParameter('kernel.root_dir').'/Method';
 
-        return $methodDir . '/' . $this->classify($name) . '.php';
+        return $methodDir.'/'.$this->classify($name).'.php';
     }
 
     /**
@@ -139,7 +139,7 @@ EOT
      */
     protected function classify($string)
     {
-        return \str_replace(' ', '', \ucwords(\strtr($string, '_-:', '   '))) . 'Method';
+        return \str_replace(' ', '', \ucwords(\strtr($string, '_-:', '   '))).'Method';
     }
 
     /**
@@ -167,14 +167,14 @@ EOT
         return new \Twig_Environment(
             new \Twig_Loader_Filesystem(
                 [
-                    \dirname(__DIR__) . '/Resources/skeleton',
+                    \dirname(__DIR__).'/Resources/skeleton',
                 ]
             ),
             [
-                'debug'            => true,
-                'cache'            => false,
+                'debug' => true,
+                'cache' => false,
                 'strict_variables' => true,
-                'autoescape'       => false,
+                'autoescape' => false,
             ]
         );
     }

@@ -31,7 +31,7 @@ class ErrorException extends RuntimeException
     public function __construct($message = '', $code = -32603, $data = null, $id = null)
     {
         $this->data = $data;
-        $this->id   = $id;
+        $this->id = $id;
 
         parent::__construct($message, $code);
     }

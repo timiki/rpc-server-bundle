@@ -39,8 +39,8 @@ class JsonExecuteEvent extends Event
      */
     public function __construct($object, MethodMetaData $metadata, JsonRequest $jsonRequest)
     {
-        $this->object      = $object;
-        $this->metadata    = $metadata;
+        $this->object = $object;
+        $this->metadata = $metadata;
         $this->jsonRequest = $jsonRequest;
     }
 

@@ -14,6 +14,7 @@ use Timiki\Bundle\RpcServerBundle\Handler\JsonHandler;
 use Timiki\Bundle\RpcServerBundle\Mapper\Mapper;
 use Timiki\Bundle\RpcServerBundle\Mapper\MapperInterface;
 use Timiki\Bundle\RpcServerBundle\Mapper\MethodInterface;
+use Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistry;
 use Timiki\Bundle\RpcServerBundle\Serializer\BaseSerializer;
 
 /**
@@ -33,12 +34,12 @@ class RpcServerExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
-        $config        = $this->processConfiguration($configuration, $configs);
-        $loader        = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $config = $this->processConfiguration($configuration, $configs);
+        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
         if (false === isset($config['mapping'])) {
-            throw new \RuntimeException(__CLASS__ . ': mapping can\'t be empty');
+            throw new \RuntimeException(__CLASS__.': mapping can\'t be empty');
         }
 
         $errorCode = empty($config['error_code']) ? 200 : $config['error_code'];
@@ -74,25 +75,31 @@ class RpcServerExtension extends Extension
         }
 
         /**
+         * Registry.
+         */
+        $registry = new Definition(HttpHandlerRegistry::class);
+
+        /**
          * Mapping.
          *
          * @param string       $name
          * @param array|string $paths
          */
-        $createMapping = function ($name, $paths) use ($cacheId, $serializerId, $container, $errorCode) {
+        $createMapping = function ($name, $paths) use ($cacheId, $serializerId, $container, $errorCode, $registry) {
             // Mapper
-            $mapperId = empty($name) ? 'rpc.server.mapper' : 'rpc.server.mapper.' . $name;
+            $mapperId = empty($name) ? 'rpc.server.mapper' : 'rpc.server.mapper.'.$name;
 
             $this->prepareMethods($mapperId, $paths, $container);
 
             $mapper = new Definition(Mapper::class);
 
-            $mapper->setPublic(true)
+            $mapper
+                ->setPublic(true)
                 ->addTag(MapperInterface::class); // Tag it for access from another place
 
             // Json Handler
-            $jsonHandlerId = empty($name) ? 'rpc.server.json_handler' : 'rpc.server.json_handler.' . $name;
-            $jsonHandler   = new Definition(JsonHandler::class, [new Reference($mapperId), new Reference($serializerId)]);
+            $jsonHandlerId = empty($name) ? 'rpc.server.json_handler' : 'rpc.server.json_handler.'.$name;
+            $jsonHandler = new Definition(JsonHandler::class, [new Reference($mapperId), new Reference($serializerId)]);
 
             $jsonHandler->setPublic(true);
             $jsonHandler->addMethodCall(
@@ -111,8 +118,8 @@ class RpcServerExtension extends Extension
             );
 
             // Http handler
-            $httpHandlerId = empty($name) ? 'rpc.server.http_handler' : 'rpc.server.http_handler.' . $name;
-            $httpHandler   = new Definition(HttpHandler::class, [new Reference($jsonHandlerId), $errorCode]);
+            $httpHandlerId = empty($name) ? 'rpc.server.http_handler' : 'rpc.server.http_handler.'.$name;
+            $httpHandler = new Definition(HttpHandler::class, [new Reference($jsonHandlerId), $errorCode]);
 
             $httpHandler->setPublic(true);
             $httpHandler->addMethodCall(
@@ -129,6 +136,10 @@ class RpcServerExtension extends Extension
             $container->setDefinition($mapperId, $mapper);
             $container->setDefinition($jsonHandlerId, $jsonHandler);
             $container->setDefinition($httpHandlerId, $httpHandler);
+
+            // Add http handler to registry
+
+            $registry->addMethodCall('add', [$name, new Reference($httpHandler)]);
         };
 
         $mapping = $config['mapping'];
@@ -140,6 +151,8 @@ class RpcServerExtension extends Extension
                 $createMapping($key, (array) $value);
             }
         }
+
+        $container->setDefinition(Registry::class, $registry);
     }
 
     private function prepareMethods($mapperId, $paths, ContainerBuilder $container)
@@ -193,7 +206,7 @@ class RpcServerExtension extends Extension
             return; // Already loaded
         }
 
-        $dir       = new \DirectoryIterator($path);
+        $dir = new \DirectoryIterator($path);
         $loaderPhp = new Loader\PhpFileLoader($container, new FileLocator($path));
 
         foreach ($dir as $file) {
