@@ -75,7 +75,7 @@ class RpcServerExtension extends Extension
         }
 
         /**
-         * Registry.
+         * Registry
          */
         $registry = new Definition(HttpHandlerRegistry::class);
 
@@ -152,7 +152,7 @@ class RpcServerExtension extends Extension
             }
         }
 
-        $container->setDefinition(Registry::class, $registry);
+        $container->setDefinition(HttpHandlerRegistry::class, $registry);
     }
 
     private function prepareMethods($mapperId, $paths, ContainerBuilder $container)
