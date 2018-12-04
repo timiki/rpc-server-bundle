@@ -41,12 +41,12 @@ class RpcServerExtensionTest extends TestCase
         $this->assertTrue($this->container->has('rpc.server.json_handler.forTestName'));
         $this->assertTrue($this->container->has('rpc.server.http_handler.forTestName'));
         $this->assertTrue($this->container->has('rpc.server.mapper.forTestName'));
-        $this->assertTrue($this->container->has('rpc.server.json_handler'));
-        $this->assertTrue($this->container->has('rpc.server.http_handler'));
-        $this->assertTrue($this->container->has('rpc.server.mapper'));
+        $this->assertTrue($this->container->has('rpc.server.json_handler.default'));
+        $this->assertTrue($this->container->has('rpc.server.http_handler.default'));
+        $this->assertTrue($this->container->has('rpc.server.mapper.default'));
 
         /** @var Definition $httpHandler */
-        $httpHandler = $this->container->getDefinition('rpc.server.http_handler');
+        $httpHandler = $this->container->getDefinition('rpc.server.http_handler.default');
 
         // check error code
         $args = $httpHandler->getArguments();

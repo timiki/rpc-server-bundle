@@ -2,30 +2,40 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistry;
 
-class RpcController extends Controller
+class RpcController extends AbstractController
 {
+    /**
+     * @var \Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistry
+     */
+    private $handlerRegistry;
+
+    /**
+     * RpcController constructor.
+     *
+     * @param \Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistry $handlerRegistry
+     */
+    public function __construct(HttpHandlerRegistry $handlerRegistry)
+    {
+        $this->handlerRegistry = $handlerRegistry;
+    }
+
     /**
      * @param Request $request
      * @param string  $version
      *
+     * @throws \Exception
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function handlerAction(Request $request, $version = '')
+    public function handlerAction(Request $request, $version = 'default')
     {
-        $handler = 'rpc.server.http_handler';
-
-        if (null !== $version && '' !== $version) {
-            $handler .= '.'.\mb_strtolower(\str_replace('.', '', $version));
-        }
-
-        if (true === $this->has($handler)) {
-            return $this->get($handler)->handleHttpRequest($request);
-        }
-
-        throw new NotFoundHttpException(\sprintf('Rpc handler "%s" not found', $handler));
+        return $this
+            ->handlerRegistry
+            ->get($version)
+            ->handleHttpRequest($request);
     }
 }

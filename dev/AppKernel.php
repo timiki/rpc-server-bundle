@@ -9,7 +9,7 @@ class AppKernel extends Kernel
     {
         $bundles = [
             new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
-            new Timiki\Bundle\RpcServerBundle\RpcServerBundle()
+            new Timiki\Bundle\RpcServerBundle\RpcServerBundle(),
         ];
 
         return $bundles;
@@ -22,12 +22,12 @@ class AppKernel extends Kernel
 
     public function getCacheDir()
     {
-        return __DIR__ . '/var/cache/' . $this->getEnvironment();
+        return __DIR__.'/var/cache/'.$this->getEnvironment();
     }
 
     public function getLogDir()
     {
-        return __DIR__ . '/var/logs';
+        return __DIR__.'/var/logs';
     }
 
     /**
@@ -37,6 +37,6 @@ class AppKernel extends Kernel
      */
     public function registerContainerConfiguration(LoaderInterface $loader)
     {
-        $loader->load($this->getRootDir() . '/config/config_' . $this->getEnvironment() . '.yml');
+        $loader->load($this->getRootDir().'/config/config_'.$this->getEnvironment().'.yml');
     }
 }

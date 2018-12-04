@@ -86,8 +86,8 @@ class RpcServerExtension extends Extension
          * @param array|string $paths
          */
         $createMapping = function ($name, $paths) use ($cacheId, $serializerId, $container, $errorCode, $registry) {
-            // Mapper
-            $mapperId = empty($name) ? 'rpc.server.mapper' : 'rpc.server.mapper.'.$name;
+            $name = empty($name) ? 'default' : $name;
+            $mapperId = 'rpc.server.mapper.'.$name;
 
             $this->prepareMethods($mapperId, $paths, $container);
 
