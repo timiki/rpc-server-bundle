@@ -75,7 +75,7 @@ class RpcServerExtension extends Extension
         }
 
         /**
-         * Registry
+         * Registry.
          */
         $registry = new Definition(HttpHandlerRegistry::class);
 
