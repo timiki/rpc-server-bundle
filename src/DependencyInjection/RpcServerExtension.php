@@ -139,7 +139,7 @@ class RpcServerExtension extends Extension
 
             // Add http handler to registry
 
-            $registry->addMethodCall('add', [$name, new Reference($httpHandler)]);
+            $registry->addMethodCall('add', [$name, new Reference($httpHandlerId)]);
         };
 
         $mapping = $config['mapping'];
