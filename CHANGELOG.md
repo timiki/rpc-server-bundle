@@ -1,8 +1,11 @@
-## 4.0.1
+## 4.0.2
 
 * Add HttpHandlerRegistry
-* Optimize method mapping
 * Update PHP CS Fixer rules
+
+## 4.0.1
+
+* Optimize method mapping
 
 ## 4.0
 
