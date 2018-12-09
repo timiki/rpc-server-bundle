@@ -220,7 +220,9 @@ class RpcServerExtension extends Extension
                 $diff = \array_diff($classesAfter, $classesBefore);
 
                 // Mark as loaded.
-                $this->loadedMethodPath[$path]['classes'][] = \array_shift($diff);
+                $classes = $this->loadedMethodPath[$path]['classes'] ?? [];
+                // merge all classes to parent
+                $this->loadedMethodPath[$path]['classes'] = \array_merge($classes, $diff ?? []);
             }
 
             if ($file->isDir() && !$file->isDot()) {

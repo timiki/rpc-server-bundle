@@ -1,15 +1,16 @@
 <?php
 
-namespace Tests\Timiki\Bundle\RpcServerBundle\Method\SubMethod\SubSubDir;
+namespace Tests\Timiki\Bundle\RpcServerBundle\Method\V1\SubMethod;
 
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints as Assert;
 use Timiki\Bundle\RpcServerBundle\Mapper\MethodInterface;
 use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
 
 /**
- * @Rpc\Method("get_data_sub_sub")
+ * @Rpc\Method("get_data_sub")
  */
-class GetDataSubSub implements MethodInterface
+class GetDataSub implements MethodInterface
 {
     /**
      * @Rpc\Param
@@ -17,6 +18,16 @@ class GetDataSubSub implements MethodInterface
      * @Assert\Type(type="integer")
      */
     protected $a;
+
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    public function __construct(RequestStack $requestStack)
+    {
+        $this->requestStack = $requestStack;
+    }
 
     /**
      * @Rpc\Execute
