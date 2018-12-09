@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Timiki\Bundle\RpcServerBundle\Method;
+namespace Tests\Timiki\Bundle\RpcServerBundle\Method\V1;
 
 use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
 

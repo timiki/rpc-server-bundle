@@ -1,3 +1,6 @@
+## 4.0.3
+* Fixed bug with hieratic abstract dependency 
+
 ## 4.0.2
 
 * Add HttpHandlerRegistry

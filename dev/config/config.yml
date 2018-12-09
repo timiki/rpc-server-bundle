@@ -11,7 +11,7 @@ framework:
 rpc_server:
     mapping:
        v1:
-          - '%kernel.root_dir%/../tests/Method'
+          - '%kernel.root_dir%/../tests/Method/V1'
        v2:
-          - '%kernel.root_dir%/../tests/Method/SubMethod'
+          - '%kernel.root_dir%/../tests/Method/V2'
 
