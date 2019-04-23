@@ -40,7 +40,8 @@
         "friendsofphp/php-cs-fixer": "^2.13",
         "phpstan/phpstan": "^0.10.5",
         "phpstan/phpstan-symfony": "^0.10.2",
-        "twig/twig": "^2.5"
+        "twig/twig": "^2.5",
+        "symfony/translation": "^4.2"
     },
     "suggest": {
         "symfony/security-bundle": "For add check security for method",
