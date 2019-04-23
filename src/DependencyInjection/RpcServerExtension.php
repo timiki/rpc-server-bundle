@@ -3,6 +3,7 @@
 namespace Timiki\Bundle\RpcServerBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Resource\GlobResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
@@ -138,7 +139,6 @@ class RpcServerExtension extends Extension
             $container->setDefinition($httpHandlerId, $httpHandler);
 
             // Add http handler to registry
-
             $registry->addMethodCall('add', [$name, new Reference($httpHandlerId)]);
         };
 
@@ -167,6 +167,9 @@ class RpcServerExtension extends Extension
             if (false === \is_dir($path)) {
                 continue;
             }
+
+            // Add method path to resource
+            $container->addResource(new GlobResource($path, '/*', true));
 
             $this->loadMethods($path, $container);
 
