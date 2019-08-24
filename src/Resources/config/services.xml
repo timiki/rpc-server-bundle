@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="rpc.server.event_dispatcher" class="Symfony\Component\EventDispatcher\EventDispatcher" public="true"/>
         <service id="rpc.server.event_subscriber.validate" class="Timiki\Bundle\RpcServerBundle\EventSubscriber\ValidatorSubscriber" public="true">
-            <tag name="rpc.server.event_subscriber"/>
+            <tag name="kernel.event_subscriber"/>
             <argument type="service" id="validator" on-invalid="null"/>
         </service>
         <service id="rpc.server.event_subscriber.authorization_checker" class="Timiki\Bundle\RpcServerBundle\EventSubscriber\AuthorizationCheckerSubscriber" public="true">
-            <tag name="rpc.server.event_subscriber"/>
+            <tag name="kernel.event_subscriber"/>
             <argument type="service" id="security.authorization_checker" on-invalid="null"/>
         </service>
         <service id="rpc.server.event_subscriber.validate_request" class="Timiki\Bundle\RpcServerBundle\EventSubscriber\ValidateRequestSubscriber" public="true">
-            <tag name="rpc.server.event_subscriber"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
         <service id="rpc.server.event_subscriber.param_converter" class="Timiki\Bundle\RpcServerBundle\EventSubscriber\ParamConverterSubscriber" public="true">
-            <tag name="rpc.server.event_subscriber"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

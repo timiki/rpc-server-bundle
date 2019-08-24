@@ -105,7 +105,7 @@ class RpcServerExtension extends Extension
             $jsonHandler->setPublic(true);
             $jsonHandler->addMethodCall(
                 'setEventDispatcher',
-                [new Reference('rpc.server.event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
+                [new Reference('event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
             );
 
             $jsonHandler->addMethodCall(
@@ -125,7 +125,7 @@ class RpcServerExtension extends Extension
             $httpHandler->setPublic(true);
             $httpHandler->addMethodCall(
                 'setEventDispatcher',
-                [new Reference('rpc.server.event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
+                [new Reference('event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
             );
 
             $httpHandler->addMethodCall(
