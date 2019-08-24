@@ -109,6 +109,7 @@ class JsonHandler implements ContainerAwareInterface
     public function createJsonResponseFromException(\Exception $exception, JsonRequest $jsonRequest = null)
     {
         $jsonResponse = new JsonResponse();
+        $jsonResponse->setRequest($jsonRequest);
 
         if ($exception instanceof Exceptions\ErrorException) {
             $jsonResponse->setErrorCode(0 !== $exception->getCode() ? $exception->getCode() : -32603);
@@ -117,10 +118,6 @@ class JsonHandler implements ContainerAwareInterface
         } else {
             $jsonResponse->setErrorCode(0 !== $exception->getCode() ? $exception->getCode() : -32603);
             $jsonResponse->setErrorMessage(!empty($exception->getMessage()) ? $exception->getMessage() : 'Internal error');
-        }
-
-        if ($jsonRequest) {
-            $jsonResponse->setId($jsonRequest->getId());
         }
 
         return $jsonResponse;
@@ -177,11 +174,11 @@ class JsonHandler implements ContainerAwareInterface
 
             // Save cache
             $isCache && $this->cache->save($cacheId, $jsonResponse->getResult(), $metadata->getCache());
-
-            $this->dispatch(new Event\JsonResponseEvent($jsonResponse));
         } catch (\Exception $exception) {
             $jsonResponse = $this->createJsonResponseFromException($exception, $jsonRequest);
         }
+
+        $this->dispatch(new Event\JsonResponseEvent($jsonResponse));
 
         if ($this->stopwatch) {
             $this->stopwatch->stop('rpc.execute');
