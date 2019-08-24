@@ -2,8 +2,8 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Traits;
 
-use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 trait EventDispatcherTrait
 {
@@ -37,15 +37,14 @@ trait EventDispatcherTrait
     /**
      * Dispatches an event to all registered listeners.
      *
-     * @param string $eventName
-     * @param Event  $event
+     * @param Event $event
      *
-     * @return Event
+     * @return object
      */
-    public function dispatch($eventName, Event $event = null)
+    public function dispatch(Event $event = null)
     {
         if ($this->eventDispatcher) {
-            return $this->eventDispatcher->dispatch($eventName, $event);
+            return $this->eventDispatcher->dispatch($event);
         }
     }
 }

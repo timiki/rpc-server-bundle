@@ -6,8 +6,6 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class HttpExceptionEvent extends HttpResponseEvent
 {
-    const EVENT = 'rpc.server.http.exception';
-
     /**
      * @var \Exception
      */

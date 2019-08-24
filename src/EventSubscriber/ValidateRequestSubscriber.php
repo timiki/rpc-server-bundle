@@ -14,7 +14,7 @@ class ValidateRequestSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            JsonRequestEvent::EVENT => ['onRequest', 4096],
+            JsonRequestEvent::class => ['onRequest', 4096],
         ];
     }
 

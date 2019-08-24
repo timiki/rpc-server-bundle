@@ -3,7 +3,7 @@
 namespace Timiki\Bundle\RpcServerBundle\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Timiki\Bundle\RpcServerBundle\Event\JsonExecuteEvent;
+use Timiki\Bundle\RpcServerBundle\Event\JsonPreExecuteEvent;
 use Timiki\Bundle\RpcServerBundle\Exceptions;
 
 class ParamConverterSubscriber implements EventSubscriberInterface
@@ -14,14 +14,14 @@ class ParamConverterSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            JsonExecuteEvent::EVENT => ['convert', 2048],
+            JsonPreExecuteEvent::class => ['convert', 2048],
         ];
     }
 
     /**
-     * @param JsonExecuteEvent $event
+     * @param JsonPreExecuteEvent $event
      */
-    public function convert(JsonExecuteEvent $event)
+    public function convert(JsonPreExecuteEvent $event)
     {
         $jsonRequest = $event->getJsonRequest();
         $methodMetaData = $event->getMetadata();

@@ -2,13 +2,11 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 use Timiki\RpcCommon\JsonRequest;
 
 class JsonRequestEvent extends Event
 {
-    const EVENT = 'rpc.server.json.request';
-
     /**
      * @var JsonRequest
      */

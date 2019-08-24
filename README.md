@@ -9,25 +9,20 @@ JSON-RPC allows for notifications (data sent to the server that does not require
 
 [Wikipedia][1] | [Specification][2]
 
-**Requirements**
-
-```
-- php >= 7.1.3
-- symfony ^3.3
-```
-
 Install
 -------
 
-Add to composer from command line
+Symfony >= 4.3 use version ^4.1
 
-    composer timiki/rpc-server-bundle
+```bash
+composer require timiki/rpc-server-bundle "^4.1"
+```
 
-or add in composer.json
+Symfony < 4.3 use version ^4.0
 
-    "require"     : {
-        "timiki/rpc-server-bundle" : "^3.0"
-    }
+```bash
+composer require timiki/rpc-server-bundle "^4.0"
+```
 
 Configs
 -------

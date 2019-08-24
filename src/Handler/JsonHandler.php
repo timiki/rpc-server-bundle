@@ -150,7 +150,7 @@ class JsonHandler implements ContainerAwareInterface
         }
 
         try {
-            $this->dispatch(Event\JsonRequestEvent::EVENT, new Event\JsonRequestEvent($jsonRequest));
+            $this->dispatch(new Event\JsonRequestEvent($jsonRequest));
 
             $metadata = $this->getMethod($jsonRequest);
             $isCache = $this->isCacheSupport($jsonRequest);
@@ -178,7 +178,7 @@ class JsonHandler implements ContainerAwareInterface
             // Save cache
             $isCache && $this->cache->save($cacheId, $jsonResponse->getResult(), $metadata->getCache());
 
-            $this->dispatch(Event\JsonResponseEvent::EVENT, new Event\JsonResponseEvent($jsonResponse));
+            $this->dispatch(new Event\JsonResponseEvent($jsonResponse));
         } catch (\Exception $exception) {
             $jsonResponse = $this->createJsonResponseFromException($exception, $jsonRequest);
         }
@@ -241,10 +241,7 @@ class JsonHandler implements ContainerAwareInterface
         }
 
         // Dispatch execute json
-        $this->dispatch(
-            Event\JsonExecuteEvent::EVENT,
-            new Event\JsonExecuteEvent($method, $methodMetaData, $jsonRequest)
-        );
+        $this->dispatch(new Event\JsonPreExecuteEvent($method, $methodMetaData, $jsonRequest));
 
         return $method->{$methodMetaData->getExecute()}();
     }

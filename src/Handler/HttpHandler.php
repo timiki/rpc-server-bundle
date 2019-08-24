@@ -106,8 +106,8 @@ class HttpHandler
      */
     public function handleHttpRequest(HttpRequest $httpRequest)
     {
-        // @var Event\HttpRequestEvent $event
-        $event = $this->dispatch(Event\HttpRequestEvent::EVENT, new Event\HttpRequestEvent($httpRequest));
+        /* @var  Event\HttpRequestEvent $event */
+        $event = $this->dispatch(new Event\HttpRequestEvent($httpRequest));
         $httpRequest = $event->getHttpRequest();
 
         try {
@@ -181,10 +181,7 @@ class HttpHandler
 
         $httpResponse->headers->set('Content-Type', 'application/json');
 
-        $this->dispatch(
-            Event\HttpResponseEvent::EVENT,
-            new Event\HttpResponseEvent($httpResponse)
-        );
+        $this->dispatch(new Event\HttpResponseEvent($httpResponse));
 
         return $httpResponse;
     }
@@ -222,10 +219,7 @@ class HttpHandler
         $httpResponse->setContent(\json_encode($json));
         $httpResponse->setStatusCode($this->errorCode);
 
-        $this->dispatch(
-            Event\HttpResponseEvent::EVENT,
-            new Event\HttpResponseEvent($httpResponse)
-        );
+        $this->dispatch(new Event\HttpResponseEvent($httpResponse));
 
         return $httpResponse;
     }

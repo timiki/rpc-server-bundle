@@ -2,13 +2,11 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Event;
 
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class HttpResponseEvent extends Event
 {
-    const EVENT = 'rpc.server.http.response';
-
     /**
      * @var HttpResponse
      */

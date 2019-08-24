@@ -4,7 +4,7 @@ namespace Timiki\Bundle\RpcServerBundle\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Timiki\Bundle\RpcServerBundle\Event\JsonExecuteEvent;
+use Timiki\Bundle\RpcServerBundle\Event\JsonPreExecuteEvent;
 use Timiki\Bundle\RpcServerBundle\Exceptions\MethodNotGrantedException;
 
 class AuthorizationCheckerSubscriber implements EventSubscriberInterface
@@ -20,7 +20,7 @@ class AuthorizationCheckerSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            JsonExecuteEvent::EVENT => ['execute', 4096],
+            JsonPreExecuteEvent::class => ['execute', 4096],
         ];
     }
 
@@ -35,9 +35,9 @@ class AuthorizationCheckerSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param JsonExecuteEvent $event
+     * @param JsonPreExecuteEvent $event
      */
-    public function execute(JsonExecuteEvent $event)
+    public function execute(JsonPreExecuteEvent $event)
     {
         $methodMetaData = $event->getMetadata();
 

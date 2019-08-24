@@ -28,7 +28,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->scalarNode('cache')
                     ->defaultValue(null)
-                    ->info('Id cache service. Cache service must be instance of "Doctrine\Common\Cache\CacheProvider". By default use file cache in %kernel.cache_dir%/rpc')
+                    ->info('Id cache service. Cache service must be instance of "Doctrine\Common\Cache\Cache". By default use file cache in %kernel.cache_dir%/rpc')
                 ->end()
                 ->scalarNode('serializer')
                     ->defaultValue(null)

@@ -2,13 +2,11 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Event;
 
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class HttpRequestEvent extends Event
 {
-    const EVENT = 'rpc.server.http.request';
-
     /**
      * @var HttpRequest
      */

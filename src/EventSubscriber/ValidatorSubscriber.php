@@ -5,7 +5,7 @@ namespace Timiki\Bundle\RpcServerBundle\EventSubscriber;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Timiki\Bundle\RpcServerBundle\Event\JsonExecuteEvent;
+use Timiki\Bundle\RpcServerBundle\Event\JsonPreExecuteEvent;
 use Timiki\Bundle\RpcServerBundle\Exceptions\InvalidParamsException;
 
 class ValidatorSubscriber implements EventSubscriberInterface
@@ -21,7 +21,7 @@ class ValidatorSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            JsonExecuteEvent::EVENT => ['execute', 1024], // run after auth check
+            JsonPreExecuteEvent::class => ['execute', 1024], // run after auth check
         ];
     }
 
@@ -36,9 +36,9 @@ class ValidatorSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param JsonExecuteEvent $event
+     * @param JsonPreExecuteEvent $event
      */
-    public function execute(JsonExecuteEvent $event)
+    public function execute(JsonPreExecuteEvent $event)
     {
         if (null === $this->validator) {
             return;
@@ -52,7 +52,7 @@ class ValidatorSubscriber implements EventSubscriberInterface
 
         $data = [];
 
-        // @var ConstraintViolation $constraintViolation
+        /* @var ConstraintViolation $constraintViolation */
         foreach ($result as $constraintViolation) {
             $name = $constraintViolation->getPropertyPath() ? $constraintViolation->getPropertyPath() : 'violations';
 
