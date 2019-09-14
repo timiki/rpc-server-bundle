@@ -24,7 +24,7 @@ class HttpResponseEvent extends Event
      * @param HttpResponse                $httpResponse
      * @param JsonResponse|JsonResponse[] $jsonResponse
      */
-    public function __construct(HttpResponse $httpResponse, JsonResponse $jsonResponse)
+    public function __construct(HttpResponse $httpResponse, $jsonResponse)
     {
         $this->httpResponse = $httpResponse;
         $this->jsonResponse = $jsonResponse;
