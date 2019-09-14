@@ -155,6 +155,13 @@ class RpcServerExtension extends Extension
         $container->setDefinition(HttpHandlerRegistry::class, $registry);
     }
 
+    /**
+     * @param string                                                  $mapperId
+     * @param string|string[]                                         $paths
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+     *
+     * @throws \Exception
+     */
     private function prepareMethods($mapperId, $paths, ContainerBuilder $container)
     {
         if (true === \is_string($paths)) {
@@ -203,6 +210,12 @@ class RpcServerExtension extends Extension
         }
     }
 
+    /**
+     * @param string                                                  $path
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+     *
+     * @throws \Exception
+     */
     private function loadMethods($path, ContainerBuilder $container)
     {
         if (true === isset($this->loadedMethodPath[$path])) {

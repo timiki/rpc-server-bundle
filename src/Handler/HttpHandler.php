@@ -181,7 +181,7 @@ class HttpHandler
 
         $httpResponse->headers->set('Content-Type', 'application/json');
 
-        $this->dispatch(new Event\HttpResponseEvent($httpResponse));
+        $this->dispatch(new Event\HttpResponseEvent($httpResponse, $jsonResponses));
 
         return $httpResponse;
     }

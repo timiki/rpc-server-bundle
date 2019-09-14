@@ -15,5 +15,12 @@
         <service id="rpc.server.event_subscriber.param_converter" class="Timiki\Bundle\RpcServerBundle\EventSubscriber\ParamConverterSubscriber" public="true">
             <tag name="kernel.event_subscriber"/>
         </service>
+        <service id="Timiki\Bundle\RpcServerBundle\Controller\RpcController" class="Timiki\Bundle\RpcServerBundle\Controller\RpcController" public="false">
+            <argument type="service" id="Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistry"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+        <service id="Timiki\Bundle\RpcServerBundle\Make\MakeMethod" class="Timiki\Bundle\RpcServerBundle\Make\MakeMethod" public="false">
+            <tag name="maker.command"/>
+        </service>
     </services>
 </container>

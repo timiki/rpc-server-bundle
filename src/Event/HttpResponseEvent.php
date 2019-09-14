@@ -4,6 +4,7 @@ namespace Timiki\Bundle\RpcServerBundle\Event;
 
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Symfony\Contracts\EventDispatcher\Event;
+use Timiki\RpcCommon\JsonResponse;
 
 class HttpResponseEvent extends Event
 {
@@ -13,13 +14,20 @@ class HttpResponseEvent extends Event
     private $httpResponse;
 
     /**
+     * @var JsonResponse|JsonResponse[]
+     */
+    private $jsonResponse;
+
+    /**
      * HttpResponseEvent constructor.
      *
-     * @param HttpResponse $httpResponse
+     * @param HttpResponse                $httpResponse
+     * @param JsonResponse|JsonResponse[] $jsonResponse
      */
-    public function __construct(HttpResponse $httpResponse)
+    public function __construct(HttpResponse $httpResponse, JsonResponse $jsonResponse)
     {
         $this->httpResponse = $httpResponse;
+        $this->jsonResponse = $jsonResponse;
     }
 
     /**
@@ -30,5 +38,13 @@ class HttpResponseEvent extends Event
     public function getHttpResponse()
     {
         return $this->httpResponse;
+    }
+
+    /**
+     * @return JsonResponse|JsonResponse[]
+     */
+    public function getJsonResponse()
+    {
+        return $this->jsonResponse;
     }
 }
