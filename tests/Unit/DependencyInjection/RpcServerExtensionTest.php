@@ -29,21 +29,19 @@ class RpcServerExtensionTest extends TestCase
                    'testMapping',
                    'forTestName' => 'testNameMapping',
                 ],
-                'cache' => 'myTestCache',
-                'serializer' => 'myTestSerializer',
                 'error_code' => 302,
             ],
         ], $this->container);
 
-        $this->assertTrue($this->container->has('myTestCache'));
-        $this->assertTrue($this->container->has('myTestCache'));
-        $this->assertTrue($this->container->has('myTestSerializer'));
         $this->assertTrue($this->container->has('rpc.server.json_handler.forTestName'));
         $this->assertTrue($this->container->has('rpc.server.http_handler.forTestName'));
         $this->assertTrue($this->container->has('rpc.server.mapper.forTestName'));
         $this->assertTrue($this->container->has('rpc.server.json_handler.default'));
         $this->assertTrue($this->container->has('rpc.server.http_handler.default'));
         $this->assertTrue($this->container->has('rpc.server.mapper.default'));
+        $this->assertTrue($this->container->has('rpc.server.cache'));
+        $this->assertTrue($this->container->has('rpc.server.serializer.base'));
+        $this->assertTrue($this->container->has('rpc.server.serializer.role'));
 
         /** @var Definition $httpHandler */
         $httpHandler = $this->container->getDefinition('rpc.server.http_handler.default');

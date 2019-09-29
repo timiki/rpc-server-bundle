@@ -22,5 +22,12 @@
         <service id="Timiki\Bundle\RpcServerBundle\Make\MakeMethod" class="Timiki\Bundle\RpcServerBundle\Make\MakeMethod" public="false">
             <tag name="maker.command"/>
         </service>
+        <service id="rpc.server.serializer.base" class="Timiki\Bundle\RpcServerBundle\Serializer\BaseSerializer" public="true">
+            <argument type="service" id="serializer" on-invalid="null"></argument>
+        </service>
+        <service id="rpc.server.serializer.role" class="Timiki\Bundle\RpcServerBundle\Serializer\RoleSerializer" public="true">
+            <argument type="service" id="serializer" on-invalid="null"></argument>
+            <argument type="service" id="security.helper" on-invalid="null"></argument>
+        </service>
     </services>
 </container>

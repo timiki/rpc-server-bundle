@@ -27,7 +27,6 @@ class MethodTest extends WebTestCase
     public function test($data, $expected)
     {
         $response = $this->doRequest($data);
-
         $content = \json_decode($response->getContent(), true);
 
         $this->assertEquals($expected, $content);

@@ -27,47 +27,43 @@ composer require timiki/rpc-server-bundle "^4.0"
 Configs
 -------
 
-Add to etc/packages rpc_server.yml
-
 ```yaml
 
 rpc_server:
-    mapping: ~
+    
+    # mapping configs
+    # 
+    # Default mapping
+    #   mapping: '%kernel.root_dir%/Method' 
+    #
+    # Multi dir mapping
+    #   mapping:
+    #   - '%kernel.root_dir%/Method1'
+    #   - '%kernel.root_dir%/Method2'  
+    # 
+    # Multi handler|dir mapping
+    #   mapping:
+    #    v1:
+    #       - '%kernel.root_dir%/Method/V1'
+    #    v2:
+    #       - '%kernel.root_dir%/Method/V2'
+    #   
+
+    mapping: '%kernel.root_dir%/Method'
+
+        v1:
+        - '%kernel.root_dir%/Method/V1'
+    
+    # id cache service, must be instance of Doctrine\Common\Cache\CacheProvider
+
     cache: ~
+
+    # id serializer service, must be instance of Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface
+    # by default use 'rpc.server.serializer.base' service
+
     serializer: ~
     
 ``` 
-
-Main configs:
-
-**mapping** Path to JSON-RPC methods.
-
-```yaml 
-//  methods by path
- 
-mapping: 
-    - "path/to/method"
-    - "path/to/other/method"
-    
-mapping: "path/to/method"
-
-mapping: 
-      v1:
-       - "path/to/method/v1"
-
-```
-    
-**cache** Cache service id. Service must be instance of Doctrine\Common\Cache\CacheProvider.
-
-```yaml
-cache: service.cache.id
-```
-
-**serializer** Serializer service id. Service must be instance of Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface.
-
-```yaml
-cache: service.cache.id
-```
 
 Controller
 ----------
@@ -201,6 +197,63 @@ public function someMethod()
     // Code
 }
 ```
+
+Serialize
+----------
+
+For convert output result from method to array in bundle used serializer
+
+Config for serializer:
+
+```yaml    
+rpc:
+    ...
+    serializer: 'rpc.server.serializer.base' # serialize service id
+```
+
+In bundle include next serializers:
+
+rpc.server.serializer.base - (default) simple convert output result to array
+rpc.server.serializer.role - use user roles as @Group (@see https://symfony.com/doc/current/components/serializer.html) for control access to output array
+
+
+Create custom serializer
+
+Here is an example of a simple class for serialization. All serializer must return array which will be convert to result json.
+
+```php
+
+<?php
+
+namespace App\Serializer;
+
+use Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface;
+
+class MySerializer implements SerializerInterface
+{
+    /**
+     * Serialize data.
+     *
+     * @param mixed $data
+     *
+     * @return array
+     */
+    public function serialize($data)
+    {
+        return (array) $data;
+    }
+}
+
+```
+
+And then add custom serializer service id to config
+
+```yaml    
+rpc:
+    ...
+    serializer: 'MySerializer' # serialize service id
+```
+
 
 [1]: https://wikipedia.org/wiki/JSON-RPC
 [2]: http://www.jsonrpc.org/specification
