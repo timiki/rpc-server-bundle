@@ -4,7 +4,7 @@ namespace Timiki\Bundle\RpcServerBundle\Mapping;
 
 /**
  * @Annotation
- * @Target("CLASS")
+ * @Target({"CLASS", "PROPERTY"})
  */
 final class Roles
 {

@@ -1,5 +1,5 @@
 imports:
-    - { resource: services.yml }
+- { resource: services.yml }
 
 framework:
     secret: test
@@ -10,8 +10,8 @@ framework:
 
 rpc_server:
     mapping:
-       v1:
-          - '%kernel.root_dir%/../tests/Method/V1'
-       v2:
-          - '%kernel.root_dir%/../tests/Method/V2'
+        v1:
+        - '%kernel.root_dir%/../tests/Method/V1'
+        v2:
+        - '%kernel.root_dir%/../tests/Method/V2'
 

@@ -16,7 +16,6 @@ use Timiki\Bundle\RpcServerBundle\Mapper\Mapper;
 use Timiki\Bundle\RpcServerBundle\Mapper\MapperInterface;
 use Timiki\Bundle\RpcServerBundle\Mapper\MethodInterface;
 use Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistry;
-use Timiki\Bundle\RpcServerBundle\Serializer\BaseSerializer;
 
 /**
  * This is the class that loads and manages your bundle configuration.
@@ -63,16 +62,10 @@ class RpcServerExtension extends Extension
         /**
          * Serializer.
          */
-        $serializerId = empty($config['serializer']) ? 'rpc.server.serializer' : $config['serializer'];
+        $serializerId = empty($config['serializer']) ? 'rpc.server.serializer.base' : $config['serializer'];
 
         if (!$container->hasDefinition($serializerId)) {
-            $serializerDefinition = new Definition(
-                BaseSerializer::class,
-                [new Reference('serializer', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
-            );
-
-            $serializerDefinition->setPublic(true);
-            $container->setDefinition($serializerId, $serializerDefinition);
+            $serializerId = 'rpc.server.serializer.base';
         }
 
         /**
