@@ -64,10 +64,6 @@ class RpcServerExtension extends Extension
          */
         $serializerId = empty($config['serializer']) ? 'rpc.server.serializer.base' : $config['serializer'];
 
-        if (!$container->hasDefinition($serializerId)) {
-            $serializerId = 'rpc.server.serializer.base';
-        }
-
         /**
          * Registry.
          */
