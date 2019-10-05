@@ -44,12 +44,10 @@ class RpcServerExtension extends Extension
 
         $errorCode = empty($config['error_code']) ? 200 : $config['error_code'];
 
-        /**
-         * Cache.
-         */
-        $cacheId = empty($config['cache']) ? 'rpc.server.cache' : $config['cache'];
+        // Cache
 
-        if (!$container->hasDefinition($cacheId)) {
+        if (empty($config['cache'])) {
+            $cacheId = 'rpc.server.cache';
             $cacheDefinition = new Definition(
                 'Doctrine\Common\Cache\FilesystemCache',
                 ['%kernel.cache_dir%/rpc', '']
@@ -57,16 +55,16 @@ class RpcServerExtension extends Extension
 
             $cacheDefinition->setPublic(true);
             $container->setDefinition($cacheId, $cacheDefinition);
+        } else {
+            $cacheId = $config['cache'];
         }
 
-        /**
-         * Serializer.
-         */
+        // Serializer
+
         $serializerId = empty($config['serializer']) ? 'rpc.server.serializer.base' : $config['serializer'];
 
-        /**
-         * Registry.
-         */
+        // Registry
+
         $registry = new Definition(HttpHandlerRegistry::class);
 
         /**
