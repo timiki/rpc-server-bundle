@@ -148,7 +148,7 @@ class HttpHandler
             $results = [];
 
             foreach ($jsonResponses as $jsonResponse) {
-                if ($jsonResponse->isError() || $jsonResponse->getId()) {
+                if ($jsonResponse->isError() || null !== $jsonResponse->getId()) {
                     $results[] = $jsonResponse;
                 }
 
@@ -159,7 +159,7 @@ class HttpHandler
 
             $httpResponse->setContent(\json_encode($results));
         } else {
-            if ($jsonResponses->isError() || $jsonResponses->getId()) {
+            if ($jsonResponses->isError() || null !== $jsonResponses->getId()) {
                 $httpResponse->setContent(\json_encode($jsonResponses));
             }
 
@@ -171,7 +171,7 @@ class HttpHandler
         // Set httpResponse headers
         if (\is_array($jsonResponses)) {
             foreach ($jsonResponses as $jsonResponse) {
-                if ($jsonResponse->isError() || $jsonResponse->getId()) {
+                if ($jsonResponse->isError() || null !== $jsonResponse->getId()) {
                     $httpResponse->headers->add($jsonResponse->headers()->all());
                 }
             }
