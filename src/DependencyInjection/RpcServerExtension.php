@@ -210,22 +210,25 @@ class RpcServerExtension extends Extension
         }
 
         $dir = new \DirectoryIterator($path);
-        $loaderPhp = new Loader\PhpFileLoader($container, new FileLocator($path));
 
         foreach ($dir as $file) {
             if ($file->isFile()) {
-                $classesBefore = \get_declared_classes();
+                try {
+                    $classesBefore = \get_declared_classes();
 
-                $loaderPhp->load($file->getFilename());
+                    include_once $file->getPath().'/'.$file->getFilename();
 
-                $classesAfter = \get_declared_classes();
+                    $classesAfter = \get_declared_classes();
 
-                $diff = \array_diff($classesAfter, $classesBefore);
+                    $diff = \array_diff($classesAfter, $classesBefore);
 
-                // Mark as loaded.
-                $classes = $this->loadedMethodPath[$path]['classes'] ?? [];
-                // merge all classes to parent
-                $this->loadedMethodPath[$path]['classes'] = \array_merge($classes, $diff ?? []);
+                    // Mark as loaded.
+                    $classes = $this->loadedMethodPath[$path]['classes'] ?? [];
+                    // merge all classes to parent
+                    $this->loadedMethodPath[$path]['classes'] = \array_merge($classes, $diff ?? []);
+                } catch (\Exception $e) {
+                    // ignore it
+                }
             }
 
             if ($file->isDir() && !$file->isDot()) {

@@ -29,6 +29,13 @@ class MethodMetaData
      */
     private $roles;
 
+    /**
+     * @param string     $method
+     * @param string     $execute
+     * @param array      $params
+     * @param null       $cache
+     * @param null|array $roles
+     */
     public function __construct(string $method, string $execute, array $params = [], $cache = null, array $roles = null)
     {
         $this->method = $method;
