@@ -24,8 +24,6 @@ use Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistry;
  */
 class RpcServerExtension extends Extension
 {
-    private $loadedMethodPath = [];
-
     /**
      * {@inheritdoc}
      *
@@ -164,14 +162,9 @@ class RpcServerExtension extends Extension
 
             // Add method path to resource
             $container->addResource(new GlobResource($path, '/*', true));
+            $classes = $this->loadMethods($path, $container);
 
-            $this->loadMethods($path, $container);
-
-            if (false === isset($this->loadedMethodPath[$path]['classes'])) {
-                continue;
-            }
-
-            foreach ($this->loadedMethodPath[$path]['classes'] as $class) {
+            foreach ($classes as $class) {
                 if (true === $container->hasDefinition($class)) {
                     $container->getDefinition($class)
                         ->addTag(
@@ -183,7 +176,8 @@ class RpcServerExtension extends Extension
                     continue;
                 }
 
-                $container->register($class, $class)
+                $container
+                    ->register($class, $class)
                     ->setAutowired(true)
                     ->setAutoconfigured(true)
                     ->setPublic(true)
@@ -201,49 +195,37 @@ class RpcServerExtension extends Extension
      * @param string                                                  $path
      * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
      *
+     * @return array
      * @throws \Exception
      */
     private function loadMethods($path, ContainerBuilder $container)
     {
-        if (true === isset($this->loadedMethodPath[$path])) {
-            return; // Already loaded
-        }
+        $classes = [];
 
+        $prefix = 'App';
+        $rootPath = $container->getParameter('kernel.root_dir');
         $dir = new \DirectoryIterator($path);
 
         foreach ($dir as $file) {
             if ($file->isFile()) {
                 try {
-                    $classesBefore = \get_declared_classes();
+                    $namespace = \trim(\str_replace($rootPath, '', $file->getPath()), '/\\');
+                    $class = \trim(\str_replace('.php', '', $file->getFilename()), '/\\');
+                    $fullClassName = \str_replace('/', '\\', $prefix.'\\'.$namespace.'\\'.$class);
 
-                    include_once $file->getPath().'/'.$file->getFilename();
-
-                    $classesAfter = \get_declared_classes();
-
-                    $diff = \array_diff($classesAfter, $classesBefore);
-
-                    // Mark as loaded.
-                    $classes = $this->loadedMethodPath[$path]['classes'] ?? [];
-                    // merge all classes to parent
-                    $this->loadedMethodPath[$path]['classes'] = \array_merge($classes, $diff ?? []);
+                    if (\class_exists($fullClassName, true)) {
+                        $classes[] = $fullClassName;
+                    }
                 } catch (\Exception $e) {
                     // ignore it
                 }
             }
 
             if ($file->isDir() && !$file->isDot()) {
-                $classesBefore = \get_declared_classes();
-
-                $this->loadMethods($file->getPathname(), $container);
-
-                $classesAfter = \get_declared_classes();
-
-                $diff = \array_diff($classesAfter, $classesBefore);
-
-                $classes = $this->loadedMethodPath[$path]['classes'] ?? [];
-                // merge all classes to parent
-                $this->loadedMethodPath[$path]['classes'] = \array_merge($classes, $diff ?? []);
+                $classes = \array_merge($classes, $this->loadMethods($file->getPathname(), $container));
             }
         }
+
+        return $classes;
     }
 }

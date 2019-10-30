@@ -65,6 +65,14 @@ rpc_server:
     
 ``` 
 
+Add methods dir to exclude from autowire
+
+```yaml
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{Method}'
+```
+
 Controller
 ----------
 
@@ -75,14 +83,14 @@ You can use you own controller for JSON-RPC request. For example:
 ```php
 <?php
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 
-class RpcController extends Controller
+class RpcController extends AbstractController
 {
     public function indexAction(Request $request)
     {
-        return $this->get('rpc.server.http_handler')->handleHttpRequest($request);
+        return $this->get('rpc.server.http_handler.default')->handleHttpRequest($request);
     }
 }
 ```
