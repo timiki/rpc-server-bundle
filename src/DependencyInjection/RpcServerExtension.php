@@ -195,8 +195,9 @@ class RpcServerExtension extends Extension
      * @param string                                                  $path
      * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
      *
-     * @return array
      * @throws \Exception
+     *
+     * @return array
      */
     private function loadMethods($path, ContainerBuilder $container)
     {
@@ -215,6 +216,12 @@ class RpcServerExtension extends Extension
 
                     if (\class_exists($fullClassName, true)) {
                         $classes[] = $fullClassName;
+                    } else {
+                        $classesBefore = \get_declared_classes();
+                        include_once $file->getPath().'/'.$file->getFilename();
+                        $classesAfter = \get_declared_classes();
+
+                        $classes = \array_merge($classes, \array_diff($classesAfter, $classesBefore));
                     }
                 } catch (\Exception $e) {
                     // ignore it
