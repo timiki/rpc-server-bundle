@@ -109,12 +109,7 @@ class RpcMethodPass implements CompilerPassInterface
         $meta = [];
 
         if (empty($method->value)) {
-            throw new InvalidMappingException(
-                \sprintf(
-                    '@Method annotation must have name in class "%s", @Method("method name")',
-                    $reflectionClass->getName()
-                )
-            );
+            throw new InvalidMappingException(\sprintf('@Method annotation must have name in class "%s", @Method("method name")', $reflectionClass->getName()));
         }
 
         $meta['method'] = $method->value;
@@ -147,12 +142,7 @@ class RpcMethodPass implements CompilerPassInterface
         }
 
         if (empty($meta['executeMethod'])) {
-            throw new InvalidMappingException(
-                \sprintf(
-                    'Method need have @Execute annotation in class "%s", @Execute()',
-                    $reflectionClass->getName()
-                )
-            );
+            throw new InvalidMappingException(\sprintf('Method need have @Execute annotation in class "%s", @Execute()', $reflectionClass->getName()));
         }
 
         // Params
