@@ -45,7 +45,7 @@
     },
     "suggest": {
         "symfony/security-bundle": "For add check security for method",
-        "symfony/validator": "For add validate params for method",
+        "symfony/validator": "For add validate params for method"
     },
     "autoload": {
         "psr-4": {
