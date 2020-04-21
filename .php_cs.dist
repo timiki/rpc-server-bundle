@@ -28,7 +28,9 @@ return PhpCsFixer\Config::create()
         'native_function_invocation' => true,
         'phpdoc_add_missing_param_annotation' => true,
         'phpdoc_types_order' => true,
-        'phpdoc_order' => true
+        'phpdoc_order' => true,
+        'no_superfluous_phpdoc_tags' => false,
+        'phpdoc_trim' => false
     ])
     ->setRiskyAllowed(true)
     ->setFinder($finder)

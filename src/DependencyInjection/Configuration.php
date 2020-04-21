@@ -17,8 +17,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('rpc_server');
+        $treeBuilder = new TreeBuilder('rpc_server');
+        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->children()
