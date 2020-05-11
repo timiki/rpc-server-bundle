@@ -77,7 +77,7 @@ class JsonHandler implements ContainerAwareInterface
      *
      * @param mixed $data
      *
-     * @return null|array|int|\JsonSerializable|string
+     * @return mixed
      */
     public function serialize($data)
     {
@@ -154,6 +154,7 @@ class JsonHandler implements ContainerAwareInterface
             $cacheId = $jsonRequest->getHash();
 
             $jsonResponse = new JsonResponse($jsonRequest);
+
             // Cache
             if (true === $isCache && true === $this->getCache()->contains($cacheId)) {
                 $jsonResponse->setResult($this->getCache()->fetch($cacheId));
@@ -161,13 +162,13 @@ class JsonHandler implements ContainerAwareInterface
             }
 
             $result = $jsonResponse->getResult();
+
             if (null === $result) { // if not cache
                 $result = $this->executeJsonRequest($metadata, $jsonRequest);
             }
 
             if ($result instanceof JsonResponse) {
-                $jsonResponse = $result;
-                $jsonResponse->setRequest($jsonRequest);
+                $jsonResponse->setResult($this->serialize($result->getResult()));
             } else {
                 $jsonResponse->setResult($this->serialize($result));
             }
