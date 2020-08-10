@@ -7,8 +7,8 @@ class InvalidParamsException extends ErrorException
     /**
      * InvalidParamsException constructor.
      *
-     * @param mixed $data
-     * @param mixed $id
+     * @param null|mixed      $data
+     * @param null|int|string $id
      */
     public function __construct($data = null, $id = null)
     {

@@ -23,10 +23,10 @@ class ErrorException extends RuntimeException
     /**
      * ErrorException constructor.
      *
-     * @param string $message
-     * @param int    $code
-     * @param null   $data
-     * @param null   $id
+     * @param string          $message
+     * @param int             $code
+     * @param null|mixed      $data
+     * @param null|int|string $id
      */
     public function __construct($message = '', $code = -32603, $data = null, $id = null)
     {
