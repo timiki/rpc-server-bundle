@@ -204,7 +204,7 @@ class RpcServerExtension extends Extension
         $classes = [];
 
         $prefix = 'App';
-        $rootPath = $container->getParameter('kernel.root_dir');
+        $rootPath = $container->getParameter('kernel.project_dir').'/src';
         $dir = new \DirectoryIterator($path);
 
         foreach ($dir as $file) {
