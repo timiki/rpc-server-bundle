@@ -14,14 +14,16 @@ class RoleSerializer extends BaseSerializer
     protected $user;
 
     /**
-     * @param \Symfony\Component\Serializer\Serializer  $serializer
-     * @param \Symfony\Component\Security\Core\Security $security
+     * @param \Symfony\Component\Serializer\Serializer       $serializer
+     * @param null|\Symfony\Component\Security\Core\Security $security
      */
-    public function __construct(Serializer $serializer, Security $security)
+    public function __construct(Serializer $serializer, Security $security = null)
     {
         parent::__construct($serializer);
 
-        $this->user = $security->getUser();
+        if ($security) {
+            $this->user = $security->getUser();
+        }
     }
 
     /**
