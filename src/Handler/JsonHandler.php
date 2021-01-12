@@ -168,7 +168,14 @@ class JsonHandler implements ContainerAwareInterface
             }
 
             if ($result instanceof JsonResponse) {
-                $jsonResponse->setResult($this->serialize($result->getResult()));
+                // Proxy response error
+                if ($result->isError()) {
+                    $jsonResponse->setErrorCode($result->getErrorCode());
+                    $jsonResponse->setErrorData($result->getErrorData());
+                    $jsonResponse->setErrorMessage($result->getErrorMessage());
+                } else {
+                    $jsonResponse->setResult($this->serialize($result->getResult()));
+                }
             } else {
                 $jsonResponse->setResult($this->serialize($result));
             }
