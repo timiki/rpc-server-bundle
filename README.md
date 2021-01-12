@@ -1,7 +1,7 @@
 JSON-RPC server bundle for symfony
 ==================================
 
-[![Build Status](https://travis-ci.org/timiki/rpc-server-bundle.svg?branch=master)](https://travis-ci.org/timiki/rpc-server-bundle)
+[![Build Status](https://travis-ci.com/timiki/rpc-server-bundle.svg?branch=master)](https://travis-ci.com/timiki/rpc-server-bundle)
 
 
 JSON-RPC is a remote procedure call protocol encoded in JSON. It is a very simple protocol (and very similar to XML-RPC), defining only a handful of data types and commands. 
