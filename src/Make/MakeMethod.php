@@ -23,7 +23,6 @@ class MakeMethod extends AbstractMaker
         return 'make:method';
     }
 
-
     /**
      * {@inheritdoc}
      */
