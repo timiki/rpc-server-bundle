@@ -37,6 +37,7 @@ class MakeMethod extends AbstractMaker
     public function configureCommand(Command $command, InputConfiguration $inputConf)
     {
         $command
+            ->setDescription(self::getCommandDescription())
             ->addArgument('name', InputArgument::OPTIONAL, \sprintf('Choose a method name (e.g. <fg=yellow>%s</>)', Str::getRandomTerm()))
             ->setHelp(
                 <<<EOT
