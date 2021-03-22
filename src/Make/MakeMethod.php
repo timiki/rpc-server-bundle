@@ -26,10 +26,18 @@ class MakeMethod extends AbstractMaker
     /**
      * {@inheritdoc}
      */
+    public static function getCommandDescription(): string
+    {
+        return 'Creates a new JSON-RPC method';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function configureCommand(Command $command, InputConfiguration $inputConf)
     {
         $command
-            ->setDescription('Creates a new JSON-RPC method')
+            ->setDescription(self::getCommandDescription())
             ->addArgument('name', InputArgument::OPTIONAL, \sprintf('Choose a method name (e.g. <fg=yellow>%s</>)', Str::getRandomTerm()))
             ->setHelp(
                 <<<EOT
