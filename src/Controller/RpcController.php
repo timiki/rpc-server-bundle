@@ -2,21 +2,18 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistry;
 
-class RpcController extends AbstractController
+class RpcController
 {
     /**
-     * @var \Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistry
+     * @var HttpHandlerRegistry
      */
     private $handlerRegistry;
 
     /**
-     * RpcController constructor.
-     *
-     * @param \Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistry $handlerRegistry
+     * @param HttpHandlerRegistry $handlerRegistry
      */
     public function __construct(HttpHandlerRegistry $handlerRegistry)
     {
