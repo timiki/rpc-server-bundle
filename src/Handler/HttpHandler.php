@@ -200,19 +200,24 @@ class HttpHandler
         $json['jsonrpc'] = '2.0';
         $json['error'] = [];
 
-        if ($exception instanceof Exceptions\ErrorExceptionInterface) {
+        if ($exception instanceof Exceptions\ErrorException) {
             $json['error']['code'] = $exception->getCode();
             $json['error']['message'] = $exception->getMessage();
-
-            if ($exception->getData()) {
-                $json['error']['data'] = $exception->getData();
-            }
-
-            $json['id'] = $exception->getId();
         } else {
             $json['error']['code'] = -32603;
             $json['error']['message'] = 'Internal error';
+        }
+
+        if ($exception instanceof Exceptions\IdentifiedExceptionInterface) {
+            $json['id'] = $exception->getId();
+        } else {
             $json['id'] = null;
+        }
+
+        if ($exception instanceof Exceptions\DataExceptionInterface) {
+            if ($exception->getData()) {
+                $json['error']['data'] = $exception->getData();
+            }
         }
 
         $httpResponse->headers->set('Content-Type', 'application/json');

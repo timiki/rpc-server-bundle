@@ -4,7 +4,7 @@ namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 use Throwable;
 
-interface ErrorExceptionInterface extends Throwable
+interface IdentifiedExceptionInterface extends Throwable
 {
     /**
      * Get id.
@@ -12,10 +12,4 @@ interface ErrorExceptionInterface extends Throwable
      * @return mixed
      */
     public function getId();
-    /**
-     * Get data.
-     *
-     * @return mixed
-     */
-    public function getData();
 }
