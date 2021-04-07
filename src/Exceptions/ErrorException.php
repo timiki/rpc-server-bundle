@@ -4,7 +4,7 @@ namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 use RuntimeException;
 
-class ErrorException extends RuntimeException
+class ErrorException extends RuntimeException implements ErrorExceptionInterface
 {
     /**
      * Exception data.
@@ -37,9 +37,7 @@ class ErrorException extends RuntimeException
     }
 
     /**
-     * Get data.
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
     public function getData()
     {
@@ -47,9 +45,7 @@ class ErrorException extends RuntimeException
     }
 
     /**
-     * Get id.
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
     public function getId()
     {

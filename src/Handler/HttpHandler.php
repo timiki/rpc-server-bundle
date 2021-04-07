@@ -200,7 +200,7 @@ class HttpHandler
         $json['jsonrpc'] = '2.0';
         $json['error'] = [];
 
-        if ($exception instanceof Exceptions\ErrorException) {
+        if ($exception instanceof Exceptions\ErrorExceptionInterface) {
             $json['error']['code'] = $exception->getCode();
             $json['error']['message'] = $exception->getMessage();
 
