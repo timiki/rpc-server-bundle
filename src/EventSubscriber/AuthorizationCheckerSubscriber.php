@@ -41,11 +41,19 @@ class AuthorizationCheckerSubscriber implements EventSubscriberInterface
     {
         $methodMetaData = $event->getMetadata();
 
-        if (!$this->authChecker || null === $methodMetaData->getRoles()) {
+        if (!$this->authChecker || empty($methodMetaData->getRoles())) {
             return;
         }
 
-        if (!$this->authChecker->isGranted($methodMetaData->getRoles())) {
+        $isGranted = false;
+
+        foreach ($methodMetaData->getRoles() as $role) {
+            if ($this->authChecker->isGranted($role)) {
+                $isGranted = true;
+            }
+        }
+
+        if (!$isGranted) {
             throw new MethodNotGrantedException();
         }
     }
