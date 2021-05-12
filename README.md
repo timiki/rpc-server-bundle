@@ -3,9 +3,9 @@ JSON-RPC server bundle for symfony
 
 [![Build Status](https://travis-ci.com/timiki/rpc-server-bundle.svg?branch=master)](https://travis-ci.com/timiki/rpc-server-bundle)
 
-
-JSON-RPC is a remote procedure call protocol encoded in JSON. It is a very simple protocol (and very similar to XML-RPC), defining only a handful of data types and commands. 
-JSON-RPC allows for notifications (data sent to the server that does not require a response) and for multiple calls to be sent to the server which may be answered out of order.
+JSON-RPC is a remote procedure call protocol encoded in JSON. It is a very simple protocol (and very similar to XML-RPC)
+, defining only a handful of data types and commands. JSON-RPC allows for notifications (data sent to the server that
+does not require a response) and for multiple calls to be sent to the server which may be answered out of order.
 
 [Wikipedia][1] | [Specification][2]
 
@@ -48,21 +48,21 @@ rpc_server:
     #    v2:
     #       - '%kernel.root_dir%/Method/V2'
     #   
-
+    
     mapping: '%kernel.root_dir%/Method'
-
+        
         v1:
         - '%kernel.root_dir%/Method/V1'
     
     # id cache service, must be instance of Doctrine\Common\Cache\CacheProvider
-
+    
     cache: ~
-
+    
     # id serializer service, must be instance of Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface
     # by default use 'rpc.server.serializer.base' service
-
-    serializer: ~
     
+    serializer: ~
+
 ``` 
 
 Add methods dir to exclude from autowire
@@ -99,9 +99,18 @@ or add default JSON-RPC route (default POST to /rpc) to you routing.yml
 
 ```yaml    
 rpc:
-    path:     /rpc
-    defaults: { _controller: RpcServerBundle:Rpc:handler }
-    methods:  [POST]
+    path: /rpc
+    defaults: { _controller: Timiki\Bundle\RpcServerBundle\Controller\RpcController::handlerAction }
+    methods: [POST]
+```
+
+or controller for different handler (version)
+
+```yaml    
+rpc:
+    path: /{version}
+    defaults: { _controller: Timiki\Bundle\RpcServerBundle\Controller\RpcController::handlerAction, version: v1 }
+    methods: [POST]
 ```
 
 If web site and JSON-RPC server located on a different domain remember about [CORS][3].
@@ -151,7 +160,7 @@ Annotation
 
 **@Method**
 
-Define class as JSON-RPC method. 
+Define class as JSON-RPC method.
 
 ```php
 @Method("method name")
@@ -159,7 +168,8 @@ Define class as JSON-RPC method.
 
 **@Roles**
 
-Set roles for access to method. If user not granted for access server return error with message "Method not granted" and code "-32001".
+Set roles for access to method. If user not granted for access server return error with message "Method not granted" and
+code "-32001".
 
 ```php
 @Roles({
@@ -221,13 +231,13 @@ rpc:
 
 In bundle include next serializers:
 
-rpc.server.serializer.base - (default) simple convert output result to array
-rpc.server.serializer.role - use user roles as @Group (@see https://symfony.com/doc/current/components/serializer.html) for control access to output array
-
+rpc.server.serializer.base - (default) simple convert output result to array rpc.server.serializer.role - use user roles
+as @Group (@see https://symfony.com/doc/current/components/serializer.html) for control access to output array
 
 Create custom serializer
 
-Here is an example of a simple class for serialization. All serializer must return array which will be convert to result json.
+Here is an example of a simple class for serialization. All serializer must return array which will be convert to result
+json.
 
 ```php
 
@@ -262,7 +272,8 @@ rpc:
     serializer: 'MySerializer' # serialize service id
 ```
 
-
 [1]: https://wikipedia.org/wiki/JSON-RPC
+
 [2]: http://www.jsonrpc.org/specification
+
 [3]: https://wikipedia.org/wiki/Cross-origin_resource_sharing
