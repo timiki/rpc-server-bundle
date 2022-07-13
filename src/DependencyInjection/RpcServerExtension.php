@@ -84,7 +84,7 @@ class RpcServerExtension extends Extension
                 ->addTag(MapperInterface::class); // Tag it for access from another place
 
             // Json Handler
-            $jsonHandlerId = 'default' === $name ? 'rpc.server.json_handler' : 'rpc.server.json_handler.'.$name;
+            $jsonHandlerId = 'rpc.server.json_handler.'.$name;
             $jsonHandler = new Definition(JsonHandler::class, [new Reference($mapperId), new Reference($serializerId)]);
 
             $jsonHandler->setPublic(true);
@@ -104,7 +104,7 @@ class RpcServerExtension extends Extension
             );
 
             // Http handler
-            $httpHandlerId = 'default' === $name ? 'rpc.server.http_handler' : 'rpc.server.http_handler.'.$name;
+            $httpHandlerId = 'rpc.server.http_handler.'.$name;
             $httpHandler = new Definition(HttpHandler::class, [new Reference($jsonHandlerId), $errorCode]);
 
             $httpHandler->setPublic(true);
