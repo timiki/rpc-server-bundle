@@ -9,14 +9,14 @@ trait ProfilerTrait
     /**
      * Profiler.
      *
-     * @var null|Profiler
+     * @var Profiler|null
      */
     protected $profiler;
 
     /**
      * Get profiler.
      *
-     * @return null|Profiler
+     * @return Profiler|null
      */
     public function getProfiler()
     {

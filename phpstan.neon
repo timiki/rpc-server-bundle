@@ -1,6 +1,6 @@
 parameters:
 	reportUnmatchedIgnoredErrors: false
-	excludes_analyse:
+	excludePaths:
 		- */Resources*
 	ignoreErrors:
 		- '#Call to an undefined method Symfony\\Component\\EventDispatcher\\Event::.*#'

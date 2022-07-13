@@ -7,7 +7,7 @@ use Doctrine\Common\Cache\CacheProvider;
 trait CacheTrait
 {
     /**
-     * @var null|CacheProvider
+     * @var CacheProvider|null
      */
     protected $cache;
 
@@ -24,7 +24,7 @@ trait CacheTrait
     /**
      * Get cache.
      *
-     * @return null|CacheProvider
+     * @return CacheProvider|null
      */
     public function getCache()
     {

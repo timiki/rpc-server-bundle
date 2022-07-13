@@ -9,34 +9,23 @@ use Timiki\Bundle\RpcServerBundle\Exceptions\MethodNotGrantedException;
 
 class AuthorizationCheckerSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var null|AuthorizationCheckerInterface
-     */
-    private $authChecker;
+    private ?AuthorizationCheckerInterface $authChecker;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedEvents()
-    {
-        return [
-            JsonPreExecuteEvent::class => ['execute', 4096],
-        ];
-    }
-
-    /**
-     * AuthorizationCheckerSubscriber constructor.
-     *
-     * @param null|AuthorizationCheckerInterface $authChecker
-     */
     public function __construct(AuthorizationCheckerInterface $authChecker = null)
     {
         $this->authChecker = $authChecker;
     }
 
     /**
-     * @param JsonPreExecuteEvent $event
+     * {@inheritdoc}
      */
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            JsonPreExecuteEvent::class => ['execute', 4096],
+        ];
+    }
+
     public function execute(JsonPreExecuteEvent $event)
     {
         $methodMetaData = $event->getMetadata();

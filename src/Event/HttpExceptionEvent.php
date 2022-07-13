@@ -13,9 +13,6 @@ class HttpExceptionEvent extends HttpResponseEvent
 
     /**
      * HttpExceptionEvent constructor.
-     *
-     * @param HttpResponse $httpResponse
-     * @param \Exception   $exception
      */
     public function __construct(HttpResponse $httpResponse, \Exception $exception)
     {

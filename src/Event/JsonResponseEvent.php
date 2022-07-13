@@ -14,8 +14,6 @@ class JsonResponseEvent extends Event
 
     /**
      * JsonResponseEvent constructor.
-     *
-     * @param JsonResponse $jsonResponse
      */
     public function __construct(JsonResponse $jsonResponse)
     {

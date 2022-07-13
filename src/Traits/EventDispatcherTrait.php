@@ -10,14 +10,14 @@ trait EventDispatcherTrait
     /**
      * Event dispatcher.
      *
-     * @var null|EventDispatcherInterface
+     * @var EventDispatcherInterface|null
      */
     protected $eventDispatcher;
 
     /**
      * Get event dispatcher.
      *
-     * @return null|EventDispatcherInterface
+     * @return EventDispatcherInterface|null
      */
     public function getEventDispatcher()
     {
@@ -36,15 +36,9 @@ trait EventDispatcherTrait
 
     /**
      * Dispatches an event to all registered listeners.
-     *
-     * @param Event $event
-     *
-     * @return object
      */
-    public function dispatch(Event $event = null)
+    public function dispatch(Event $event = null): ?object
     {
-        if ($this->eventDispatcher) {
-            return $this->eventDispatcher->dispatch($event);
-        }
+        return $this->eventDispatcher->dispatch($event);
     }
 }

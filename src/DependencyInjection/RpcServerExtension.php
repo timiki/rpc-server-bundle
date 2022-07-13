@@ -84,7 +84,7 @@ class RpcServerExtension extends Extension
                 ->addTag(MapperInterface::class); // Tag it for access from another place
 
             // Json Handler
-            $jsonHandlerId = empty($name) ? 'rpc.server.json_handler' : 'rpc.server.json_handler.'.$name;
+            $jsonHandlerId = 'default' === $name ? 'rpc.server.json_handler' : 'rpc.server.json_handler.'.$name;
             $jsonHandler = new Definition(JsonHandler::class, [new Reference($mapperId), new Reference($serializerId)]);
 
             $jsonHandler->setPublic(true);
@@ -104,7 +104,7 @@ class RpcServerExtension extends Extension
             );
 
             // Http handler
-            $httpHandlerId = empty($name) ? 'rpc.server.http_handler' : 'rpc.server.http_handler.'.$name;
+            $httpHandlerId = 'default' === $name ? 'rpc.server.http_handler' : 'rpc.server.http_handler.'.$name;
             $httpHandler = new Definition(HttpHandler::class, [new Reference($jsonHandlerId), $errorCode]);
 
             $httpHandler->setPublic(true);
@@ -141,9 +141,8 @@ class RpcServerExtension extends Extension
     }
 
     /**
-     * @param string                                                  $mapperId
-     * @param string|string[]                                         $paths
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+     * @param string          $mapperId
+     * @param string|string[] $paths
      *
      * @throws \Exception
      */
@@ -192,8 +191,7 @@ class RpcServerExtension extends Extension
     }
 
     /**
-     * @param string                                                  $path
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+     * @param string $path
      *
      * @throws \Exception
      *

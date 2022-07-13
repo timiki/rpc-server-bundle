@@ -19,7 +19,7 @@ class JsonPreExecuteEvent extends Event
     private $metadata;
 
     /**
-     * @var null|\ReflectionObject
+     * @var \ReflectionObject|null
      */
     private $objectReflection;
 
@@ -31,9 +31,7 @@ class JsonPreExecuteEvent extends Event
     /**
      * JsonExecuteEvent constructor.
      *
-     * @param object         $object
-     * @param MethodMetaData $metadata
-     * @param JsonRequest    $jsonRequest
+     * @param object $object
      */
     public function __construct($object, MethodMetaData $metadata, JsonRequest $jsonRequest)
     {
@@ -54,25 +52,17 @@ class JsonPreExecuteEvent extends Event
 
     /**
      * Get metadata.
-     *
-     * @return MethodMetaData
      */
     public function getMetadata(): MethodMetaData
     {
         return $this->metadata;
     }
 
-    /**
-     * @return JsonRequest
-     */
     public function getJsonRequest(): JsonRequest
     {
         return $this->jsonRequest;
     }
 
-    /**
-     * @return \ReflectionObject
-     */
     public function getObjectReflection(): \ReflectionObject
     {
         if (null !== $this->objectReflection) {

@@ -14,15 +14,14 @@ class HttpResponseEvent extends Event
     private $httpResponse;
 
     /**
-     * @var null|JsonResponse|JsonResponse[]
+     * @var JsonResponse|JsonResponse[]|null
      */
     private $jsonResponse;
 
     /**
      * HttpResponseEvent constructor.
      *
-     * @param HttpResponse                     $httpResponse
-     * @param null|JsonResponse|JsonResponse[] $jsonResponse
+     * @param JsonResponse|JsonResponse[]|null $jsonResponse
      */
     public function __construct(HttpResponse $httpResponse, $jsonResponse = null)
     {
@@ -41,7 +40,7 @@ class HttpResponseEvent extends Event
     }
 
     /**
-     * @return null|JsonResponse|JsonResponse[]
+     * @return JsonResponse|JsonResponse[]|null
      */
     public function getJsonResponse()
     {

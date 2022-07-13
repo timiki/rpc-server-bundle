@@ -20,7 +20,7 @@ class HttpHandler
     /**
      * Json handler.
      *
-     * @var null|JsonHandler
+     * @var JsonHandler|null
      */
     private $jsonHandler;
 
@@ -34,8 +34,7 @@ class HttpHandler
     /**
      * HttpHandler constructor.
      *
-     * @param JsonHandler $jsonHandler
-     * @param int         $errorCode
+     * @param int $errorCode
      */
     public function __construct(JsonHandler $jsonHandler, $errorCode = 200)
     {
@@ -45,8 +44,6 @@ class HttpHandler
 
     /**
      * Parser HttpRequest to JsonRequest.
-     *
-     * @param HttpRequest $httpRequest
      *
      * @throws Exceptions\ParseException
      *
@@ -99,8 +96,6 @@ class HttpHandler
 
     /**
      * Handle http request.
-     *
-     * @param HttpRequest $httpRequest
      *
      * @return HttpResponse
      */
@@ -189,8 +184,6 @@ class HttpHandler
     /**
      * Create new HttpResponse from exception.
      *
-     * @param \Exception $exception
-     *
      * @return HttpResponse
      */
     public function createHttpResponseFromException(\Exception $exception)
@@ -243,7 +236,7 @@ class HttpHandler
     /**
      * Get Json handler.
      *
-     * @return null|\Timiki\Bundle\RpcServerBundle\Handler\JsonHandler
+     * @return \Timiki\Bundle\RpcServerBundle\Handler\JsonHandler|null
      */
     public function getJsonHandler()
     {

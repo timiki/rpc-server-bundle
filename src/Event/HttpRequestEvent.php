@@ -14,8 +14,6 @@ class HttpRequestEvent extends Event
 
     /**
      * HttpRequestEvent constructor.
-     *
-     * @param HttpRequest $httpResponse
      */
     public function __construct(HttpRequest $httpResponse)
     {

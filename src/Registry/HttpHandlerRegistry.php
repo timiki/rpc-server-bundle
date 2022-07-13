@@ -14,8 +14,7 @@ class HttpHandlerRegistry
     private $httpHandlers = [];
 
     /**
-     * @param string      $name
-     * @param HttpHandler $httpHandler
+     * @param string $name
      */
     public function add($name, HttpHandler $httpHandler)
     {

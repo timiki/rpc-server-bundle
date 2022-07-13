@@ -9,14 +9,12 @@ use Symfony\Component\Serializer\Serializer;
 class BaseSerializer implements SerializerInterface
 {
     /**
-     * @var null|Serializer
+     * @var Serializer|null
      */
     protected $serializer;
 
     /**
      * BaseSerializer constructor.
-     *
-     * @param null|Serializer $serializer
      */
     public function __construct(Serializer $serializer = null)
     {

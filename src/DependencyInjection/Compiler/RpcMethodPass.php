@@ -33,8 +33,6 @@ class RpcMethodPass implements CompilerPassInterface
     }
 
     /**
-     * @param ContainerBuilder $container
-     *
      * @throws InvalidMappingException
      * @throws \ReflectionException
      */
@@ -92,11 +90,7 @@ class RpcMethodPass implements CompilerPassInterface
     }
 
     /**
-     * @param \ReflectionClass $reflectionClass
-     *
      * @throws InvalidMappingException
-     *
-     * @return null|array
      */
     public function loadClassMetadata(\ReflectionClass $reflectionClass): ?array
     {

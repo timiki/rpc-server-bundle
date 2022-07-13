@@ -11,16 +11,13 @@ class ParamConverterSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             JsonPreExecuteEvent::class => ['convert', 2048],
         ];
     }
 
-    /**
-     * @param JsonPreExecuteEvent $event
-     */
     public function convert(JsonPreExecuteEvent $event)
     {
         $jsonRequest = $event->getJsonRequest();

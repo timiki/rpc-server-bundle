@@ -14,28 +14,18 @@ class Mapper
      */
     private $dirtyMethods = [];
 
-    /**
-     * @param array $methodsMetaData
-     */
     public function addMethods(array $methodsMetaData): void
     {
         $this->dirtyMethods = $methodsMetaData;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return bool
-     */
     public function hasMethod(string $name): bool
     {
         return isset($this->dirtyMethods[$name]);
     }
 
     /**
-     * @param string $name
-     *
-     * @return null|\Timiki\Bundle\RpcServerBundle\Mapper\MethodMetaData
+     * @return \Timiki\Bundle\RpcServerBundle\Mapper\MethodMetaData|null
      */
     public function getMethod(string $name): ?MethodMetaData
     {

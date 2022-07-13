@@ -12,17 +12,13 @@ class RpcController
      */
     private $handlerRegistry;
 
-    /**
-     * @param HttpHandlerRegistry $handlerRegistry
-     */
     public function __construct(HttpHandlerRegistry $handlerRegistry)
     {
         $this->handlerRegistry = $handlerRegistry;
     }
 
     /**
-     * @param Request $request
-     * @param string  $version
+     * @param string $version
      *
      * @throws \Exception
      *

@@ -7,14 +7,14 @@ use Symfony\Component\Stopwatch\Stopwatch;
 trait StopwatchTrait
 {
     /**
-     * @var null|Stopwatch
+     * @var Stopwatch|null
      */
     protected $stopwatch;
 
     /**
      * Get stop watch.
      *
-     * @return null|Stopwatch
+     * @return Stopwatch|null
      */
     public function getStopwatch()
     {
@@ -23,8 +23,6 @@ trait StopwatchTrait
 
     /**
      * Set stop watch.
-     *
-     * @param null|Stopwatch $stopwatch
      */
     public function setStopwatch(Stopwatch $stopwatch = null)
     {

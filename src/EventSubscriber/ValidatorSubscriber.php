@@ -10,34 +10,23 @@ use Timiki\Bundle\RpcServerBundle\Exceptions\InvalidParamsException;
 
 class ValidatorSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
+    private ?ValidatorInterface $validator;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedEvents()
-    {
-        return [
-            JsonPreExecuteEvent::class => ['execute', 1024], // run after auth check
-        ];
-    }
-
-    /**
-     * ValidatorSubscriber constructor.
-     *
-     * @param null|ValidatorInterface $validator
-     */
     public function __construct(ValidatorInterface $validator = null)
     {
         $this->validator = $validator;
     }
 
     /**
-     * @param JsonPreExecuteEvent $event
+     * {@inheritdoc}
      */
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            JsonPreExecuteEvent::class => ['execute', 1024], // run after auth check
+        ];
+    }
+
     public function execute(JsonPreExecuteEvent $event)
     {
         if (null === $this->validator) {

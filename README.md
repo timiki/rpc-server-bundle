@@ -24,6 +24,12 @@ Symfony < 4.3 use version ^4.0
 composer require timiki/rpc-server-bundle "^4.0"
 ```
 
+Symfony >= 5.0 use version ^5.0
+
+```bash
+composer require timiki/rpc-server-bundle "^5.0"
+```
+
 Configs
 -------
 

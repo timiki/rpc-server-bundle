@@ -7,8 +7,8 @@ class MethodException extends ErrorException
     /**
      * MethodException constructor.
      *
-     * @param null|mixed      $data
-     * @param null|int|string $id
+     * @param mixed|null      $data
+     * @param int|string|null $id
      */
     public function __construct($data = null, $id = null)
     {

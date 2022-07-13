@@ -9,14 +9,10 @@ use Symfony\Component\Serializer\Serializer;
 class RoleSerializer extends BaseSerializer
 {
     /**
-     * @var null|UserInterface
+     * @var UserInterface|null
      */
     protected $user;
 
-    /**
-     * @param \Symfony\Component\Serializer\Serializer       $serializer
-     * @param null|\Symfony\Component\Security\Core\Security $security
-     */
     public function __construct(Serializer $serializer, Security $security = null)
     {
         parent::__construct($serializer);

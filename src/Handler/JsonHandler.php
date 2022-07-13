@@ -25,22 +25,19 @@ class JsonHandler implements ContainerAwareInterface
     /**
      * Rpc mapper.
      *
-     * @var null|Mapper
+     * @var Mapper|null
      */
     private $mapper;
 
     /**
      * Serializer.
      *
-     * @var null|SerializerInterface
+     * @var SerializerInterface|null
      */
     private $serializer;
 
     /**
      * JsonHandler constructor.
-     *
-     * @param Mapper                   $mapper
-     * @param null|SerializerInterface $serializer
      */
     public function __construct(Mapper $mapper, SerializerInterface $serializer = null)
     {
@@ -65,7 +62,7 @@ class JsonHandler implements ContainerAwareInterface
     /**
      * Get serializer.
      *
-     * @return null|SerializerInterface
+     * @return SerializerInterface|null
      */
     public function getSerializer()
     {
@@ -91,7 +88,7 @@ class JsonHandler implements ContainerAwareInterface
     /**
      * Get mapper.
      *
-     * @return null|Mapper
+     * @return Mapper|null
      */
     public function getMapper()
     {
@@ -100,9 +97,6 @@ class JsonHandler implements ContainerAwareInterface
 
     /**
      * Create new JsonResponse from exception.
-     *
-     * @param \Exception       $exception
-     * @param null|JsonRequest $jsonRequest
      *
      * @return JsonResponse
      */
@@ -198,8 +192,6 @@ class JsonHandler implements ContainerAwareInterface
     /**
      * Check is cache support for JsonRequest.
      *
-     * @param JsonRequest $jsonRequest
-     *
      * @return bool
      */
     private function isCacheSupport(JsonRequest $jsonRequest)
@@ -216,8 +208,6 @@ class JsonHandler implements ContainerAwareInterface
 
     /**
      * @param JsonRequest $jsonRequest
-     *
-     * @return MethodMetaData
      */
     private function getMethod($jsonRequest): MethodMetaData
     {
@@ -231,9 +221,6 @@ class JsonHandler implements ContainerAwareInterface
     }
 
     /**
-     * @param MethodMetaData $methodMetaData
-     * @param JsonRequest    $jsonRequest
-     *
      * @return mixed
      */
     private function executeJsonRequest(MethodMetaData $methodMetaData, JsonRequest $jsonRequest)

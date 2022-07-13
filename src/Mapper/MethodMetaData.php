@@ -20,7 +20,7 @@ class MethodMetaData
     private $params;
 
     /**
-     * @var null|int
+     * @var int|null
      */
     private $cache;
 
@@ -30,11 +30,7 @@ class MethodMetaData
     private $roles;
 
     /**
-     * @param string     $method
-     * @param string     $execute
-     * @param array      $params
-     * @param null       $cache
-     * @param null|array $roles
+     * @param null $cache
      */
     public function __construct(string $method, string $execute, array $params = [], $cache = null, array $roles = null)
     {
@@ -45,32 +41,23 @@ class MethodMetaData
         $this->roles = $roles;
     }
 
-    /**
-     * @return string
-     */
     public function getMethod(): string
     {
         return $this->method;
     }
 
-    /**
-     * @return string
-     */
     public function getExecute(): string
     {
         return $this->execute;
     }
 
-    /**
-     * @return array
-     */
     public function getParams(): array
     {
         return $this->params;
     }
 
     /**
-     * @return null|int
+     * @return int|null
      */
     public function getCache()
     {

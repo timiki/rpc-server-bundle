@@ -25,8 +25,8 @@ class ErrorException extends RuntimeException
      *
      * @param string          $message
      * @param int             $code
-     * @param null|mixed      $data
-     * @param null|int|string $id
+     * @param mixed|null      $data
+     * @param int|string|null $id
      */
     public function __construct($message = '', $code = -32603, $data = null, $id = null)
     {
