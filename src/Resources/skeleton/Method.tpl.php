@@ -10,12 +10,12 @@ use Timiki\Bundle\RpcServerBundle\Mapping as RPC;
 class <?php echo $class_name; ?>
 {
     /**
-    * @Rpc\Param()
+    * @RPC\Param()
     */
     protected $param;
 
     /**
-    * @Rpc\Execute()
+    * @RPC\Execute()
     */
     public function execute()
     {
