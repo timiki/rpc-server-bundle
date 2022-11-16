@@ -112,7 +112,7 @@ class HttpHandler
         }
 
         $jsonResponses = $this->jsonHandler->handleJsonRequest($jsonRequests);
-        $httpResponse = HttpResponse::create();
+        $httpResponse = new HttpResponse();
 
         if ($this->profiler) {
             /**
@@ -188,7 +188,7 @@ class HttpHandler
      */
     public function createHttpResponseFromException(\Exception $exception)
     {
-        $httpResponse = HttpResponse::create();
+        $httpResponse = new HttpResponse();
         $json = [];
         $json['jsonrpc'] = '2.0';
         $json['error'] = [];
