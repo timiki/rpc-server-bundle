@@ -2,7 +2,6 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Handler;
 
-use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Timiki\Bundle\RpcServerBundle\Event;
@@ -177,9 +176,12 @@ class JsonHandler implements ContainerAwareInterface
 
             // Save cache
             if ($isCache && !empty($jsonResponse->getResult())) {
-                $cacheItem = new CacheItem();
+                $cacheItem = $this->getCache()->getItem($cacheId);
                 $cacheItem->set($jsonResponse->getResult());
-                $cacheItem->expiresAt(new \DateTime('+ '.(int) $metadata->getCache().' second'));
+
+                if ($metadata->getCache() > 0) {
+                    $cacheItem->expiresAfter($metadata->getCache());
+                }
 
                 $this->getCache()->save($cacheItem);
             }

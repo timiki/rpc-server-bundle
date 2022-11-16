@@ -49,6 +49,8 @@ class RpcServerExtension extends Extension
             );
 
             $cacheDefinition->setPublic(true);
+            $cacheDefinition->addTag('cache.pool');
+
             $container->setDefinition($cacheId, $cacheDefinition);
         } else {
             $cacheId = $config['cache'];
