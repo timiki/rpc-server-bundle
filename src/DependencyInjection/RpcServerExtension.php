@@ -37,11 +37,7 @@ class RpcServerExtension extends Extension
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        if (false === isset($config['mapping'])) {
-            throw new \RuntimeException(__CLASS__.': mapping can\'t be empty');
-        }
-
-        $errorCode = empty($config['error_code']) ? 200 : $config['error_code'];
+        $errorCode = $config['error_code'] ?? 200;
 
         // Configure cache
 
@@ -60,7 +56,7 @@ class RpcServerExtension extends Extension
 
         // Serializer
 
-        $serializerId = empty($config['serializer']) ? 'rpc.server.serializer.base' : $config['serializer'];
+        $serializerId = $config['serializer'] ?? 'rpc.server.serializer.base';
 
         // Registry
 
@@ -128,7 +124,7 @@ class RpcServerExtension extends Extension
             $registry->addMethodCall('add', [$name, new Reference($httpHandlerId)]);
         };
 
-        $mapping = $config['mapping'];
+        $mapping = $config['mapping'] ?? [];
 
         foreach ((array) $mapping as $key => $value) {
             if (\is_numeric($key)) {
