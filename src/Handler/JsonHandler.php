@@ -2,6 +2,7 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Handler;
 
+use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Timiki\Bundle\RpcServerBundle\Event;
@@ -150,8 +151,8 @@ class JsonHandler implements ContainerAwareInterface
             $jsonResponse = new JsonResponse($jsonRequest);
 
             // Cache
-            if (true === $isCache && true === $this->getCache()->contains($cacheId)) {
-                $jsonResponse->setResult($this->getCache()->fetch($cacheId));
+            if (true === $isCache && true === $this->getCache()->hasItem($cacheId)) {
+                $jsonResponse->setResult($this->getCache()->getItem($cacheId)->get());
                 $isCache = false; // we don't want warm check without left ttl
             }
 
@@ -175,7 +176,13 @@ class JsonHandler implements ContainerAwareInterface
             }
 
             // Save cache
-            $isCache && $this->cache->save($cacheId, $jsonResponse->getResult(), $metadata->getCache());
+            if ($isCache && !empty($jsonResponse->getResult())) {
+                $cacheItem = new CacheItem();
+                $cacheItem->set($jsonResponse->getResult());
+                $cacheItem->expiresAt(new \DateTime('+ '.(int) $metadata->getCache().' second'));
+
+                $this->getCache()->save($cacheItem);
+            }
         } catch (\Exception $exception) {
             $jsonResponse = $this->createJsonResponseFromException($exception, $jsonRequest);
         }

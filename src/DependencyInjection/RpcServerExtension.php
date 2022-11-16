@@ -2,6 +2,7 @@
 
 namespace Timiki\Bundle\RpcServerBundle\DependencyInjection;
 
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\GlobResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -42,13 +43,13 @@ class RpcServerExtension extends Extension
 
         $errorCode = empty($config['error_code']) ? 200 : $config['error_code'];
 
-        // Cache
+        // Configure cache
 
         if (empty($config['cache'])) {
             $cacheId = 'rpc.server.cache';
             $cacheDefinition = new Definition(
-                'Doctrine\Common\Cache\FilesystemCache',
-                ['%kernel.cache_dir%/rpc', '']
+                FilesystemAdapter::class,
+                ['', 0, '%kernel.cache_dir%/rpc', null]
             );
 
             $cacheDefinition->setPublic(true);

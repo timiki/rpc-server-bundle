@@ -2,31 +2,18 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Traits;
 
-use Doctrine\Common\Cache\CacheProvider;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 trait CacheTrait
 {
-    /**
-     * @var CacheProvider|null
-     */
-    protected $cache;
+    protected ?AdapterInterface $cache = null;
 
-    /**
-     * Set cache.
-     *
-     * @param CacheProvider $cache Cache provider
-     */
-    public function setCache(CacheProvider $cache = null)
+    public function setCache(AdapterInterface $cache = null)
     {
         $this->cache = $cache;
     }
 
-    /**
-     * Get cache.
-     *
-     * @return CacheProvider|null
-     */
-    public function getCache()
+    public function getCache(): ?AdapterInterface
     {
         return $this->cache;
     }
