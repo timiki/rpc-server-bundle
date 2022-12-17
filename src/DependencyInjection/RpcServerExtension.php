@@ -192,9 +192,9 @@ class RpcServerExtension extends Extension
     /**
      * @param string $path
      *
-     * @throws \Exception
-     *
      * @return array
+     *
+     * @throws \Exception
      */
     private function loadMethods($path, ContainerBuilder $container)
     {

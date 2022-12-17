@@ -11,7 +11,7 @@ class MethodTest extends WebTestCase
     /** @var \Symfony\Bundle\FrameworkBundle\Client */
     private $client;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->client = self::createClient();
@@ -19,10 +19,8 @@ class MethodTest extends WebTestCase
 
     /**
      * @group functional
-     * @dataProvider dataSets
      *
-     * @param $data
-     * @param $expected
+     * @dataProvider dataSets
      */
     public function test($data, $expected)
     {

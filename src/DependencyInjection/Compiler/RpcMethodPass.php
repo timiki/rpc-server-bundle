@@ -11,6 +11,7 @@ use Timiki\Bundle\RpcServerBundle\Exceptions\InvalidMappingException;
 use Timiki\Bundle\RpcServerBundle\Mapper\MapperInterface;
 use Timiki\Bundle\RpcServerBundle\Mapper\MethodInterface;
 use Timiki\Bundle\RpcServerBundle\Mapping;
+use Timiki\Bundle\RpcServerBundle\Attribute;
 
 /**
  * Class RpcMethodPass add methods to mappers.
@@ -96,6 +97,16 @@ class RpcMethodPass implements CompilerPassInterface
     {
         $method = $this->reader->getClassAnnotation($reflectionClass, Mapping\Method::class);
 
+        if (empty($method)) {
+            $attributes = $reflectionClass->getAttributes(Attribute\Method::class);
+
+            if (count($attributes) > 0) {
+                /** @var Attribute\Method $instance */
+                $instance = $attributes[0]->newInstance();
+                $method= $instance->name;
+            }
+        }
+
         if (null === $method) {
             return null;
         }
@@ -115,7 +126,17 @@ class RpcMethodPass implements CompilerPassInterface
         $cache = $this->reader->getClassAnnotation($reflectionClass, Mapping\Cache::class);
         /** @var Mapping\Cache $cache */
         if (null !== $cache) {
-            $meta['cache'] = (int) $cache->lifetime;
+            $meta['cache'] = (int)$cache->lifetime;
+        }
+
+        $attributes = $reflectionClass->getAttributes(Attribute\Cache::class);
+        if (count($attributes) > 0) {
+            /** @var Attribute\Cache $instance */
+            $instance = $attributes[0]->newInstance();
+
+            if (!empty($instance->lifetime)) {
+                $meta['cache'] = $instance->lifetime;
+            }
         }
 
         // Roles
@@ -123,7 +144,17 @@ class RpcMethodPass implements CompilerPassInterface
         $roles = $this->reader->getClassAnnotation($reflectionClass, Mapping\Roles::class);
         /** @var Mapping\Roles $roles */
         if (null !== $roles) {
-            $meta['roles'] = (array) $roles->value;
+            $meta['roles'] = (array)$roles->value;
+        }
+
+        $attributes = $reflectionClass->getAttributes(Attribute\Roles::class);
+        if (count($attributes) > 0) {
+            /** @var Attribute\Roles $instance */
+            $instance = $attributes[0]->newInstance();
+
+            if (!empty($instance->roles)) {
+                $meta['roles'] = (array)$instance->roles;
+            }
         }
 
         // Method execute. On in class
@@ -131,6 +162,11 @@ class RpcMethodPass implements CompilerPassInterface
 
         foreach ($reflectionClass->getMethods() as $reflectionMethod) {
             if ($paramMeta = $this->reader->getMethodAnnotation($reflectionMethod, Mapping\Execute::class)) {
+                $meta['executeMethod'] = $reflectionMethod->name;
+            }
+
+            $attributes = $reflectionMethod->getAttributes(Attribute\Execute::class);
+            if (count($attributes) > 0) {
                 $meta['executeMethod'] = $reflectionMethod->name;
             }
         }
@@ -144,6 +180,11 @@ class RpcMethodPass implements CompilerPassInterface
 
         foreach ($reflectionClass->getProperties() as $reflectionProperty) {
             if ($paramMeta = $this->reader->getPropertyAnnotation($reflectionProperty, Mapping\Param::class)) {
+                $meta['params'][$reflectionProperty->name] = true;
+            }
+
+            $attributes = $reflectionProperty->getAttributes(Attribute\Param::class);
+            if (count($attributes) > 0) {
                 $meta['params'][$reflectionProperty->name] = true;
             }
         }

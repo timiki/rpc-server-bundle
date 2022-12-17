@@ -26,9 +26,9 @@ class HttpHandlerRegistry
      *
      * @param string $name
      *
-     * @throws \Exception
-     *
      * @return HttpHandler
+     *
+     * @throws \Exception
      */
     public function get($name)
     {

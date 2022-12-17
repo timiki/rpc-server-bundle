@@ -2,9 +2,7 @@
 
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
-use RuntimeException;
-
-class ErrorException extends RuntimeException
+class ErrorException extends \RuntimeException
 {
     /**
      * Exception data.

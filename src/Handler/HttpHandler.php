@@ -45,9 +45,9 @@ class HttpHandler
     /**
      * Parser HttpRequest to JsonRequest.
      *
-     * @throws Exceptions\ParseException
-     *
      * @return JsonRequest|JsonRequest[]
+     *
+     * @throws Exceptions\ParseException
      */
     public function parserHttpRequest(HttpRequest $httpRequest)
     {

@@ -20,9 +20,9 @@ class RpcController
     /**
      * @param string $version
      *
-     * @throws \Exception
-     *
      * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \Exception
      */
     public function handlerAction(Request $request, $version = 'default')
     {
