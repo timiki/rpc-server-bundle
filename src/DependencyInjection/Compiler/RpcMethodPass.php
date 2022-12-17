@@ -7,11 +7,11 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\DocParser;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Timiki\Bundle\RpcServerBundle\Attribute;
 use Timiki\Bundle\RpcServerBundle\Exceptions\InvalidMappingException;
 use Timiki\Bundle\RpcServerBundle\Mapper\MapperInterface;
 use Timiki\Bundle\RpcServerBundle\Mapper\MethodInterface;
 use Timiki\Bundle\RpcServerBundle\Mapping;
-use Timiki\Bundle\RpcServerBundle\Attribute;
 
 /**
  * Class RpcMethodPass add methods to mappers.
@@ -95,29 +95,33 @@ class RpcMethodPass implements CompilerPassInterface
      */
     public function loadClassMetadata(\ReflectionClass $reflectionClass): ?array
     {
+        $methodName = null;
         $method = $this->reader->getClassAnnotation($reflectionClass, Mapping\Method::class);
 
-        if (empty($method)) {
+        if ($method) {
+            if (empty($method->value)) {
+                throw new InvalidMappingException(\sprintf('@Method annotation must have name in class "%s", @Method("method name")', $reflectionClass->getName()));
+            }
+
+            $methodName = $method->value;
+        }
+
+        if (null == $methodName) {
             $attributes = $reflectionClass->getAttributes(Attribute\Method::class);
 
             if (count($attributes) > 0) {
                 /** @var Attribute\Method $instance */
                 $instance = $attributes[0]->newInstance();
-                $method= $instance->name;
+                $methodName = $instance->name;
             }
         }
 
-        if (null === $method) {
+        if (empty($methodName)) {
             return null;
         }
 
         $meta = [];
-
-        if (empty($method->value)) {
-            throw new InvalidMappingException(\sprintf('@Method annotation must have name in class "%s", @Method("method name")', $reflectionClass->getName()));
-        }
-
-        $meta['method'] = $method->value;
+        $meta['method'] = $methodName;
         $meta['class'] = $reflectionClass->getName();
         $meta['file'] = $reflectionClass->getFileName();
 
@@ -126,7 +130,7 @@ class RpcMethodPass implements CompilerPassInterface
         $cache = $this->reader->getClassAnnotation($reflectionClass, Mapping\Cache::class);
         /** @var Mapping\Cache $cache */
         if (null !== $cache) {
-            $meta['cache'] = (int)$cache->lifetime;
+            $meta['cache'] = (int) $cache->lifetime;
         }
 
         $attributes = $reflectionClass->getAttributes(Attribute\Cache::class);
@@ -144,7 +148,7 @@ class RpcMethodPass implements CompilerPassInterface
         $roles = $this->reader->getClassAnnotation($reflectionClass, Mapping\Roles::class);
         /** @var Mapping\Roles $roles */
         if (null !== $roles) {
-            $meta['roles'] = (array)$roles->value;
+            $meta['roles'] = (array) $roles->value;
         }
 
         $attributes = $reflectionClass->getAttributes(Attribute\Roles::class);
@@ -153,7 +157,7 @@ class RpcMethodPass implements CompilerPassInterface
             $instance = $attributes[0]->newInstance();
 
             if (!empty($instance->roles)) {
-                $meta['roles'] = (array)$instance->roles;
+                $meta['roles'] = (array) $instance->roles;
             }
         }
 
