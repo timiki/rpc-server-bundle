@@ -30,6 +30,12 @@ Symfony >= 5.0 use version ^5.0
 composer require timiki/rpc-server-bundle "^5.0"
 ```
 
+Symfony >= 6.0
+
+```bash
+composer require timiki/rpc-server-bundle "^6.0"
+```
+
 Configs
 -------
 
@@ -125,6 +131,8 @@ If web site and JSON-RPC server located on a different domain remember about [CO
 Method
 ------
 
+With annotations
+
 ```php
 <?php
 
@@ -149,6 +157,36 @@ class Method
     /**
      * @Rpc\Execute()
      */
+    public function execute()
+    {
+        $param = $this->param;
+        
+        ...
+        
+        return $result;
+    }
+}
+    
+```
+
+With attributes
+
+```php
+<?php
+
+use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
+use Symfony\Component\Validator\Constraints as Assert;
+
+#[RPC\Method("name")]
+#[RPC\Roles(["ROLE_NAME"])]
+#[RPC\Cache(3600)]
+class Method
+{
+    #[RPC\Param]
+    #[Assert\NotBlank]
+    protected $param;
+
+    #[RPC\Execute] 
     public function execute()
     {
         $param = $this->param;
@@ -221,6 +259,59 @@ public function someMethod()
     // Code
 }
 ```
+
+Attributes
+----------
+
+**Method**
+
+Define class as JSON-RPC method.
+
+```php
+#[Method("name")]
+```
+
+**Roles**
+
+Set roles for access to method. If user not granted for access server return error with message "Method not granted" and
+code "-32001".
+
+```php
+#[Roles(["ROLE_NAME", "ROLE_OTHER"])]
+```
+
+**Cache**
+
+If define cache in configs it set response lifetime.
+
+```php
+#[Cache(3600)]
+```
+
+**Param**
+
+Define JSON-RPC params. Use Symfony\Component\Validator\Constraints for validate it.
+
+```php
+#[Param]
+protected $param;
+
+#[Param]
+protected $param = null'; // Default value for param
+```
+
+**Execute**
+
+Define execute function in class.
+
+```php
+#[Execute]
+public function someMethod()
+{
+    // Code
+}
+```
+
 
 Serialize
 ----------
