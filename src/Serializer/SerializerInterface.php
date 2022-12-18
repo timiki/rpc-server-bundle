@@ -6,10 +6,6 @@ interface SerializerInterface
 {
     /**
      * Serialize data.
-     *
-     * @param mixed $data
-     *
-     * @return array
      */
-    public function serialize($data);
+    public function serialize(mixed $data): mixed;
 }
