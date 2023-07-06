@@ -119,11 +119,15 @@ class HttpHandler implements HttpHandlerInterface
     {
         $jsonResponse = new JsonResponse();
 
-        if ($exception instanceof Exceptions\ErrorException) {
+        if ($exception instanceof Exceptions\ErrorExceptionInterface) {
             $jsonResponse->setErrorCode($exception->getCode());
             $jsonResponse->setErrorMessage($exception->getMessage());
             $jsonResponse->setErrorData($exception->getData());
             $jsonResponse->setId($exception->getId());
+        } elseif ($exception instanceof Exceptions\ErrorDataExceptionInterface) {
+            $jsonResponse->setErrorCode($exception->getCode());
+            $jsonResponse->setErrorMessage($exception->getMessage());
+            $jsonResponse->setErrorData($exception->getData());
         } else {
             $jsonResponse->setErrorCode(-32000);
             $jsonResponse->setErrorMessage($exception->getMessage());

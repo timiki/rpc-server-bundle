@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
-class ErrorException extends \RuntimeException
+class ErrorException extends \RuntimeException implements ErrorExceptionInterface
 {
     private mixed $data;
     private string|int|float|null $id;
