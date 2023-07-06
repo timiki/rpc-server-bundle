@@ -1,16 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 class InvalidParamsException extends ErrorException
 {
-    /**
-     * InvalidParamsException constructor.
-     *
-     * @param mixed|null      $data
-     * @param int|string|null $id
-     */
-    public function __construct($data = null, $id = null)
+    public function __construct(mixed $data = null, int|string $id = null)
     {
         parent::__construct('Invalid params', -32602, $data, $id);
     }

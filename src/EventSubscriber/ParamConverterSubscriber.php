@@ -1,16 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\EventSubscriber;
 
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Timiki\Bundle\RpcServerBundle\Event\JsonPreExecuteEvent;
 use Timiki\Bundle\RpcServerBundle\Exceptions;
 
 class ParamConverterSubscriber implements EventSubscriberInterface
 {
-    /**
-     * {@inheritdoc}
-     */
+    public function __construct(
+        private readonly ParameterBagInterface $parameterBag
+    ) {
+    }
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -18,7 +23,7 @@ class ParamConverterSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function convert(JsonPreExecuteEvent $event)
+    public function convert(JsonPreExecuteEvent $event): void
     {
         $jsonRequest = $event->getJsonRequest();
         $methodMetaData = $event->getMetadata();
@@ -26,10 +31,10 @@ class ParamConverterSubscriber implements EventSubscriberInterface
         // Get params
         if (\array_keys($jsonRequest->getParams()) === \range(0, \count($jsonRequest->getParams()) - 1)) {
             // Given only values
-            $values = $jsonRequest->getParams();  // Given only values
+            $values = $jsonRequest->getParams();
             $params = [];
 
-            foreach (\array_keys($methodMetaData->getParams()) as $id => $key) {
+            foreach (\array_keys($methodMetaData->get('params')) as $id => $key) {
                 if (isset($values[$id])) {
                     $params[$key] = $values[$id];
                 }
@@ -45,6 +50,10 @@ class ParamConverterSubscriber implements EventSubscriberInterface
 
         foreach ($params as $name => $value) {
             if (!$reflection->hasProperty($name)) {
+                if ($this->parameterBag->get('rpc.server.parameters.allow_extra_params')) {
+                    continue;
+                }
+
                 throw new Exceptions\InvalidParamsException(null, $jsonRequest->getId());
             }
 

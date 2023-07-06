@@ -1,15 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Serializer;
 
 interface SerializerInterface
 {
-    /**
-     * Serialize data.
-     *
-     * @param mixed $data
-     *
-     * @return mixed
-     */
-    public function serialize($data);
+    public function serialize(mixed $jsonResponse): string;
 }

@@ -1,43 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Serializer;
 
-use Symfony\Component\Serializer\Encoder\JsonEncode;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface as SymfonySerializerInterface;
 
 class BaseSerializer implements SerializerInterface
 {
-    /**
-     * @var Serializer|null
-     */
-    protected $serializer;
-
-    /**
-     * BaseSerializer constructor.
-     */
-    public function __construct(Serializer $serializer = null)
+    public function __construct(private readonly SymfonySerializerInterface $serializer)
     {
-        $this->serializer = $serializer;
-
-        if (null === $this->serializer) {
-            $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncode()]);
-        }
     }
 
-    /**
-     * Serialize data.
-     *
-     * @param mixed $data
-     *
-     * @return array
-     */
-    public function serialize($data)
+    public function serialize(mixed $jsonResponse): string
     {
-        if ($this->serializer) {
-            return \json_decode($this->serializer->serialize($data, 'json'), true);
-        }
-
-        return $data;
+        return $this->serializer->serialize($jsonResponse, 'json');
     }
 }

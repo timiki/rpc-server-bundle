@@ -1,42 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Mapper;
 
-class Mapper
+use Timiki\Bundle\RpcServerBundle\Exceptions\MethodNotFoundException;
+
+class Mapper implements MapperInterface
 {
-    /**
-     * @var array
-     */
-    private $methodsMetaData = [];
+    private array $methods = [];
 
-    /**
-     * @var array
-     */
-    private $dirtyMethods = [];
-
-    public function addMethods(array $methodsMetaData): void
+    public function addMethods(array $methods): void
     {
-        $this->dirtyMethods = $methodsMetaData;
+        $this->methods = $methods;
     }
 
     public function hasMethod(string $name): bool
     {
-        return isset($this->dirtyMethods[$name]);
+        return array_key_exists($name, $this->methods);
     }
 
-    /**
-     * @return \Timiki\Bundle\RpcServerBundle\Mapper\MethodMetaData|null
-     */
-    public function getMethod(string $name): ?MethodMetaData
+    public function getMetaData(string $name): MetaData
     {
-        if (true === isset($this->methodsMetaData[$name])) {
-            return $this->methodsMetaData[$name];
+        if (!$this->hasMethod($name)) {
+            throw new MethodNotFoundException($name);
         }
 
-        if (false === $this->hasMethod($name)) {
-            return null;
-        }
+        return new MetaData((array) $this->methods[$name]);
+    }
 
-        return $this->methodsMetaData[$name] = new MethodMetaData(...$this->dirtyMethods[$name]);
+    public function getHash(): string
+    {
+        return md5(serialize($this->methods));
     }
 }

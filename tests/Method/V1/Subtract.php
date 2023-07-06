@@ -1,28 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Timiki\Bundle\RpcServerBundle\Method\V1;
 
-use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
+use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
 
-/**
- * @Rpc\Method("subtract")
- */
+#[RPC\Method('subtract')]
 class Subtract
 {
-    /**
-     * @Rpc\Param
-     */
+    #[RPC\Param]
     protected $subtrahend;
 
-    /**
-     * @Rpc\Param
-     */
+    #[RPC\Param]
     protected $minuend;
 
-    /**
-     * @Rpc\Execute
-     */
-    public function execute()
+    public function __invoke()
     {
         return $this->subtrahend - $this->minuend;
     }

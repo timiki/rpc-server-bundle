@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Make;
 
 use Doctrine\Common\Annotations\Annotation;
@@ -15,26 +17,17 @@ use Symfony\Component\Console\Input\InputInterface;
 
 class MakeMethod extends AbstractMaker
 {
-    /**
-     * {@inheritdoc}
-     */
     public static function getCommandName(): string
     {
         return 'make:method';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getCommandDescription(): string
     {
         return 'Creates a new JSON-RPC method';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function configureCommand(Command $command, InputConfiguration $inputConf)
+    public function configureCommand(Command $command, InputConfiguration $inputConfig): void
     {
         $command
             ->setDescription(self::getCommandDescription())
@@ -48,10 +41,7 @@ EOT
             );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator)
+    public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
     {
         $name = \trim($input->getArgument('name'));
 
@@ -80,10 +70,7 @@ EOT
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function configureDependencies(DependencyBuilder $dependencies)
+    public function configureDependencies(DependencyBuilder $dependencies): void
     {
         $dependencies->addClassDependency(Annotation::class, 'doctrine/annotations');
     }

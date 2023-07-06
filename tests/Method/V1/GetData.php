@@ -1,29 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Timiki\Bundle\RpcServerBundle\Method\V1;
 
 use Symfony\Component\Validator\Constraints as Assert;
 use Tests\Timiki\Bundle\RpcServerBundle\Method\AbstractMethod;
-use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
+use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
 
-/**
- * @Rpc\Method("get_data")
- * @Rpc\Roles({"Some_Role"})
- * @Rpc\Cache(10)
- */
+#[RPC\Method('get_data')]
+#[RPC\Roles(['Some_Role'])]
+#[RPC\Cache(10)]
 class GetData extends AbstractMethod
 {
-    /**
-     * @Rpc\Param
-     * @Assert\NotBlank
-     * @Assert\Type(type="integer")
-     */
+    #[RPC\Param]
+    #[Assert\NotBlank()]
+    #[Assert\Type(type: 'numeric')]
     protected $a;
 
-    /**
-     * @Rpc\Execute
-     */
-    public function execute()
+    public function __invoke(): array
     {
         return ['hello', 5];
     }

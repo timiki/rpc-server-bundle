@@ -1,14 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Attribute;
 
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class Cache
 {
-    public ?int $lifetime;
-
-    public function __construct(?int $lifetime)
+    public function __construct(public int $lifetime = 0)
     {
-        $this->lifetime = $lifetime;
     }
 }

@@ -1,16 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 class FailedSerializeException extends ErrorException
 {
-    /**
-     * FailedSerializeException constructor.
-     *
-     * @param mixed|null      $data
-     * @param int|string|null $id
-     */
-    public function __construct($data = null, $id = null)
+    public function __construct(mixed $data = null, int|string $id = null)
     {
         parent::__construct('Method not granted', -32001, $data, $id);
     }

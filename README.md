@@ -1,4 +1,4 @@
-JSON-RPC server bundle for symfony
+JSON-RPC Server bundle for symfony
 ==================================
 
 [![Build Status](https://travis-ci.com/timiki/rpc-server-bundle.svg?branch=master)](https://travis-ci.com/timiki/rpc-server-bundle)
@@ -12,6 +12,18 @@ does not require a response) and for multiple calls to be sent to the server whi
 Install
 -------
 
+Symfony >= 6.0
+
+```bash
+composer require timiki/rpc-server-bundle "^6.0"
+```
+
+Symfony >= 5.0 use version ^5.0
+
+```bash
+composer require timiki/rpc-server-bundle "^5.0"
+```
+
 Symfony >= 4.3 use version ^4.1
 
 ```bash
@@ -24,18 +36,6 @@ Symfony < 4.3 use version ^4.0
 composer require timiki/rpc-server-bundle "^4.0"
 ```
 
-Symfony >= 5.0 use version ^5.0
-
-```bash
-composer require timiki/rpc-server-bundle "^5.0"
-```
-
-Symfony >= 6.0
-
-```bash
-composer require timiki/rpc-server-bundle "^6.0"
-```
-
 Configs
 -------
 
@@ -43,8 +43,8 @@ Configs
 
 rpc_server:
     
-    # mapping configs
-    # 
+    # Mapping configs
+
     # Default mapping
     #   mapping: '%kernel.project_dir%/src/Method' 
     #
@@ -63,14 +63,19 @@ rpc_server:
     
     mapping: '%kernel.project_dir%/src/Method'
             
-    # id cache service, must be instance of Doctrine\Common\Cache\CacheProvider
+    # Cache pool name
     
-    cache: ~
+    cache: null
     
-    # id serializer service, must be instance of Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface
-    # by default use 'rpc.server.serializer.base' service
+    # Serializer service, must be instanced of Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface
+    # By default use Timiki\Bundle\RpcServerBundle\Serializer\BaseSerializer
     
-    serializer: ~
+    serializer: null
+
+    parameters:
+        
+        # Allow extra params in JSON request
+        allow_extra_params: false
 
 ``` 
 
@@ -91,6 +96,8 @@ You can use you own controller for JSON-RPC request. For example:
 
 ```php
 <?php
+
+declare(strict_types=1);
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -128,48 +135,10 @@ If web site and JSON-RPC server located on a different domain remember about [CO
 Method
 ------
 
-With annotations
-
 ```php
 <?php
 
-use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
-use Symfony\Component\Validator\Constraints as Assert;
-
-/**
- * @Rpc\Method("name")
- * @Rpc\Roles({
- *   "ROLE_NAME"
- * })
- * @Rpc\Cache(lifetime=3600)
- */
-class Method
-{
-    /**
-     * @Rpc\Param()
-     * @Assert\NotBlank()
-     */
-    protected $param;
-
-    /**
-     * @Rpc\Execute()
-     */
-    public function execute()
-    {
-        $param = $this->param;
-        
-        ...
-        
-        return $result;
-    }
-}
-    
-```
-
-With attributes
-
-```php
-<?php
+declare(strict_types=1);
 
 use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -194,67 +163,6 @@ class Method
     }
 }
     
-```
-
-Annotation
-----------
-
-**@Method**
-
-Define class as JSON-RPC method.
-
-```php
-@Method("method name")
-```
-
-**@Roles**
-
-Set roles for access to method. If user not granted for access server return error with message "Method not granted" and
-code "-32001".
-
-```php
-@Roles({
-  "ROLE_NAME",
-  "ROLE_OTHER",
-})
-```
-
-**@Cache**
-
-If define cache in configs it set response lifetime.
-
-```php
-@Cache(lifetime=3600)
-```
-
-**@Param**
-
-Define JSON-RPC params. Use Symfony\Component\Validator\Constraints for validate it.
-
-```php
-/**
- * @Param()
- */
-protected $param;
-
-/**
- * @Param()
- */
-protected $param = null'; // Default value for param
-```
-
-**@Execute**
-
-Define execute function in class.
-
-```php
-/**
- * @Rpc\Execute()
- */
-public function someMethod()
-{
-    // Code
-}
 ```
 
 Attributes
@@ -303,39 +211,48 @@ Define execute function in class.
 
 ```php
 #[Execute]
-public function someMethod()
+public function execute()
 {
     // Code
 }
 ```
 
+or use __invoke
+
+```php
+public function __invoke()
+{
+    // Code
+}
+```
 
 Serialize
 ----------
 
-For convert output result from method to array in bundle used serializer
+For convert output result from method to json in bundle used serializer
 
 Config for serializer:
 
 ```yaml    
 rpc:
-    ...
-    serializer: 'rpc.server.serializer.base' # serialize service id
+    serializer: rpc.server.serializer.base # serialize service id
 ```
 
 In bundle include next serializers:
 
-rpc.server.serializer.base - (default) simple convert output result to array rpc.server.serializer.role - use user roles
+**rpc.server.serializer.base** - (default) use Symfony serialize to convert result to json
+**rpc.server.serializer.role** - use user roles
 as @Group (@see https://symfony.com/doc/current/components/serializer.html) for control access to output array
 
 Create custom serializer
 
-Here is an example of a simple class for serialization. All serializer must return array which will be convert to result
-json.
+Here is an example of a simple class for serialization.
 
 ```php
 
 <?php
+
+declare(strict_types=1);
 
 namespace App\Serializer;
 
@@ -343,27 +260,17 @@ use Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface;
 
 class MySerializer implements SerializerInterface
 {
-    /**
-     * Serialize data.
-     *
-     * @param mixed $data
-     *
-     * @return array
-     */
-    public function serialize($data)
-    {
-        return (array) $data;
+    public function serialize(mixed $jsonResponse): string 
+        // You serialize logic
     }
 }
-
 ```
 
 And then add custom serializer service id to config
 
 ```yaml    
 rpc:
-    ...
-    serializer: 'MySerializer' # serialize service id
+    serializer: MySerializer # serialize service id
 ```
 
 [1]: https://wikipedia.org/wiki/JSON-RPC

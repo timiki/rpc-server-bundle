@@ -1,85 +1,53 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\DependencyInjection\Compiler;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\Common\Annotations\DocParser;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Timiki\Bundle\RpcServerBundle\Attribute;
 use Timiki\Bundle\RpcServerBundle\Exceptions\InvalidMappingException;
-use Timiki\Bundle\RpcServerBundle\Mapper\MapperInterface;
-use Timiki\Bundle\RpcServerBundle\Mapper\MethodInterface;
-use Timiki\Bundle\RpcServerBundle\Mapping;
 
-/**
- * Class RpcMethodPass add methods to mappers.
- */
 class RpcMethodPass implements CompilerPassInterface
 {
-    private $reader;
-
-    private $methodMeta = [];
-
-    /**
-     * RpcMethodPass constructor.
-     *
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     */
-    public function __construct()
+    public function process(ContainerBuilder $container): void
     {
-        $this->reader = new AnnotationReader(new DocParser());
-        AnnotationRegistry::registerLoader('class_exists');
-    }
-
-    /**
-     * @throws InvalidMappingException
-     * @throws \ReflectionException
-     */
-    public function process(ContainerBuilder $container)
-    {
-        $taggedMethods = $container->findTaggedServiceIds(MethodInterface::class);
+        $taggedMethods = $container->findTaggedServiceIds('rpc.server.method');
+        $mapperMetaData = [];
 
         // Collect meta data from methods tags
         foreach ($taggedMethods as $methodId => $attrs) {
             foreach ($attrs as $attr) {
-                $cacheForMapperId = $attr['mapperId'];
+                $mapperId = $attr['mapperId'];
 
-                if (true === isset($this->methodMeta[$cacheForMapperId][$methodId])) {
+                if (true === isset($mapperMetaData[$mapperId][$methodId])) {
                     continue;
                 }
 
-                $this->methodMeta[$cacheForMapperId][$methodId] = $this->loadClassMetadata(
+                $mapperMetaData[$mapperId][$methodId] = $this->loadClassMetadata(
                     $container->getReflectionClass($methodId)
                 );
             }
         }
 
-        $taggedMappers = $container->findTaggedServiceIds(MapperInterface::class);
-
+        $taggedMappers = $container->findTaggedServiceIds('rpc.server.mapper');
         $methodsMetaData = [];
+
         // Inject method meta data to mapper
         foreach ($taggedMappers as $mapperId => $mapperAttr) {
-            if (false === isset($this->methodMeta[$mapperId])) {
-                continue; // Method not exists
+            if (false === isset($mapperMetaData[$mapperId])) {
+                continue; // Unknown mapper
             }
 
-            $methodsMeta = $this->methodMeta[$mapperId];
+            $methodsMeta = $mapperMetaData[$mapperId];
 
-            foreach ($methodsMeta as $methodId => $meta) {
+            foreach ($methodsMeta as $meta) {
                 if (null === $meta) {
                     continue;
                 }
 
-                $methodsMetaData[$mapperId][$meta['method']] = [
-                    $methodId,
-                    $meta['executeMethod'],
-                    $meta['params'],
-                    $meta['cache'],
-                    $meta['roles'],
-                    $meta['cache'],
-                ];
+                $methodsMetaData[$mapperId][$meta['method']] = $meta;
             }
         }
 
@@ -90,50 +58,30 @@ class RpcMethodPass implements CompilerPassInterface
         }
     }
 
-    /**
-     * @throws InvalidMappingException
-     */
-    public function loadClassMetadata(\ReflectionClass $reflectionClass): ?array
+    public function loadClassMetadata(\ReflectionClass $reflectionClass): array|null
     {
-        $methodName = null;
-        $method = $this->reader->getClassAnnotation($reflectionClass, Mapping\Method::class);
+        $attributes = $reflectionClass->getAttributes(Attribute\Method::class);
 
-        if ($method) {
-            if (empty($method->value)) {
-                throw new InvalidMappingException(\sprintf('@Method annotation must have name in class "%s", @Method("method name")', $reflectionClass->getName()));
-            }
-
-            $methodName = $method->value;
-        }
-
-        if (null == $methodName) {
-            $attributes = $reflectionClass->getAttributes(Attribute\Method::class);
-
-            if (count($attributes) > 0) {
-                /** @var Attribute\Method $instance */
-                $instance = $attributes[0]->newInstance();
-                $methodName = $instance->name;
-            }
-        }
-
-        if (empty($methodName)) {
+        if (0 == count($attributes)) {
             return null;
         }
+
+        /** @var Attribute\Method $instance */
+        $instance = $attributes[0]->newInstance();
+        $methodName = $instance->name;
 
         $meta = [];
         $meta['method'] = $methodName;
         $meta['class'] = $reflectionClass->getName();
         $meta['file'] = $reflectionClass->getFileName();
+        $meta['cache'] = null;
+        $meta['roles'] = null;
+        $meta['execute'] = null;
+        $meta['params'] = [];
 
         // Cache
-        $meta['cache'] = null;
-        $cache = $this->reader->getClassAnnotation($reflectionClass, Mapping\Cache::class);
-        /** @var Mapping\Cache $cache */
-        if (null !== $cache) {
-            $meta['cache'] = (int) $cache->lifetime;
-        }
-
         $attributes = $reflectionClass->getAttributes(Attribute\Cache::class);
+
         if (count($attributes) > 0) {
             /** @var Attribute\Cache $instance */
             $instance = $attributes[0]->newInstance();
@@ -144,14 +92,8 @@ class RpcMethodPass implements CompilerPassInterface
         }
 
         // Roles
-        $meta['roles'] = null;
-        $roles = $this->reader->getClassAnnotation($reflectionClass, Mapping\Roles::class);
-        /** @var Mapping\Roles $roles */
-        if (null !== $roles) {
-            $meta['roles'] = (array) $roles->value;
-        }
-
         $attributes = $reflectionClass->getAttributes(Attribute\Roles::class);
+
         if (count($attributes) > 0) {
             /** @var Attribute\Roles $instance */
             $instance = $attributes[0]->newInstance();
@@ -161,35 +103,27 @@ class RpcMethodPass implements CompilerPassInterface
             }
         }
 
-        // Method execute. On in class
-        $meta['executeMethod'] = null;
-
         foreach ($reflectionClass->getMethods() as $reflectionMethod) {
-            if ($paramMeta = $this->reader->getMethodAnnotation($reflectionMethod, Mapping\Execute::class)) {
-                $meta['executeMethod'] = $reflectionMethod->name;
-            }
-
             $attributes = $reflectionMethod->getAttributes(Attribute\Execute::class);
             if (count($attributes) > 0) {
-                $meta['executeMethod'] = $reflectionMethod->name;
+                $meta['execute'] = $reflectionMethod->name;
             }
         }
 
-        if (empty($meta['executeMethod'])) {
-            throw new InvalidMappingException(\sprintf('Method need have @Execute annotation in class "%s", @Execute()', $reflectionClass->getName()));
+        if (null === $meta['execute'] && $reflectionClass->hasMethod('__invoke')) {
+            $meta['execute'] = '__invoke';
+        }
+
+        if (null === $meta['execute']) {
+            throw new InvalidMappingException(\sprintf('Class "%s" need have method with @Execute attribute or must have __invoke method', $reflectionClass->getName()));
         }
 
         // Params
-        $meta['params'] = [];
-
         foreach ($reflectionClass->getProperties() as $reflectionProperty) {
-            if ($paramMeta = $this->reader->getPropertyAnnotation($reflectionProperty, Mapping\Param::class)) {
-                $meta['params'][$reflectionProperty->name] = true;
-            }
-
             $attributes = $reflectionProperty->getAttributes(Attribute\Param::class);
+
             if (count($attributes) > 0) {
-                $meta['params'][$reflectionProperty->name] = true;
+                $meta['params'][$reflectionProperty->name] = $reflectionProperty->getDefaultValue();
             }
         }
 

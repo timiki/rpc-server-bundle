@@ -1,21 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * This is the class that validates and merges configuration from your app/config files.
- *
- * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html#cookbook-bundles-extension-config-class}
- */
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('rpc_server');
         $rootNode = $treeBuilder->getRootNode();
@@ -32,9 +26,22 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->scalarNode('serializer')
                     ->defaultValue(null)
-                    ->info('Id serializer service. By default use Symfony serializer')
+                    ->info('Id serializer service. By default use Timiki\Bundle\RpcServerBundle\Serializer\BaseSerializer')
+                ->end()
+                ->arrayNode('parameters')
+                    ->children()
+                        ->booleanNode('allow_extra_params')
+                            ->info('Allow extra params in JSON request')
+                            ->defaultValue(false)
+                        ->end()
+                    ->end()
                 ->end()
                 ->scalarNode('error_code')
+                    ->setDeprecated(
+                        'timiki/rpc-server-bundle',
+                        '^6.1',
+                        'error_code is deprecated'
+                    )
                     ->info('Error response code')
                     ->defaultValue(200)
                 ->end()

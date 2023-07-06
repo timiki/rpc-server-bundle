@@ -1,30 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistry;
+use Symfony\Component\HttpFoundation\Response;
+use Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistryInterface;
 
 class RpcController
 {
-    /**
-     * @var HttpHandlerRegistry
-     */
-    private $handlerRegistry;
-
-    public function __construct(HttpHandlerRegistry $handlerRegistry)
+    public function __construct(private readonly HttpHandlerRegistryInterface $handlerRegistry)
     {
-        $this->handlerRegistry = $handlerRegistry;
     }
 
-    /**
-     * @param string $version
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     *
-     * @throws \Exception
-     */
-    public function handlerAction(Request $request, $version = 'default')
+    public function handlerAction(Request $request, string $version = 'default'): Response
     {
         return $this
             ->handlerRegistry

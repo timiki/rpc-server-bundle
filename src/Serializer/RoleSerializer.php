@@ -1,47 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Serializer;
 
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface as SymfonySerializerInterface;
 
-class RoleSerializer extends BaseSerializer
+class RoleSerializer implements SerializerInterface
 {
-    /**
-     * @var UserInterface|null
-     */
-    protected $user;
-
-    public function __construct(Serializer $serializer, Security $security = null)
-    {
-        parent::__construct($serializer);
-
-        if ($security) {
-            $this->user = $security->getUser();
-        }
+    public function __construct(
+        private readonly SymfonySerializerInterface $serializer,
+        private readonly null|Security $security
+    ) {
     }
 
-    /**
-     * Serialize data.
-     *
-     * @param mixed $data
-     *
-     * @return array
-     */
-    public function serialize($data)
+    public function serialize(mixed $jsonResponse): string
     {
-        if (!$this->user) {
-            return parent::serialize($data);
+        $user = $this->getUser();
+
+        if (null === $user) {
+            return $this->serializer->serialize($jsonResponse, 'json');
         }
 
-        return \json_decode(
-            $this->serializer->serialize(
-                $data,
-                'json',
-                ['groups' => $this->user->getRoles()]
-            ),
-            true
+        return $this->serializer->serialize(
+            $jsonResponse,
+            'json',
+            [
+                'groups' => $user->getRoles(),
+            ]
         );
+    }
+
+    private function getUser(): null|UserInterface
+    {
+        return $this->security?->getUser();
     }
 }

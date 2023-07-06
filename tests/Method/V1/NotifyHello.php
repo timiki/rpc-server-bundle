@@ -1,18 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Timiki\Bundle\RpcServerBundle\Method\V1;
 
-use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
+use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
 
-/**
- * @Rpc\Method("notify_hello")
- */
+#[RPC\Method('notify_hello')]
 class NotifyHello
 {
-    /**
-     * @Rpc\Execute
-     */
-    public function execute()
+    public function __invoke(): string
     {
         return 'Hello';
     }

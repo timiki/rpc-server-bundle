@@ -1,38 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Timiki\Bundle\RpcServerBundle\Method\V1\SubMethod;
 
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints as Assert;
-use Timiki\Bundle\RpcServerBundle\Mapper\MethodInterface;
-use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
+use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
 
-/**
- * @Rpc\Method("get_data_sub")
- */
-class GetDataSub implements MethodInterface
+#[RPC\Method('get_data_sub')]
+class GetDataSub
 {
-    /**
-     * @Rpc\Param
-     * @Assert\NotBlank
-     * @Assert\Type(type="integer")
-     */
+    #[RPC\Param]
+    #[Assert\NotBlank]
+    #[Assert\Type('integer')]
     protected $a;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    public function __construct(RequestStack $requestStack)
+    public function __construct(private readonly RequestStack $requestStack)
     {
-        $this->requestStack = $requestStack;
     }
 
-    /**
-     * @Rpc\Execute
-     */
-    public function execute()
+    public function __invoke(): array
     {
         return ['hello', 5];
     }

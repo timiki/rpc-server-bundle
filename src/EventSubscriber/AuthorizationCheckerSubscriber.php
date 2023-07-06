@@ -1,42 +1,45 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Timiki\Bundle\RpcServerBundle\Event\JsonPreExecuteEvent;
+use Timiki\Bundle\RpcServerBundle\Event\JsonRequestEvent;
 use Timiki\Bundle\RpcServerBundle\Exceptions\MethodNotGrantedException;
 
 class AuthorizationCheckerSubscriber implements EventSubscriberInterface
 {
-    private ?AuthorizationCheckerInterface $authChecker;
-
-    public function __construct(AuthorizationCheckerInterface $authChecker = null)
-    {
-        $this->authChecker = $authChecker;
+    public function __construct(
+        private readonly AuthorizationCheckerInterface|null $authChecker = null
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribedEvents(): array
     {
         return [
-            JsonPreExecuteEvent::class => ['execute', 4096],
+            JsonRequestEvent::class => ['onRequest', 4096],
         ];
     }
 
-    public function execute(JsonPreExecuteEvent $event)
+    public function onRequest(JsonRequestEvent $event): void
     {
-        $methodMetaData = $event->getMetadata();
+        if (null === $this->authChecker) {
+            return;
+        }
 
-        if (!$this->authChecker || empty($methodMetaData->getRoles())) {
+        $mapper = $event->getMapper();
+        $request = $event->getJsonRequest();
+        $meta = $mapper->getMetaData($request->getMethod());
+
+        if (empty($meta->get('roles'))) {
             return;
         }
 
         $isGranted = false;
 
-        foreach ($methodMetaData->getRoles() as $role) {
+        foreach ($meta->get('roles') as $role) {
             if ($this->authChecker->isGranted($role)) {
                 $isGranted = true;
             }

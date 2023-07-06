@@ -1,19 +1,16 @@
 <?php
 
-namespace Timiki\Bundle\RpcServerBundle\Attribute;
+declare(strict_types=1);
 
-use Attribute;
+namespace Timiki\Bundle\RpcServerBundle\Attribute;
 
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class Roles
 {
     /**
-     * @var array<string>
+     * @param array<string> $roles
      */
-    public ?array $roles = [];
-
-    public function __construct(?array $roles = [])
+    public function __construct(public array $roles = [])
     {
-        $this->roles = $roles;
     }
 }

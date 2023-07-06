@@ -1,32 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 class ErrorException extends \RuntimeException
 {
-    /**
-     * Exception data.
-     *
-     * @var mixed
-     */
-    private $data;
+    private mixed $data;
+    private string|int|float|null $id;
 
-    /**
-     * Exception id.
-     *
-     * @var mixed
-     */
-    private $id;
-
-    /**
-     * ErrorException constructor.
-     *
-     * @param string          $message
-     * @param int             $code
-     * @param mixed|null      $data
-     * @param int|string|null $id
-     */
-    public function __construct($message = '', $code = -32603, $data = null, $id = null)
+    public function __construct(string $message = '', int $code = -32603, mixed $data = null, string|int|float $id = null)
     {
         $this->data = $data;
         $this->id = $id;
@@ -34,22 +17,12 @@ class ErrorException extends \RuntimeException
         parent::__construct($message, $code);
     }
 
-    /**
-     * Get data.
-     *
-     * @return mixed
-     */
-    public function getData()
+    public function getData(): mixed
     {
         return $this->data;
     }
 
-    /**
-     * Get id.
-     *
-     * @return mixed
-     */
-    public function getId()
+    public function getId(): string|int|float|null
     {
         return $this->id;
     }

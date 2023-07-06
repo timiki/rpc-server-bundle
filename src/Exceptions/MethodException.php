@@ -1,17 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 class MethodException extends ErrorException
 {
-    /**
-     * MethodException constructor.
-     *
-     * @param mixed|null      $data
-     * @param int|string|null $id
-     */
-    public function __construct($data = null, $id = null)
+    public function __construct(string $message = 'Method exception', mixed $data = null, int $code = -32002)
     {
-        parent::__construct('Method exception', -32002, $data, $id);
+        parent::__construct($message, $code, $data);
     }
 }
