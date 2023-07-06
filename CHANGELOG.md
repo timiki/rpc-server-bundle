@@ -1,6 +1,8 @@
 ### 6.1.0
 
 * Switch to use only php attributes
+* Add Timiki\Bundle\RpcServerBundle\Method\Context
+* Fix bug and refactoring
 
 ### 6.0.1
 
