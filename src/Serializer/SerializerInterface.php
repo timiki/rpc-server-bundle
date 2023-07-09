@@ -6,5 +6,5 @@ namespace Timiki\Bundle\RpcServerBundle\Serializer;
 
 interface SerializerInterface
 {
-    public function serialize(mixed $jsonResponse): string;
+    public function serialize(mixed $data): string;
 }

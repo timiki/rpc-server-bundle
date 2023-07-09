@@ -12,8 +12,8 @@ class BaseSerializer implements SerializerInterface
     {
     }
 
-    public function serialize(mixed $jsonResponse): string
+    public function serialize(mixed $data): string
     {
-        return $this->serializer->serialize($jsonResponse, 'json');
+        return $this->serializer->serialize($data, 'json');
     }
 }

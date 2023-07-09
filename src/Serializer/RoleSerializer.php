@@ -16,16 +16,16 @@ class RoleSerializer implements SerializerInterface
     ) {
     }
 
-    public function serialize(mixed $jsonResponse): string
+    public function serialize(mixed $data): string
     {
         $user = $this->getUser();
 
         if (null === $user) {
-            return $this->serializer->serialize($jsonResponse, 'json');
+            return $this->serializer->serialize($data, 'json');
         }
 
         return $this->serializer->serialize(
-            $jsonResponse,
+            $data,
             'json',
             [
                 'groups' => $user->getRoles(),
