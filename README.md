@@ -165,6 +165,37 @@ class Method
     
 ```
 
+Or you can also use __invoke to declare a call method
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
+use Symfony\Component\Validator\Constraints as Assert;
+
+#[RPC\Method("name")]
+#[RPC\Roles(["ROLE_NAME"])]
+#[RPC\Cache(3600)]
+class Method
+{
+    #[RPC\Param]
+    #[Assert\NotBlank]
+    protected $param;
+
+    public function __invoke()
+    {
+        $param = $this->param;
+        
+        ...
+        
+        return $result;
+    }
+}
+    
+```
+
 Attributes
 ----------
 

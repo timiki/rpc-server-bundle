@@ -28,6 +28,8 @@ class RpcServerExtension extends Extension
         $loader = new Loader\PhpFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.php');
 
+        $parameters = $config['parameters'] ?? [];
+
         // Configure cache
 
         if ($config['cache']) {
@@ -47,7 +49,7 @@ class RpcServerExtension extends Extension
 
         // Configure parameters
 
-        $container->setParameter('rpc.server.parameters.allow_extra_params', $config['parameters']['allow_extra_params']);
+        $container->setParameter('rpc.server.parameters.allow_extra_params', $parameters['allow_extra_params'] ?? false);
 
         // Configure mapping
 
