@@ -8,12 +8,13 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\SerializerInterface as SymfonySerializerInterface;
 
-class RoleSerializer implements SerializerInterface
+class RoleSerializer extends BaseSerializer implements SerializerInterface
 {
     public function __construct(
         private readonly SymfonySerializerInterface $serializer,
         private readonly null|Security $security
     ) {
+        parent::__construct($serializer);
     }
 
     public function serialize(mixed $data): string
@@ -21,7 +22,7 @@ class RoleSerializer implements SerializerInterface
         $user = $this->getUser();
 
         if (null === $user) {
-            return $this->serializer->serialize($data, 'json');
+            return parent::serialize($data);
         }
 
         return $this->serializer->serialize(
@@ -31,11 +32,6 @@ class RoleSerializer implements SerializerInterface
                 'groups' => $user->getRoles(),
             ]
         );
-    }
-
-    public function toArray(mixed $data): array
-    {
-        return json_decode($this->serialize($data));
     }
 
     private function getUser(): null|UserInterface
