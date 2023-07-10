@@ -18,6 +18,7 @@ use Timiki\Bundle\RpcServerBundle\Handler\JsonHandler;
 use Timiki\Bundle\RpcServerBundle\Mapper\Mapper;
 use Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistryInterface;
 use Timiki\Bundle\RpcServerBundle\Serializer\BaseSerializer;
+use Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface;
 
 class RpcServerExtension extends Extension
 {
@@ -42,6 +43,8 @@ class RpcServerExtension extends Extension
         // Configure serializer
 
         $serializerId = $config['serializer'] ?? BaseSerializer::class;
+
+        $container->setAlias(SerializerInterface::class, $serializerId);
 
         // Configure registry
 

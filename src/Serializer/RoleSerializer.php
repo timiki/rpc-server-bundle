@@ -33,6 +33,11 @@ class RoleSerializer implements SerializerInterface
         );
     }
 
+    public function toArray(mixed $data): array
+    {
+        return json_decode($this->serialize($data));
+    }
+
     private function getUser(): null|UserInterface
     {
         return $this->security?->getUser();

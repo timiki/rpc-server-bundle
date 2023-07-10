@@ -16,4 +16,9 @@ class BaseSerializer implements SerializerInterface
     {
         return $this->serializer->serialize($data, 'json');
     }
+
+    public function toArray(mixed $data): array
+    {
+        return json_decode($this->serialize($data));
+    }
 }
