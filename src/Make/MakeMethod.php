@@ -34,7 +34,7 @@ class MakeMethod extends AbstractMaker
             ->addArgument('name', InputArgument::OPTIONAL, \sprintf('Choose a method name (e.g. <fg=yellow>%s</>)', Str::getRandomTerm()))
             ->setHelp(
                 <<<EOT
-The <info>make:method</info> command helps you make new RPC method.
+The <info>make:method</info> command helps you make new RPC Method.
 
 <info>php bin/console make:method</info>
 EOT

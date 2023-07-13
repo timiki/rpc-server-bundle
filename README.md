@@ -196,6 +196,38 @@ class Method
     
 ```
 
+Inject method execute Context
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
+use Timiki\Bundle\RpcServerBundle\Method\Context;
+use Symfony\Component\Validator\Constraints as Assert;
+
+#[RPC\Method("name")]
+#[RPC\Roles(["ROLE_NAME"])]
+#[RPC\Cache(3600)]
+class Method
+{
+    #[RPC\Param]
+    #[Assert\NotBlank]
+    protected $param;
+
+    public function __invoke(Context $context)
+    {
+        $param = $this->param;
+        
+        ...
+        
+        return $result;
+    }
+}
+    
+```
+
 Attributes
 ----------
 
@@ -291,7 +323,11 @@ use Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface;
 
 class MySerializer implements SerializerInterface
 {
-    public function serialize(mixed $jsonResponse): string 
+    public function serialize(mixed $data): string 
+        // You serialize logic
+    }
+    
+    public function toArray(mixed $data): array 
         // You serialize logic
     }
 }

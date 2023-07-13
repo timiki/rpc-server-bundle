@@ -3,6 +3,8 @@
 * Switch to use only php attributes
 * Add Timiki\Bundle\RpcServerBundle\Method\Context
 * Fix bug and refactoring
+* Add new ErrorExceptionInterface and ErrorDataExceptionInterface for custom exception
+* Optimization EventSubscribers 
 
 ### 6.0.1
 
