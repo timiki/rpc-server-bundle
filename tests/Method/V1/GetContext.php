@@ -19,6 +19,6 @@ class GetContext extends AbstractMethod
 
     public function __invoke(Context $context): array
     {
-        return $context->allParams();
+        return $context->getParams();
     }
 }

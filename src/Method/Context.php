@@ -30,7 +30,7 @@ class Context
         return isset($this->getMetaData()->get('params', [])[$key]);
     }
 
-    public function allParams(): array
+    public function getParams(): array
     {
         $params = $this->getMetaData()->get('params', []);
 
