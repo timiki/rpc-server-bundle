@@ -1,10 +1,10 @@
 ### 6.1.0
 
-* Switch to use only php attributes
-* Add Timiki\Bundle\RpcServerBundle\Method\Context
+* Switch to use php attributes
+* Add Context object
 * Fix bug and refactoring
 * Add new ErrorExceptionInterface and ErrorDataExceptionInterface for custom exception
-* Optimization EventSubscribers 
+* Optimization Events
 
 ### 6.0.1
 
