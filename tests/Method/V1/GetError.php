@@ -1,20 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Timiki\Bundle\RpcServerBundle\Method\V1;
 
+use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
 use Timiki\Bundle\RpcServerBundle\Exceptions\MethodException;
-use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
 
-/**
- * @Rpc\Method("get_error")
- */
+#[RPC\Method('get_error')]
 class GetError
 {
-    /**
-     * @Rpc\Execute
-     */
-    public function execute()
+    public function __invoke()
     {
-        throw new MethodException('Exception data');
+        throw new MethodException('Exception', 'Data');
     }
 }

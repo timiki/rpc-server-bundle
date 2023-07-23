@@ -4,17 +4,12 @@ namespace Tests\Timiki\Bundle\RpcServerBundle\Unit\DependencyInjection;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
 use Timiki\Bundle\RpcServerBundle\DependencyInjection\RpcServerExtension;
 
 class RpcServerExtensionTest extends TestCase
 {
-    /** @var ContainerBuilder */
-    private $container;
+    private ContainerBuilder|null $container = null;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp(): void
     {
         $this->container = new ContainerBuilder();
@@ -26,10 +21,12 @@ class RpcServerExtensionTest extends TestCase
         $extension->load([
             'rpc_server' => [
                 'mapping' => [
-                   'testMapping',
-                   'forTestName' => 'testNameMapping',
+                    'testMapping',
+                    'forTestName' => 'testNameMapping',
                 ],
-                'error_code' => 302,
+                'parameters' => [
+                    'allow_extra_params' => false,
+                ],
             ],
         ], $this->container);
 
@@ -39,16 +36,9 @@ class RpcServerExtensionTest extends TestCase
         $this->assertTrue($this->container->has('rpc.server.json_handler.default'));
         $this->assertTrue($this->container->has('rpc.server.http_handler.default'));
         $this->assertTrue($this->container->has('rpc.server.mapper.default'));
-        $this->assertTrue($this->container->has('rpc.server.cache'));
         $this->assertTrue($this->container->has('rpc.server.serializer.base'));
         $this->assertTrue($this->container->has('rpc.server.serializer.role'));
 
-        /** @var Definition $httpHandler */
-        $httpHandler = $this->container->getDefinition('rpc.server.http_handler.default');
-
-        // check error code
-        $args = $httpHandler->getArguments();
-
-        $this->assertEquals(302, $args[1]);
+        $this->assertEquals(false, $this->container->getParameter('rpc.server.parameters.allow_extra_params'));
     }
 }

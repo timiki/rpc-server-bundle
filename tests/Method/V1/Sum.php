@@ -1,33 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Timiki\Bundle\RpcServerBundle\Method\V1;
 
-use Timiki\Bundle\RpcServerBundle\Mapping as Rpc;
+use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
 
-/**
- * @Rpc\Method("sum")
- */
+#[RPC\Method('sum')]
 class Sum
 {
-    /**
-     * @Rpc\Param
-     */
+    #[RPC\Param]
     protected $a;
 
-    /**
-     * @Rpc\Param
-     */
+    #[RPC\Param]
     protected $b;
 
-    /**
-     * @Rpc\Param
-     */
+    #[RPC\Param]
     protected $c;
 
-    /**
-     * @Rpc\Execute
-     */
-    public function execute()
+    public function __invoke()
     {
         return $this->a + $this->b + $this->c;
     }

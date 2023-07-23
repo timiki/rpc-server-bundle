@@ -9,15 +9,14 @@ use Timiki\Bundle\RpcServerBundle\Mapper\MapperInterface;
 use Timiki\Bundle\RpcServerBundle\Mapper\MetaData;
 use Timiki\RpcCommon\JsonRequest;
 
-class JsonPreExecuteEvent extends Event
+class JsonExecuteEvent extends Event
 {
-    private mixed $result = null;
-
     public function __construct(
         private readonly object $object,
         private readonly MetaData $metadata,
         private readonly MapperInterface $mapper,
-        private readonly JsonRequest $jsonRequest
+        private readonly JsonRequest $jsonRequest,
+        private mixed $result
     ) {
     }
 

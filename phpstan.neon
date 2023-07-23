@@ -1,4 +1,5 @@
 parameters:
+	level: 5
 	reportUnmatchedIgnoredErrors: false
 	excludePaths:
 		- */Resources*

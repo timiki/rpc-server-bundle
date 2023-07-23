@@ -9,4 +9,4 @@ services:
     Timiki\Bundle\RpcServerBundle\Controller\:
         resource: '%kernel.project_dir%/src/Controller'
         public: true
-        tags: ['controller.service_arguments']
+        tags: [ 'controller.service_arguments' ]

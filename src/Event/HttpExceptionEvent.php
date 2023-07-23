@@ -1,31 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Event;
 
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class HttpExceptionEvent extends HttpResponseEvent
 {
-    /**
-     * @var \Exception
-     */
-    private $exception;
+    private \Exception $exception;
 
-    /**
-     * HttpExceptionEvent constructor.
-     */
     public function __construct(HttpResponse $httpResponse, \Exception $exception)
     {
         $this->exception = $exception;
         parent::__construct($httpResponse);
     }
 
-    /**
-     * Get exception.
-     *
-     * @return \Exception
-     */
-    public function getException()
+    public function getException(): \Exception
     {
         return $this->exception;
     }

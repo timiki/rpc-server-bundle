@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Handler;
 
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -7,105 +9,69 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Timiki\Bundle\RpcServerBundle\Event;
 use Timiki\Bundle\RpcServerBundle\Exceptions;
 use Timiki\Bundle\RpcServerBundle\Mapper\Mapper;
-use Timiki\Bundle\RpcServerBundle\Mapper\MethodMetaData;
-use Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface;
-use Timiki\Bundle\RpcServerBundle\Traits\CacheTrait;
+use Timiki\Bundle\RpcServerBundle\Mapper\MetaData;
+use Timiki\Bundle\RpcServerBundle\Method\Context;
 use Timiki\Bundle\RpcServerBundle\Traits\EventDispatcherTrait;
 use Timiki\Bundle\RpcServerBundle\Traits\StopwatchTrait;
 use Timiki\RpcCommon\JsonRequest;
 use Timiki\RpcCommon\JsonResponse;
 
-class JsonHandler implements ContainerAwareInterface
+class JsonHandler implements JsonHandlerInterface, ContainerAwareInterface
 {
     use ContainerAwareTrait;
-    use CacheTrait;
     use StopwatchTrait;
     use EventDispatcherTrait;
 
-    /**
-     * Rpc mapper.
-     *
-     * @var Mapper|null
-     */
-    private $mapper;
-
-    /**
-     * Serializer.
-     *
-     * @var SerializerInterface|null
-     */
-    private $serializer;
-
-    /**
-     * JsonHandler constructor.
-     */
-    public function __construct(Mapper $mapper, SerializerInterface $serializer = null)
+    public function __construct(private readonly Mapper $mapper)
     {
-        $this->mapper = $mapper;
-        $this->serializer = $serializer;
     }
 
-    /**
-     * Is debug.
-     *
-     * @return bool
-     */
-    public function isDebug()
+    public function handleJsonRequest(JsonRequest $jsonRequest): JsonResponse
     {
-        if (null !== $this->container && $this->container->has('kernel')) {
-            return $this->container->get('kernel')->isDebug();
+        $this->stopwatch?->start('rpc.execute');
+
+        try {
+            /** @var Event\JsonRequestEvent $event */
+            $event = $this->dispatch(new Event\JsonRequestEvent($jsonRequest, $this->mapper));
+
+            $jsonResponse = $event->getJsonResponse();
+
+            if (null === $jsonResponse) {
+                $metadata = $this->mapper->getMetaData($jsonRequest->getMethod());
+                $jsonResponse = new JsonResponse($jsonRequest);
+
+                $result = $this->executeJsonRequest($metadata, $jsonRequest);
+
+                if ($result instanceof JsonResponse) {
+                    // Proxy response error
+                    if ($result->isError()) {
+                        $jsonResponse->setErrorCode($result->getErrorCode());
+                        $jsonResponse->setErrorData($result->getErrorData());
+                        $jsonResponse->setErrorMessage($result->getErrorMessage());
+                    } else {
+                        $jsonResponse->setResult($result->getResult());
+                    }
+                } else {
+                    $jsonResponse->setResult($result);
+                }
+            }
+        } catch (\Throwable $exception) {
+            $jsonResponse = $this->createJsonResponseFromException($exception, $jsonRequest);
         }
 
-        return true;
+        $this->dispatch(new Event\JsonResponseEvent($jsonResponse, $this->mapper));
+
+        $this->stopwatch?->stop('rpc.execute');
+
+        return $jsonResponse;
     }
 
-    /**
-     * Get serializer.
-     *
-     * @return SerializerInterface|null
-     */
-    public function getSerializer()
-    {
-        return $this->serializer;
-    }
-
-    /**
-     * Serialize data.
-     *
-     * @param mixed $data
-     *
-     * @return mixed
-     */
-    public function serialize($data)
-    {
-        if (!$this->serializer || \is_numeric($data) || \is_string($data) || empty($data) || $data instanceof \JsonSerializable) {
-            return $data;
-        }
-
-        return $this->getSerializer()->serialize($data);
-    }
-
-    /**
-     * Get mapper.
-     *
-     * @return Mapper|null
-     */
-    public function getMapper()
-    {
-        return $this->mapper;
-    }
-
-    /**
-     * Create new JsonResponse from exception.
-     *
-     * @return JsonResponse
-     */
-    public function createJsonResponseFromException(\Exception $exception, JsonRequest $jsonRequest = null)
+    public function createJsonResponseFromException(\Throwable $exception, JsonRequest $jsonRequest = null): JsonResponse
     {
         $jsonResponse = new JsonResponse();
         $jsonResponse->setRequest($jsonRequest);
 
-        if ($exception instanceof Exceptions\ErrorException) {
+        if ($exception instanceof Exceptions\ErrorDataExceptionInterface) {
             $jsonResponse->setErrorCode(0 !== $exception->getCode() ? $exception->getCode() : -32603);
             $jsonResponse->setErrorMessage(!empty($exception->getMessage()) ? $exception->getMessage() : 'Internal error');
             $jsonResponse->setErrorData($exception->getData());
@@ -117,133 +83,57 @@ class JsonHandler implements ContainerAwareInterface
         return $jsonResponse;
     }
 
-    /**
-     * Handle json request.
-     *
-     * @param JsonRequest|JsonRequest[] $jsonRequest
-     *
-     * @return JsonResponse|JsonResponse[]
-     */
-    public function handleJsonRequest($jsonRequest)
+    private function executeJsonRequest(MetaData $metaData, JsonRequest $jsonRequest): mixed
     {
-        // Batch requests
-        if (\is_array($jsonRequest)) {
-            $jsonResponse = [];
-            foreach ($jsonRequest as $request) {
-                $jsonResponse[] = $this->handleJsonRequest($request);
-            }
-
-            return $jsonResponse;
-        }
-
-        if ($this->stopwatch) {
-            $this->stopwatch->start('rpc.execute');
-        }
-
-        try {
-            $this->dispatch(new Event\JsonRequestEvent($jsonRequest));
-
-            $metadata = $this->getMethod($jsonRequest);
-            $isCache = $this->isCacheSupport($jsonRequest);
-            $cacheId = $jsonRequest->getHash();
-
-            $jsonResponse = new JsonResponse($jsonRequest);
-
-            // Cache
-            if (true === $isCache && true === $this->getCache()->hasItem($cacheId)) {
-                $jsonResponse->setResult($this->getCache()->getItem($cacheId)->get());
-                $isCache = false; // we don't want warm check without left ttl
-            }
-
-            $result = $jsonResponse->getResult();
-
-            if (null === $result) { // if not cache
-                $result = $this->executeJsonRequest($metadata, $jsonRequest);
-            }
-
-            if ($result instanceof JsonResponse) {
-                // Proxy response error
-                if ($result->isError()) {
-                    $jsonResponse->setErrorCode($result->getErrorCode());
-                    $jsonResponse->setErrorData($result->getErrorData());
-                    $jsonResponse->setErrorMessage($result->getErrorMessage());
-                } else {
-                    $jsonResponse->setResult($this->serialize($result->getResult()));
-                }
-            } else {
-                $jsonResponse->setResult($this->serialize($result));
-            }
-
-            // Save cache
-            if ($isCache && !empty($jsonResponse->getResult())) {
-                $cacheItem = $this->getCache()->getItem($cacheId);
-                $cacheItem->set($jsonResponse->getResult());
-
-                if ($metadata->getCache() > 0) {
-                    $cacheItem->expiresAfter($metadata->getCache());
-                }
-
-                $this->getCache()->save($cacheItem);
-            }
-        } catch (\Exception $exception) {
-            $jsonResponse = $this->createJsonResponseFromException($exception, $jsonRequest);
-        }
-
-        $this->dispatch(new Event\JsonResponseEvent($jsonResponse));
-
-        if ($this->stopwatch) {
-            $this->stopwatch->stop('rpc.execute');
-        }
-
-        return $jsonResponse;
-    }
-
-    /**
-     * Check is cache support for JsonRequest.
-     *
-     * @return bool
-     */
-    private function isCacheSupport(JsonRequest $jsonRequest)
-    {
-        try {
-            return $jsonRequest->getId()
-                && null !== $this->getMethod($jsonRequest)->getCache()
-                && !$this->isDebug()
-                && $this->getCache();
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
-    /**
-     * @param JsonRequest $jsonRequest
-     */
-    private function getMethod($jsonRequest): MethodMetaData
-    {
-        $method = $jsonRequest->getMethod();
-
-        if (false === $this->mapper->hasMethod($method)) {
-            throw new Exceptions\MethodNotFoundException($jsonRequest->getMethod());
-        }
-
-        return $this->mapper->getMethod($method);
-    }
-
-    /**
-     * @return mixed
-     */
-    private function executeJsonRequest(MethodMetaData $methodMetaData, JsonRequest $jsonRequest)
-    {
-        $method = clone $this->container->get($methodMetaData->getMethod());
+        $object = clone $this->container->get($metaData->get('class'));
 
         // Inject container
-        if ($method instanceof ContainerAwareInterface && null !== $this->container) {
-            $method->setContainer($this->container);
+        if ($object instanceof ContainerAwareInterface && null !== $this->container) {
+            $object->setContainer($this->container);
         }
 
-        // Dispatch execute json
-        $this->dispatch(new Event\JsonPreExecuteEvent($method, $methodMetaData, $jsonRequest));
+        /**
+         * @var Event\JsonPreExecuteEvent $event
+         */
+        $event = $this->dispatch(new Event\JsonPreExecuteEvent($object, $metaData, $this->mapper, $jsonRequest));
 
-        return $method->{$methodMetaData->getExecute()}();
+        if ($event->isPropagationStopped()) {
+            return $event->getResult();
+        }
+
+        $method = $metaData->get('execute');
+        $reflectionObject = new \ReflectionObject($object);
+
+        if (!$reflectionObject->hasMethod($method)) {
+            throw new Exceptions\ErrorException('Method not have execute');
+        }
+
+        $reflectionMethod = $reflectionObject->getMethod($method);
+        $params = [];
+
+        foreach ($reflectionMethod->getParameters() as $key => $reflectionParameter) {
+            $id = (string) $reflectionParameter->getType();
+
+            switch ($id) {
+                case Context::class:
+                    $params[$key] = new Context($metaData, $jsonRequest);
+                    break;
+                default:
+                    if ($this->container->has($id)) {
+                        $params[$key] = $this->container->get($id);
+                    } else {
+                        throw new Exceptions\ErrorException("Failed inject parameter {$key}: {$id}");
+                    }
+            }
+        }
+
+        $result = $object->{$metaData->get('execute')}(...$params);
+
+        /**
+         * @var Event\JsonExecuteEvent $event
+         */
+        $event = $this->dispatch(new Event\JsonExecuteEvent($object, $metaData, $this->mapper, $jsonRequest, $result));
+
+        return $event->getResult();
     }
 }

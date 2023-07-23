@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -10,16 +12,11 @@ use Timiki\Bundle\RpcServerBundle\Exceptions\InvalidParamsException;
 
 class ValidatorSubscriber implements EventSubscriberInterface
 {
-    private ?ValidatorInterface $validator;
-
-    public function __construct(ValidatorInterface $validator = null)
-    {
-        $this->validator = $validator;
+    public function __construct(
+        private readonly ValidatorInterface|null $validator = null
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -27,7 +24,7 @@ class ValidatorSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function execute(JsonPreExecuteEvent $event)
+    public function execute(JsonPreExecuteEvent $event): void
     {
         if (null === $this->validator) {
             return;

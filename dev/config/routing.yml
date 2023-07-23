@@ -1,4 +1,4 @@
 rpc_route:
-    methods:  [POST]
-    path:     /{version}
+    methods: [ POST ]
+    path: /{version}
     defaults: { _controller: Timiki\Bundle\RpcServerBundle\Controller\RpcController::handlerAction }

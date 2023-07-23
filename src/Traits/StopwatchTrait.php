@@ -1,30 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Traits;
 
 use Symfony\Component\Stopwatch\Stopwatch;
 
 trait StopwatchTrait
 {
-    /**
-     * @var Stopwatch|null
-     */
-    protected $stopwatch;
+    protected Stopwatch|null $stopwatch = null;
 
-    /**
-     * Get stop watch.
-     *
-     * @return Stopwatch|null
-     */
-    public function getStopwatch()
+    public function getStopwatch(): Stopwatch|null
     {
         return $this->stopwatch;
     }
 
-    /**
-     * Set stop watch.
-     */
-    public function setStopwatch(Stopwatch $stopwatch = null)
+    public function setStopwatch(Stopwatch $stopwatch = null): void
     {
         $this->stopwatch = $stopwatch;
     }

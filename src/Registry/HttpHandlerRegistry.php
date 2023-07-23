@@ -1,36 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Registry;
 
 use Timiki\Bundle\RpcServerBundle\Handler\HttpHandler;
+use Timiki\Bundle\RpcServerBundle\Handler\HttpHandlerInterface;
 
-class HttpHandlerRegistry
+class HttpHandlerRegistry implements HttpHandlerRegistryInterface
 {
     /**
-     * Http handlers.
-     *
-     * @var HttpHandler[]
+     * @var array<HttpHandler>
      */
-    private $httpHandlers = [];
+    private array $httpHandlers = [];
 
-    /**
-     * @param string $name
-     */
-    public function add($name, HttpHandler $httpHandler)
+    public function add(string $name, HttpHandler $httpHandler): void
     {
         $this->httpHandlers[$name] = $httpHandler;
     }
 
-    /**
-     * Ger http handler by name.
-     *
-     * @param string $name
-     *
-     * @return HttpHandler
-     *
-     * @throws \Exception
-     */
-    public function get($name)
+    public function get(string $name): HttpHandlerInterface
     {
         if (!isset($this->httpHandlers[$name])) {
             throw new \Exception("HttpHandler {$name} not found");
@@ -39,14 +28,7 @@ class HttpHandlerRegistry
         return $this->httpHandlers[$name];
     }
 
-    /**
-     * Is http handler exist.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function has($name)
+    public function has(string $name): bool
     {
         return isset($this->httpHandlers[$name]);
     }

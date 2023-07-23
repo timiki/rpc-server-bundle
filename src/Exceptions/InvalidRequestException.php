@@ -1,16 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 class InvalidRequestException extends ErrorException
 {
-    /**
-     * InvalidRequestException constructor.
-     *
-     * @param mixed|null      $data
-     * @param int|string|null $id
-     */
-    public function __construct($data = null, $id = null)
+    public function __construct(mixed $data = null, string|int|float $id = null)
     {
         parent::__construct('Invalid Request', -32600, $data, $id);
     }

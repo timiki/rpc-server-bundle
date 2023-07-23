@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle\Handler;
 
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
@@ -7,49 +9,62 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Symfony\Component\HttpKernel\DataCollector\ExceptionDataCollector;
 use Timiki\Bundle\RpcServerBundle\Event;
 use Timiki\Bundle\RpcServerBundle\Exceptions;
+use Timiki\Bundle\RpcServerBundle\Serializer\SerializerInterface;
 use Timiki\Bundle\RpcServerBundle\Traits\EventDispatcherTrait;
 use Timiki\Bundle\RpcServerBundle\Traits\ProfilerTrait;
 use Timiki\RpcCommon\JsonRequest;
 use Timiki\RpcCommon\JsonResponse;
 
-class HttpHandler
+class HttpHandler implements HttpHandlerInterface
 {
     use EventDispatcherTrait;
     use ProfilerTrait;
 
-    /**
-     * Json handler.
-     *
-     * @var JsonHandler|null
-     */
-    private $jsonHandler;
-
-    /**
-     * Response error code.
-     *
-     * @var int
-     */
-    private $errorCode;
-
-    /**
-     * HttpHandler constructor.
-     *
-     * @param int $errorCode
-     */
-    public function __construct(JsonHandler $jsonHandler, $errorCode = 200)
-    {
-        $this->jsonHandler = $jsonHandler;
-        $this->errorCode = $errorCode;
+    public function __construct(
+        private readonly JsonHandlerInterface $jsonHandler,
+        private readonly SerializerInterface $serializer,
+    ) {
     }
 
-    /**
-     * Parser HttpRequest to JsonRequest.
-     *
-     * @return JsonRequest|JsonRequest[]
-     *
-     * @throws Exceptions\ParseException
-     */
-    public function parserHttpRequest(HttpRequest $httpRequest)
+    public function handleHttpRequest(HttpRequest $httpRequest): HttpResponse
+    {
+        /* @var  Event\HttpRequestEvent $event */
+        $event = $this->dispatch(new Event\HttpRequestEvent($httpRequest));
+        $httpRequest = $event->getHttpRequest();
+
+        try {
+            $json = $this->parserHttpRequest($httpRequest);
+        } catch (\Throwable $e) {
+            return $this->createHttpResponseFromJsonResponse(
+                $this->createJsonResponseFromException($e),
+                $httpRequest
+            );
+        }
+
+        $isBatch = \array_keys($json) === \range(0, \count($json) - 1);
+
+        if ($isBatch) {
+            $result = [];
+
+            foreach ($json as $part) {
+                try {
+                    $result[] = $this->executeJson($part);
+                } catch (\Throwable $e) {
+                    $result[] = $this->createJsonResponseFromException($e);
+                }
+            }
+        } else {
+            try {
+                $result = $this->executeJson($json);
+            } catch (\Throwable $e) {
+                $result = $this->createJsonResponseFromException($e);
+            }
+        }
+
+        return $this->createHttpResponseFromJsonResponse($result);
+    }
+
+    private function parserHttpRequest(HttpRequest $httpRequest): array
     {
         $json = \json_decode($httpRequest->getContent(), true);
 
@@ -57,189 +72,123 @@ class HttpHandler
             throw new Exceptions\ParseException();
         }
 
-        /**
-         * Create new JsonRequest.
-         *
-         * @param array $json
-         *
-         * @return JsonRequest
-         */
-        $createJsonRequest = function ($json) use ($httpRequest) {
-            $id = null;
-            $method = null;
-            $params = [];
-
-            if (\is_array($json)) {
-                $id = \array_key_exists('id', $json) ? $json['id'] : null;
-                $method = \array_key_exists('method', $json) ? $json['method'] : null;
-                $params = \array_key_exists('params', $json) ? $json['params'] : [];
-            }
-
-            $request = new JsonRequest($method, $params, $id);
-            $request->headers()->add($httpRequest->headers->all());
-
-            return $request;
+        $createJsonRequest = static function (array $json) use ($httpRequest): array {
+            return [
+                'id' => $json['id'] ?? null,
+                'method' => $json['method'] ?? null,
+                'params' => $json['params'] ?? null,
+                'headers' => $httpRequest->headers->all(),
+            ];
         };
 
         // If batch request
         if (\array_keys($json) === \range(0, \count($json) - 1)) {
-            $requests = [];
+            $request = [];
             foreach ($json as $part) {
-                $requests[] = $createJsonRequest($part);
+                $request[] = $createJsonRequest((array) $part);
             }
         } else {
-            $requests = $createJsonRequest($json);
+            $request = $createJsonRequest((array) $json);
         }
 
-        return $requests;
+        return $request;
     }
 
-    /**
-     * Handle http request.
-     *
-     * @return HttpResponse
-     */
-    public function handleHttpRequest(HttpRequest $httpRequest)
+    public function executeJson(array|null $json): JsonResponse
     {
-        /* @var  Event\HttpRequestEvent $event */
-        $event = $this->dispatch(new Event\HttpRequestEvent($httpRequest));
-        $httpRequest = $event->getHttpRequest();
-
-        try {
-            $jsonRequests = $this->parserHttpRequest($httpRequest);
-        } catch (Exceptions\ParseException  $e) {
-            return $this->createHttpResponseFromException($e);
+        if (empty($json)) {
+            throw new Exceptions\InvalidRequestException();
         }
 
-        $jsonResponses = $this->jsonHandler->handleJsonRequest($jsonRequests);
-        $httpResponse = new HttpResponse();
+        $id = $json['id'] ?? null;
+        $method = $json['method'] ?? null;
+        $params = $json['params'] ?? [];
+        $headers = $json['headers'] ?? [];
 
-        if ($this->profiler) {
-            /**
-             * @param JsonResponse|JsonResponse[] $jsonResponse
-             */
-            $collect = function ($jsonResponse) use (&$collect, $httpRequest, $httpResponse) {
+        if (!is_array($params) || !is_string($method)) {
+            throw new Exceptions\InvalidRequestException(null, $id);
+        }
+
+        $jsonRequest = new JsonRequest($method, $params, $id);
+        $jsonRequest->headers()->add((array) $headers);
+
+        return $this->jsonHandler->handleJsonRequest($jsonRequest);
+    }
+
+    private function createJsonResponseFromException(\Throwable $exception): JsonResponse
+    {
+        $jsonResponse = new JsonResponse();
+
+        if ($exception instanceof Exceptions\ErrorExceptionInterface) {
+            $jsonResponse->setErrorCode($exception->getCode());
+            $jsonResponse->setErrorMessage($exception->getMessage());
+            $jsonResponse->setErrorData($exception->getData());
+            $jsonResponse->setId($exception->getId());
+        } elseif ($exception instanceof Exceptions\ErrorDataExceptionInterface) {
+            $jsonResponse->setErrorCode($exception->getCode());
+            $jsonResponse->setErrorMessage($exception->getMessage());
+            $jsonResponse->setErrorData($exception->getData());
+        } else {
+            $jsonResponse->setErrorCode(-32000);
+            $jsonResponse->setErrorMessage($exception->getMessage());
+        }
+
+        return $jsonResponse;
+    }
+
+    private function createHttpResponseFromJsonResponse(JsonResponse|array $jsonResponse, HttpRequest $httpRequest = null): HttpResponse
+    {
+        $httpResponse = new HttpResponse();
+        $httpResponse->headers->set('Content-Type', 'application/json');
+        $result = null;
+
+        if (\is_array($jsonResponse)) {
+            $result = [];
+
+            foreach ($jsonResponse as $item) {
+                if ($item->isError() || null !== $item->getId()) {
+                    $result[] = $item;
+                    $httpResponse->headers->add($item->headers()->all());
+                }
+            }
+        } else {
+            if ($jsonResponse->isError() || null !== $jsonResponse->getId()) {
+                $result = $jsonResponse;
+                $httpResponse->headers->add($jsonResponse->headers()->all());
+            }
+        }
+
+        if ($httpRequest && $this->profiler) {
+            $profiler = $this->profiler;
+            $collect = static function (array|JsonResponse $jsonResponse) use (&$collect, $httpRequest, $httpResponse, $profiler) {
                 if (\is_array($jsonResponse)) {
                     foreach ($jsonResponse as $value) {
                         $collect($value);
                     }
                 } else {
                     if ($jsonResponse->isError()) {
-                        $this->collectException(
+                        $collector = new ExceptionDataCollector();
+                        $collector->collect(
                             $httpRequest,
                             $httpResponse,
-                            new Exceptions\ErrorException($jsonResponse->getErrorMessage(), $jsonResponse->getErrorCode(), $jsonResponse->getErrorData(), $jsonResponse->getId())
+                            new Exceptions\ErrorException(
+                                $jsonResponse->getErrorMessage(),
+                                $jsonResponse->getErrorCode(),
+                                $jsonResponse->getErrorData(),
+                                $jsonResponse->getId()
+                            )
                         );
+                        $profiler->add($collector);
                     }
                 }
             };
 
-            $collect($jsonResponses);
+            $collect($result);
         }
 
-        // Set httpResponse content.
-
-        if (\is_array($jsonResponses)) {
-            $results = [];
-
-            foreach ($jsonResponses as $jsonResponse) {
-                if ($jsonResponse->isError() || null !== $jsonResponse->getId()) {
-                    $results[] = $jsonResponse;
-                }
-
-                if ($jsonResponse->isError()) {
-                    $httpResponse->setStatusCode($this->errorCode);
-                }
-            }
-
-            $httpResponse->setContent(\json_encode($results));
-        } else {
-            if ($jsonResponses->isError() || null !== $jsonResponses->getId()) {
-                $httpResponse->setContent(\json_encode($jsonResponses));
-            }
-
-            if ($jsonResponses->isError()) {
-                $httpResponse->setStatusCode($this->errorCode);
-            }
-        }
-
-        // Set httpResponse headers
-        if (\is_array($jsonResponses)) {
-            foreach ($jsonResponses as $jsonResponse) {
-                if ($jsonResponse->isError() || null !== $jsonResponse->getId()) {
-                    $httpResponse->headers->add($jsonResponse->headers()->all());
-                }
-            }
-        } else {
-            $httpResponse->headers->add($jsonResponses->headers()->all());
-        }
-
-        $httpResponse->headers->set('Content-Type', 'application/json');
-
-        $this->dispatch(new Event\HttpResponseEvent($httpResponse, $jsonResponses));
+        $httpResponse->setContent($this->serializer->serialize($result));
+        $this->dispatch(new Event\HttpResponseEvent($httpResponse, $jsonResponse));
 
         return $httpResponse;
-    }
-
-    /**
-     * Create new HttpResponse from exception.
-     *
-     * @return HttpResponse
-     */
-    public function createHttpResponseFromException(\Exception $exception)
-    {
-        $httpResponse = new HttpResponse();
-        $json = [];
-        $json['jsonrpc'] = '2.0';
-        $json['error'] = [];
-
-        if ($exception instanceof Exceptions\ErrorException) {
-            $json['error']['code'] = $exception->getCode();
-            $json['error']['message'] = $exception->getMessage();
-
-            if ($exception->getData()) {
-                $json['error']['data'] = $exception->getData();
-            }
-
-            $json['id'] = $exception->getId();
-        } else {
-            $json['error']['code'] = -32603;
-            $json['error']['message'] = 'Internal error';
-            $json['id'] = null;
-        }
-
-        $httpResponse->headers->set('Content-Type', 'application/json');
-        $httpResponse->setContent(\json_encode($json));
-        $httpResponse->setStatusCode($this->errorCode);
-
-        $this->dispatch(new Event\HttpResponseEvent($httpResponse));
-
-        return $httpResponse;
-    }
-
-    /**
-     * Collect exception.
-     *
-     * @param HttpRequest  $httpRequest
-     * @param HttpResponse $httpResponse
-     * @param \Exception   $exception
-     */
-    private function collectException($httpRequest, $httpResponse, $exception)
-    {
-        if ($this->profiler) {
-            $collector = new ExceptionDataCollector();
-            $collector->collect($httpRequest, $httpResponse, $exception);
-            $this->profiler->add($collector);
-        }
-    }
-
-    /**
-     * Get Json handler.
-     *
-     * @return \Timiki\Bundle\RpcServerBundle\Handler\JsonHandler|null
-     */
-    public function getJsonHandler()
-    {
-        return $this->jsonHandler;
     }
 }

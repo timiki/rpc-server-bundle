@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Timiki\Bundle\RpcServerBundle\Functional;
 
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class MethodTest extends WebTestCase
 {
-    /** @var \Symfony\Bundle\FrameworkBundle\Client */
-    private $client;
+    private KernelBrowser|null $client = null;
 
     public function setUp(): void
     {
@@ -32,6 +34,7 @@ class MethodTest extends WebTestCase
 
     public function dataSets()
     {
+        yield 'get_context' => $this->getContext();
         yield 'get_data' => $this->getData();
         yield 'getError' => $this->getError();
         yield 'multiRequests' => $this->multiRequests();
@@ -46,6 +49,30 @@ class MethodTest extends WebTestCase
         yield 'invalidRequest2' => $this->invalidRequest2();
         yield 'invalidRequest3' => $this->invalidRequest3();
         yield 'invalidRequest4' => $this->invalidRequest4();
+    }
+
+    private function getContext()
+    {
+        $data = [
+            [
+                'jsonrpc' => '2.0',
+                'method' => 'get_context',
+                'params' => [
+                    'b' => 2,
+                ],
+                'id' => 9,
+            ],
+            [
+                'jsonrpc' => '2.0',
+                'result' => [
+                    'a' => 1,
+                    'b' => 2,
+                ],
+                'id' => 9,
+            ],
+        ];
+
+        return $data;
     }
 
     private function getData()
@@ -124,7 +151,7 @@ class MethodTest extends WebTestCase
             [
                 'jsonrpc' => '2.0',
                 'error' => [
-                     'code' => -32600,
+                    'code' => -32600,
                     'message' => 'Invalid Request',
                 ],
                 'id' => null,
@@ -132,9 +159,9 @@ class MethodTest extends WebTestCase
             [
                 'jsonrpc' => '2.0',
                 'error' => [
-                     'code' => -32601,
+                    'code' => -32601,
                     'message' => 'Method not found',
-                     'data' => 'foo.get',
+                    'data' => 'foo.get',
                 ],
                 'id' => 5,
             ],
@@ -168,8 +195,8 @@ class MethodTest extends WebTestCase
             'jsonrpc' => '2.0',
             'error' => [
                 'code' => -32002,
-                'message' => 'Method exception',
-                'data' => 'Exception data',
+                'message' => 'Exception',
+                'data' => 'Data',
             ],
             'id' => 1,
         ];
@@ -338,14 +365,14 @@ class MethodTest extends WebTestCase
         $data = [1];
 
         $expected = [
-           [
-               'jsonrpc' => '2.0',
-               'error' => [
-                   'code' => -32600,
-                   'message' => 'Invalid Request',
-               ],
-               'id' => null,
-           ],
+            [
+                'jsonrpc' => '2.0',
+                'error' => [
+                    'code' => -32600,
+                    'message' => 'Invalid Request',
+                ],
+                'id' => null,
+            ],
         ];
 
         return [$data, $expected];

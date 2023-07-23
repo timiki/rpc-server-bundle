@@ -1,0 +1,86 @@
+name: Tests
+on: [ push ]
+jobs:
+    phpstan:
+        runs-on: ubuntu-20.04
+        strategy:
+            fail-fast: true
+            matrix:
+                php-versions: [ '8.1', '8.2' ]
+        steps:
+
+        -   name: Checkout
+            uses: actions/checkout@v2
+
+        -   name: Setup PHP, extensions and composer with shivammathur/setup-php
+            uses: shivammathur/setup-php@v2
+            with:
+                php-version: ${{ matrix.php-versions }}
+                extensions: mbstring, xml, ctype, iconv, intl, dom, filter, gd, iconv, json
+            env:
+                update: true
+
+        -   name: Check PHP Version
+            run: php -v
+
+        -   name: Composer install
+            run: composer install --prefer-dist
+
+        -   name: Run phpstan
+            run: php bin/phpstan analyse -c phpstan.neon src
+
+    php-cs-fixer:
+        runs-on: ubuntu-20.04
+        strategy:
+            fail-fast: true
+            matrix:
+                php-versions: [ '8.1', '8.2' ]
+        steps:
+
+        -   name: Checkout
+            uses: actions/checkout@v2
+
+        -   name: Setup PHP, extensions and composer with shivammathur/setup-php
+            uses: shivammathur/setup-php@v2
+            with:
+                php-version: ${{ matrix.php-versions }}
+                extensions: mbstring, xml, ctype, iconv, intl, dom, filter, gd, iconv, json
+            env:
+                update: true
+
+        -   name: Check PHP Version
+            run: php -v
+
+        -   name: Composer install
+            run: composer install --prefer-dist
+
+        -   name: Run php-cs-fixer
+            run: bin/php-cs-fixer fix --dry-run -v --using-cache=no
+
+    phpunit:
+        runs-on: ubuntu-20.04
+        strategy:
+            fail-fast: true
+            matrix:
+                php-versions: [ '8.1', '8.2' ]
+        steps:
+
+        -   name: Checkout
+            uses: actions/checkout@v2
+
+        -   name: Setup PHP, extensions and composer with shivammathur/setup-php
+            uses: shivammathur/setup-php@v2
+            with:
+                php-version: ${{ matrix.php-versions }}
+                extensions: mbstring, xml, ctype, iconv, intl, dom, filter, gd, iconv, json
+            env:
+                update: true
+
+        -   name: Check PHP Version
+            run: php -v
+
+        -   name: Composer install
+            run: composer install --prefer-dist
+
+        -   name: Run php-cs-fixer
+            run: bin/phpunit

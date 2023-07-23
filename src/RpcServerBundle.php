@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Timiki\Bundle\RpcServerBundle;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -8,10 +10,7 @@ use Timiki\Bundle\RpcServerBundle\DependencyInjection\Compiler\RpcMethodPass;
 
 class RpcServerBundle extends Bundle
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         parent::build($container);
 
