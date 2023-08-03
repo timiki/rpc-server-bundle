@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Timiki\Bundle\RpcServerBundle\Serializer;
 
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface as SymfonySerializerInterface;
 
 class BaseSerializer implements SerializerInterface
@@ -21,6 +22,7 @@ class BaseSerializer implements SerializerInterface
                 $data,
                 'json',
                 [
+                    AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true,
                     AbstractNormalizer::IGNORED_ATTRIBUTES => [
                         '__initializer__',
                         '__cloner__',

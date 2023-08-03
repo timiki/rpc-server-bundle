@@ -7,6 +7,7 @@ namespace Timiki\Bundle\RpcServerBundle\Serializer;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface as SymfonySerializerInterface;
 
 class RoleSerializer extends BaseSerializer implements SerializerInterface
@@ -30,6 +31,7 @@ class RoleSerializer extends BaseSerializer implements SerializerInterface
             $data,
             'json',
             [
+                AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true,
                 AbstractNormalizer::GROUPS => $user->getRoles(),
                 AbstractNormalizer::IGNORED_ATTRIBUTES => [
                     '__initializer__',
