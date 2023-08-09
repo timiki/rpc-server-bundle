@@ -22,7 +22,6 @@ class BaseSerializer implements SerializerInterface
                 $data,
                 'json',
                 [
-                    AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true,
                     AbstractNormalizer::IGNORED_ATTRIBUTES => [
                         '__initializer__',
                         '__cloner__',

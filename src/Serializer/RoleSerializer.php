@@ -31,7 +31,6 @@ class RoleSerializer extends BaseSerializer implements SerializerInterface
             $data,
             'json',
             [
-                AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true,
                 AbstractNormalizer::GROUPS => $user->getRoles(),
                 AbstractNormalizer::IGNORED_ATTRIBUTES => [
                     '__initializer__',
