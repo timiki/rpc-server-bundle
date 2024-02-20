@@ -152,9 +152,10 @@ class HttpHandler implements HttpHandlerInterface
                 }
             }
         } else {
+            $httpResponse->headers->add($jsonResponse->headers()->all());
+
             if ($jsonResponse->isError() || null !== $jsonResponse->getId()) {
                 $result = $jsonResponse;
-                $httpResponse->headers->add($jsonResponse->headers()->all());
             }
         }
 
