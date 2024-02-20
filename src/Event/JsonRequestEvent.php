@@ -11,7 +11,7 @@ use Timiki\RpcCommon\JsonResponse;
 
 class JsonRequestEvent extends Event
 {
-    private null|JsonResponse $jsonResponse = null;
+    private JsonResponse|null $jsonResponse = null;
 
     public function __construct(
         private readonly JsonRequest $jsonRequest,

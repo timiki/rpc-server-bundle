@@ -15,7 +15,7 @@ trait ProfilerTrait
         return $this->profiler;
     }
 
-    public function setProfiler(Profiler $profiler = null): void
+    public function setProfiler(?Profiler $profiler = null): void
     {
         $this->profiler = $profiler;
     }

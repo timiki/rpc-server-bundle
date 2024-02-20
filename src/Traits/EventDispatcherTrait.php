@@ -16,12 +16,12 @@ trait EventDispatcherTrait
         return $this->eventDispatcher;
     }
 
-    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher = null): void
+    public function setEventDispatcher(?EventDispatcherInterface $eventDispatcher = null): void
     {
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function dispatch(Event $event = null): object
+    public function dispatch(?Event $event = null): object
     {
         return $this->eventDispatcher->dispatch($event);
     }

@@ -6,7 +6,7 @@ namespace Timiki\Bundle\RpcServerBundle\Exceptions;
 
 class MethodNotGrantedException extends ErrorException
 {
-    public function __construct(mixed $data = null, int|string $id = null)
+    public function __construct(mixed $data = null, int|string|null $id = null)
     {
         parent::__construct('Method not granted', -32001, $data, $id);
     }

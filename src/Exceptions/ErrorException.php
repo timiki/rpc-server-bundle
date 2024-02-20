@@ -9,7 +9,7 @@ class ErrorException extends \RuntimeException implements ErrorExceptionInterfac
     private mixed $data;
     private string|int|float|null $id;
 
-    public function __construct(string $message = '', int $code = -32603, mixed $data = null, string|int|float $id = null)
+    public function __construct(string $message = '', int $code = -32603, mixed $data = null, string|int|float|null $id = null)
     {
         $this->data = $data;
         $this->id = $id;

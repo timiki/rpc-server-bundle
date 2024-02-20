@@ -136,7 +136,7 @@ class HttpHandler implements HttpHandlerInterface
         return $jsonResponse;
     }
 
-    private function createHttpResponseFromJsonResponse(JsonResponse|array $jsonResponse, HttpRequest $httpRequest = null): HttpResponse
+    private function createHttpResponseFromJsonResponse(JsonResponse|array $jsonResponse, ?HttpRequest $httpRequest = null): HttpResponse
     {
         $httpResponse = new HttpResponse();
         $httpResponse->headers->set('Content-Type', 'application/json');

@@ -13,7 +13,7 @@ class RoleSerializer extends BaseSerializer implements SerializerInterface
 {
     public function __construct(
         private readonly SymfonySerializerInterface $serializer,
-        private readonly null|Security $security
+        private readonly Security|null $security
     ) {
         parent::__construct($serializer);
     }
@@ -40,7 +40,7 @@ class RoleSerializer extends BaseSerializer implements SerializerInterface
         );
     }
 
-    private function getUser(): null|UserInterface
+    private function getUser(): UserInterface|null
     {
         return $this->security?->getUser();
     }

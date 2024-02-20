@@ -68,7 +68,7 @@ class JsonHandler implements JsonHandlerInterface, ContainerAwareInterface
         return $jsonResponse;
     }
 
-    public function createJsonResponseFromException(\Throwable $exception, JsonRequest $jsonRequest = null): JsonResponse
+    public function createJsonResponseFromException(\Throwable $exception, ?JsonRequest $jsonRequest = null): JsonResponse
     {
         $jsonResponse = new JsonResponse();
         $jsonResponse->setRequest($jsonRequest);
