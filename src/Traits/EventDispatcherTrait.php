@@ -9,9 +9,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 trait EventDispatcherTrait
 {
-    protected EventDispatcherInterface|null $eventDispatcher = null;
+    protected ?EventDispatcherInterface $eventDispatcher = null;
 
-    public function getEventDispatcher(): EventDispatcherInterface|null
+    public function getEventDispatcher(): ?EventDispatcherInterface
     {
         return $this->eventDispatcher;
     }

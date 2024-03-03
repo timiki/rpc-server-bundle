@@ -8,9 +8,9 @@ use Symfony\Component\HttpKernel\Profiler\Profiler;
 
 trait ProfilerTrait
 {
-    protected Profiler|null $profiler = null;
+    protected ?Profiler $profiler = null;
 
-    public function getProfiler(): Profiler|null
+    public function getProfiler(): ?Profiler
     {
         return $this->profiler;
     }

@@ -4,21 +4,20 @@ declare(strict_types=1);
 
 namespace Timiki\Bundle\RpcServerBundle\Handler;
 
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Timiki\Bundle\RpcServerBundle\Event;
 use Timiki\Bundle\RpcServerBundle\Exceptions;
 use Timiki\Bundle\RpcServerBundle\Mapper\Mapper;
 use Timiki\Bundle\RpcServerBundle\Mapper\MetaData;
 use Timiki\Bundle\RpcServerBundle\Method\Context;
+use Timiki\Bundle\RpcServerBundle\Traits\ContainerTrait;
 use Timiki\Bundle\RpcServerBundle\Traits\EventDispatcherTrait;
 use Timiki\Bundle\RpcServerBundle\Traits\StopwatchTrait;
 use Timiki\RpcCommon\JsonRequest;
 use Timiki\RpcCommon\JsonResponse;
 
-class JsonHandler implements JsonHandlerInterface, ContainerAwareInterface
+class JsonHandler implements JsonHandlerInterface
 {
-    use ContainerAwareTrait;
+    use ContainerTrait;
     use StopwatchTrait;
     use EventDispatcherTrait;
 
@@ -88,11 +87,6 @@ class JsonHandler implements JsonHandlerInterface, ContainerAwareInterface
     private function executeJsonRequest(MetaData $metaData, JsonRequest $jsonRequest): mixed
     {
         $object = clone $this->container->get($metaData->get('class'));
-
-        // Inject container
-        if ($object instanceof ContainerAwareInterface && null !== $this->container) {
-            $object->setContainer($this->container);
-        }
 
         /**
          * @var Event\JsonPreExecuteEvent $event

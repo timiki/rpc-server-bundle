@@ -11,7 +11,7 @@ use Timiki\RpcCommon\JsonResponse;
 
 class JsonRequestEvent extends Event
 {
-    private JsonResponse|null $jsonResponse = null;
+    private ?JsonResponse $jsonResponse = null;
 
     public function __construct(
         private readonly JsonRequest $jsonRequest,
@@ -24,12 +24,12 @@ class JsonRequestEvent extends Event
         return $this->jsonRequest;
     }
 
-    public function setJsonResponse(JsonResponse|null $jsonResponse): void
+    public function setJsonResponse(?JsonResponse $jsonResponse): void
     {
         $this->jsonResponse = $jsonResponse;
     }
 
-    public function getJsonResponse(): JsonResponse|null
+    public function getJsonResponse(): ?JsonResponse
     {
         return $this->jsonResponse;
     }

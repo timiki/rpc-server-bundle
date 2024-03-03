@@ -56,7 +56,7 @@ class RpcServerExtension extends Extension
 
         // Configure mapping
 
-        $createMapping = function (string|null $name, array|string $paths) use ($serializerId, $container, $registry) {
+        $createMapping = function (?string $name, array|string $paths) use ($serializerId, $container, $registry) {
             $name = empty($name) ? 'default' : $name;
             $mapperId = 'rpc.server.mapper.'.$name;
 

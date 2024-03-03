@@ -8,7 +8,7 @@ use Timiki\Bundle\RpcServerBundle\DependencyInjection\RpcServerExtension;
 
 class RpcServerExtensionTest extends TestCase
 {
-    private ContainerBuilder|null $container = null;
+    private ?ContainerBuilder $container = null;
 
     protected function setUp(): void
     {
