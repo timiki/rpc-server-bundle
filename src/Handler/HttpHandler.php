@@ -94,7 +94,7 @@ class HttpHandler implements HttpHandlerInterface
         return $request;
     }
 
-    public function executeJson(array|null $json): JsonResponse
+    public function executeJson(?array $json): JsonResponse
     {
         if (empty($json)) {
             throw new Exceptions\InvalidRequestException();

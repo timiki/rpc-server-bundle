@@ -8,9 +8,9 @@ use Symfony\Component\Stopwatch\Stopwatch;
 
 trait StopwatchTrait
 {
-    protected Stopwatch|null $stopwatch = null;
+    protected ?Stopwatch $stopwatch = null;
 
-    public function getStopwatch(): Stopwatch|null
+    public function getStopwatch(): ?Stopwatch
     {
         return $this->stopwatch;
     }

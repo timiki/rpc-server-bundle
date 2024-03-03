@@ -13,7 +13,7 @@ use Timiki\Bundle\RpcServerBundle\Exceptions\InvalidParamsException;
 class ValidatorSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly ValidatorInterface|null $validator = null
+        private readonly ?ValidatorInterface $validator = null
     ) {
     }
 

@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MethodTest extends WebTestCase
 {
-    private KernelBrowser|null $client = null;
+    private ?KernelBrowser $client = null;
 
     public function setUp(): void
     {

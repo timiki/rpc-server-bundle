@@ -58,7 +58,7 @@ class RpcMethodPass implements CompilerPassInterface
         }
     }
 
-    public function loadClassMetadata(\ReflectionClass $reflectionClass): array|null
+    public function loadClassMetadata(\ReflectionClass $reflectionClass): ?array
     {
         $attributes = $reflectionClass->getAttributes(Attribute\Method::class);
 

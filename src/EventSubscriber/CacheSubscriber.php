@@ -13,7 +13,7 @@ use Timiki\RpcCommon\JsonResponse;
 class CacheSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly CacheItemPoolInterface|null $cacheItemPool = null
+        private readonly ?CacheItemPoolInterface $cacheItemPool = null
     ) {
     }
 
