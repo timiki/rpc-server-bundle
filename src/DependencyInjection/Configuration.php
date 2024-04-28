@@ -38,6 +38,10 @@ class Configuration implements ConfigurationInterface
                     ->info('Error response code')
                     ->defaultValue(200)
                 ->end()
+                ->scalarNode('json_encode_flags')
+                    ->info('Json encode flags')
+                    ->defaultValue(null)
+                ->end()
             ->end();
 
         return $treeBuilder;

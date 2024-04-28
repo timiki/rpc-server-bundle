@@ -42,6 +42,10 @@ class RpcServerExtension extends Extension
 
         $errorCode = empty($config['error_code']) ? 200 : $config['error_code'];
 
+        $jsonEncodeFlags = !\array_key_exists('json_encode_flags', $config)
+            ? null
+            : \intval($config['json_encode_flags']);
+
         // Cache
 
         if (empty($config['cache'])) {
@@ -71,7 +75,7 @@ class RpcServerExtension extends Extension
          * @param string       $name
          * @param array|string $paths
          */
-        $createMapping = function ($name, $paths) use ($cacheId, $serializerId, $container, $errorCode, $registry) {
+        $createMapping = function ($name, $paths) use ($cacheId, $serializerId, $container, $errorCode, $jsonEncodeFlags, $registry) {
             $name = empty($name) ? 'default' : $name;
             $mapperId = 'rpc.server.mapper.'.$name;
 
@@ -117,6 +121,14 @@ class RpcServerExtension extends Extension
                 'setProfiler',
                 [new Reference('profiler', ContainerInterface::NULL_ON_INVALID_REFERENCE)]
             );
+
+            if (\is_int($jsonEncodeFlags) && $jsonEncodeFlags >= 0) {
+                /* @see HttpHandler::setJsonEncodeFlags() */
+                $httpHandler->addMethodCall(
+                    'setJsonEncodeFlags',
+                    [$jsonEncodeFlags]
+                );
+            }
 
             // Set definitions
             $container->setDefinition($mapperId, $mapper);

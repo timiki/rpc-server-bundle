@@ -32,6 +32,13 @@ class HttpHandler
     private $errorCode;
 
     /**
+     * Json encode flags.
+     *
+     * @var int
+     */
+    private $jsonEncodeFlags = 0;
+
+    /**
      * HttpHandler constructor.
      *
      * @param JsonHandler $jsonHandler
@@ -157,10 +164,10 @@ class HttpHandler
                 }
             }
 
-            $httpResponse->setContent(\json_encode($results));
+            $httpResponse->setContent($this->encodeDataToJson($results));
         } else {
             if ($jsonResponses->isError() || null !== $jsonResponses->getId()) {
-                $httpResponse->setContent(\json_encode($jsonResponses));
+                $httpResponse->setContent($this->encodeDataToJson($jsonResponses));
             }
 
             if ($jsonResponses->isError()) {
@@ -216,7 +223,7 @@ class HttpHandler
         }
 
         $httpResponse->headers->set('Content-Type', 'application/json');
-        $httpResponse->setContent(\json_encode($json));
+        $httpResponse->setContent($this->encodeDataToJson($json));
         $httpResponse->setStatusCode($this->errorCode);
 
         $this->dispatch(new Event\HttpResponseEvent($httpResponse));
@@ -238,6 +245,26 @@ class HttpHandler
             $collector->collect($httpRequest, $httpResponse, $exception);
             $this->profiler->add($collector);
         }
+    }
+
+    /**
+     * @param $data
+     *
+     * @return false|string
+     */
+    protected function encodeDataToJson($data)
+    {
+        return \json_encode($data, $this->jsonEncodeFlags);
+    }
+
+    /**
+     * @param int $flags
+     *
+     * @return void
+     */
+    public function setJsonEncodeFlags($flags)
+    {
+        $this->jsonEncodeFlags = $flags;
     }
 
     /**
