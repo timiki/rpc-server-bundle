@@ -22,6 +22,8 @@ class RpcServerExtensionTest extends TestCase
 
     public function testLoadFullConfig()
     {
+        $jsonEncodeFlags = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+
         $extension = new RpcServerExtension();
         $extension->load([
             'rpc_server' => [
@@ -30,6 +32,7 @@ class RpcServerExtensionTest extends TestCase
                    'forTestName' => 'testNameMapping',
                 ],
                 'error_code' => 302,
+                'json_encode_flags' => $jsonEncodeFlags,
             ],
         ], $this->container);
 
@@ -48,7 +51,15 @@ class RpcServerExtensionTest extends TestCase
 
         // check error code
         $args = $httpHandler->getArguments();
-
         $this->assertEquals(302, $args[1]);
+
+        // check json encode flags
+        $httpHandler->hasMethodCall('setJsonEncodeFlags');
+        foreach ($httpHandler->getMethodCalls() as $call) {
+            if ('setJsonEncodeFlags' !== $call[0]) {
+                continue;
+            }
+            self::assertSame([$jsonEncodeFlags], $call[1]);
+        }
     }
 }
