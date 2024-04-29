@@ -113,7 +113,7 @@ class HttpHandler
      */
     public function handleHttpRequest(HttpRequest $httpRequest)
     {
-        /* @var  Event\HttpRequestEvent $event */
+        /* @var Event\HttpRequestEvent $event */
         $event = $this->dispatch(new Event\HttpRequestEvent($httpRequest));
         $httpRequest = $event->getHttpRequest();
 
@@ -248,7 +248,7 @@ class HttpHandler
     }
 
     /**
-     * @param $data
+     * @param mixed $data
      *
      * @return false|string
      */

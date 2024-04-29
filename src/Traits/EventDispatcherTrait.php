@@ -39,12 +39,14 @@ trait EventDispatcherTrait
      *
      * @param Event $event
      *
-     * @return object
+     * @return null|object
      */
     public function dispatch(Event $event = null)
     {
         if ($this->eventDispatcher) {
             return $this->eventDispatcher->dispatch($event);
         }
+
+        return null;
     }
 }

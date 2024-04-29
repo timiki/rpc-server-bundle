@@ -7,24 +7,23 @@ $finder = PhpCsFixer\Finder::create()
         __DIR__ . '/tests'
         ]);
 
-return PhpCsFixer\Config::create()
+return (new PhpCsFixer\Config())
     ->setRules([
         '@PSR1' => true,
         '@PSR2' => true,
         '@Symfony' => true,
         '@DoctrineAnnotation' => true,
-        'psr4' => true,
+        'psr_autoloading' => true,
         'strict_param' => true,
         'array_syntax' => ['syntax' => 'short'],
         'mb_str_functions' => true,
         'no_null_property_initialization' => true,
         'no_php4_constructor' => true,
-        'no_short_echo_tag' => true,
+        'echo_tag_syntax' => ['format' => 'long'],
         'no_useless_else' => true,
         'no_useless_return' => true,
         'ordered_imports' => true,
         'strict_comparison' => true,
-        'strict_param' => true,
         'native_function_invocation' => true,
         'phpdoc_add_missing_param_annotation' => true,
         'phpdoc_types_order' => true,

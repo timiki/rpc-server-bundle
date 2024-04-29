@@ -2,6 +2,7 @@
 
 namespace Timiki\Bundle\RpcServerBundle\DependencyInjection;
 
+use phpDocumentor\Reflection\Types\Scalar;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\GlobResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -21,6 +22,8 @@ use Timiki\Bundle\RpcServerBundle\Registry\HttpHandlerRegistry;
  * This is the class that loads and manages your bundle configuration.
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
+ *
+ * @see \Tests\Timiki\Bundle\RpcServerBundle\Unit\DependencyInjection\RpcServerExtensionTest
  */
 class RpcServerExtension extends Extension
 {
@@ -32,6 +35,15 @@ class RpcServerExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
+        /**
+         * @var array{
+         *             mapping?: mixed,
+         *             cache?: mixed,
+         *             serializer?: mixed,
+         *             error_code?: scalar,
+         *             json_encode_flags: mixed|null,
+         *             } $config
+         */
         $config = $this->processConfiguration($configuration, $configs);
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
@@ -42,7 +54,7 @@ class RpcServerExtension extends Extension
 
         $errorCode = empty($config['error_code']) ? 200 : $config['error_code'];
 
-        $jsonEncodeFlags = !\array_key_exists('json_encode_flags', $config)
+        $jsonEncodeFlags = !\is_int($config['json_encode_flags'])
             ? null
             : \intval($config['json_encode_flags']);
 
@@ -76,7 +88,10 @@ class RpcServerExtension extends Extension
          * @param array|string $paths
          */
         $createMapping = function ($name, $paths) use ($cacheId, $serializerId, $container, $errorCode, $jsonEncodeFlags, $registry) {
-            $name = empty($name) ? 'default' : $name;
+            /** @var non-empty-string $name */
+            $name = empty($name)
+                ? 'default'
+                : $name;
             $mapperId = 'rpc.server.mapper.'.$name;
 
             $this->prepareMethods($mapperId, $paths, $container);
@@ -88,7 +103,7 @@ class RpcServerExtension extends Extension
                 ->addTag(MapperInterface::class); // Tag it for access from another place
 
             // Json Handler
-            $jsonHandlerId = empty($name) ? 'rpc.server.json_handler' : 'rpc.server.json_handler.'.$name;
+            $jsonHandlerId = 'rpc.server.json_handler.'.$name;
             $jsonHandler = new Definition(JsonHandler::class, [new Reference($mapperId), new Reference($serializerId)]);
 
             $jsonHandler->setPublic(true);
@@ -108,7 +123,7 @@ class RpcServerExtension extends Extension
             );
 
             // Http handler
-            $httpHandlerId = empty($name) ? 'rpc.server.http_handler' : 'rpc.server.http_handler.'.$name;
+            $httpHandlerId = 'rpc.server.http_handler.'.$name;
             $httpHandler = new Definition(HttpHandler::class, [new Reference($jsonHandlerId), $errorCode]);
 
             $httpHandler->setPublic(true);
