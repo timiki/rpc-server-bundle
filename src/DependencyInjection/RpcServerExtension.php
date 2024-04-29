@@ -2,7 +2,6 @@
 
 namespace Timiki\Bundle\RpcServerBundle\DependencyInjection;
 
-use phpDocumentor\Reflection\Types\Scalar;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\GlobResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -40,7 +39,7 @@ class RpcServerExtension extends Extension
          *             mapping?: mixed,
          *             cache?: mixed,
          *             serializer?: mixed,
-         *             error_code?: scalar,
+         *             error_code?: mixed,
          *             json_encode_flags: mixed|null,
          *             } $config
          */
