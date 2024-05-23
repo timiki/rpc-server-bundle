@@ -99,6 +99,8 @@ You can use you own controller for JSON-RPC request. For example:
 
 declare(strict_types=1);
 
+namespace App\Controller;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -140,6 +142,8 @@ Method
 
 declare(strict_types=1);
 
+namespace App\Method;
+
 use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -172,6 +176,8 @@ Or you can also use __invoke to declare a call method
 
 declare(strict_types=1);
 
+namespace App\Method;
+
 use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -202,6 +208,8 @@ Inject method execute Context
 <?php
 
 declare(strict_types=1);
+
+namespace App\Method;
 
 use Timiki\Bundle\RpcServerBundle\Attribute as RPC;
 use Timiki\Bundle\RpcServerBundle\Method\Context;
