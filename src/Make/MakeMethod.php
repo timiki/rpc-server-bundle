@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Timiki\Bundle\RpcServerBundle\Make;
 
-use Doctrine\Common\Annotations\Annotation;
 use Symfony\Bundle\MakerBundle\ConsoleStyle;
 use Symfony\Bundle\MakerBundle\DependencyBuilder;
 use Symfony\Bundle\MakerBundle\Generator;
@@ -72,6 +71,5 @@ EOT
 
     public function configureDependencies(DependencyBuilder $dependencies): void
     {
-        $dependencies->addClassDependency(Annotation::class, 'doctrine/annotations');
     }
 }
