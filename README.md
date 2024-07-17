@@ -12,11 +12,19 @@ does not require a response) and for multiple calls to be sent to the server whi
 Install
 -------
 
+Symfony >= 6.4 || 7.0
+
+```bash
+composer require timiki/rpc-server-bundle "^6.4"
+```
+
 Symfony >= 6.0
 
 ```bash
 composer require timiki/rpc-server-bundle "^6.0"
 ```
+
+### Deprecated versions
 
 Symfony >= 5.0 use version ^5.0
 
