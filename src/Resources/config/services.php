@@ -53,6 +53,7 @@ return static function (ContainerConfigurator $container) {
     $services->set(ParamConverterSubscriber::class)
         ->args([
             service(ParameterBagInterface::class),
+            service('Symfony\Component\Validator\Validator\ValidatorInterface')->nullOnInvalid(),
         ])
         ->tag('kernel.event_subscriber');
 

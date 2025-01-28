@@ -37,6 +37,7 @@ class MethodTest extends WebTestCase
         yield 'get_context' => $this->getContext();
         yield 'get_data' => $this->getData();
         yield 'getError' => $this->getError();
+        yield 'typedProperties' => $this->typedProperties();
         yield 'multiRequests' => $this->multiRequests();
         yield 'subtractSuccess1' => $this->subtractSuccess1();
         yield 'subtractSuccess2' => $this->subtractSuccess2();
@@ -97,6 +98,129 @@ class MethodTest extends WebTestCase
         ];
 
         return $data;
+    }
+
+    private function typedProperties()
+    {
+        $data = [
+            [
+                'jsonrpc' => '2.0',
+                'method' => 'typed_properties',
+                'params' => [
+                    'int' => 10,
+                    'float' => 10.5,
+                    'bool' => true,
+                    'array' => [1, 2],
+                    'string' => 'string',
+                    'nullableString' => null,
+                    'multiType' => [],
+                    'nullableMultiType' => null,
+                ],
+                'id' => 1,
+            ],
+            [
+                'jsonrpc' => '2.0',
+                'method' => 'typed_properties',
+                'params' => [
+                    'int' => 'false',
+                    'float' => 10,
+                    'bool' => 'true',
+                    'array' => null,
+                    'string' => 10,
+                    'nullableString' => 'valid',
+                    'multiType' => null,
+                    'nullableMultiType' => 0.5,
+                ],
+                'id' => 2,
+            ],
+            [
+                'jsonrpc' => '2.0',
+                'method' => 'typed_properties',
+                'params' => [
+                    'int' => 0.1,
+                    'float' => [],
+                    'bool' => 1,
+                    'array' => [],
+                    'nullableMultiType' => true,
+                    'string' => null,
+                    'nullableString' => false,
+                    'multiType' => 'valid',
+                ],
+                'id' => 3,
+            ],
+        ];
+
+        $expected = [
+            [
+                'jsonrpc' => '2.0',
+                'result' => [
+                    10,
+                    10.5,
+                    true,
+                    [1, 2],
+                    'string',
+                    null,
+                    [],
+                    null,
+                ],
+                'id' => 1,
+            ],
+            [
+                'jsonrpc' => '2.0',
+                'error' => [
+                    'code' => -32602,
+                    'message' => 'Invalid params',
+                    'data' => [
+                        'int' => [
+                            'This value should be of type int.',
+                        ],
+                        'float' => [
+                            'This value should be of type float.',
+                        ],
+                        'bool' => [
+                            'This value should be of type bool.',
+                        ],
+                        'array' => [
+                            'This value should not be null.',
+                        ],
+                        'string' => [
+                            'This value should be of type string.',
+                        ],
+                        'multiType' => [
+                            'This value should not be null.',
+                        ],
+                    ],
+                ],
+                'id' => 2,
+            ],
+            [
+                'jsonrpc' => '2.0',
+                'error' => [
+                    'code' => -32602,
+                    'message' => 'Invalid params',
+                    'data' => [
+                        'int' => [
+                            'This value should be of type int.',
+                        ],
+                        'float' => [
+                            'This value should be of type float.',
+                        ],
+                        'bool' => [
+                            'This value should be of type bool.',
+                        ],
+                        'nullableString' => [
+                            'This value should be of type string.',
+                        ],
+                        'string' => [
+                            'This value should not be null.',
+                        ],
+                    ],
+                ],
+                'id' => 3,
+            ],
+        ];
+
+        return [$data, $expected];
     }
 
     private function multiRequests()
