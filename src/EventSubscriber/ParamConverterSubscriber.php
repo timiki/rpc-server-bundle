@@ -11,14 +11,13 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Timiki\Bundle\RpcServerBundle\Event\JsonPreExecuteEvent;
-use Timiki\Bundle\RpcServerBundle\Exceptions;
 use Timiki\Bundle\RpcServerBundle\Exceptions\InvalidParamsException;
 
 class ParamConverterSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly ParameterBagInterface $parameterBag,
-        private readonly ?ValidatorInterface   $validator = null,
+        private readonly ?ValidatorInterface $validator = null,
     ) {
     }
 
@@ -62,7 +61,7 @@ class ParamConverterSubscriber implements EventSubscriberInterface
                         continue;
                     }
 
-                    throw new Exceptions\InvalidParamsException(null, $jsonRequest->getId());
+                    throw new InvalidParamsException(null, $jsonRequest->getId());
                 }
 
                 $reflectionProperty = $reflection->getProperty($name);
@@ -88,7 +87,7 @@ class ParamConverterSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function checkTypes(\ReflectionType|null $reflectionType, mixed $value): ?array
+    private function checkTypes(?\ReflectionType $reflectionType, mixed $value): ?array
     {
         if (null === $reflectionType) {
             return null;
@@ -101,7 +100,7 @@ class ParamConverterSubscriber implements EventSubscriberInterface
 
         $types = [];
         if ($reflectionType instanceof \ReflectionUnionType) {
-            $types = array_map(fn($type) => $type->getName(), $reflectionType->getTypes());
+            $types = array_map(fn ($type) => $type->getName(), $reflectionType->getTypes());
         } else {
             $types[] = $reflectionType->getName();
         }
@@ -117,6 +116,6 @@ class ParamConverterSubscriber implements EventSubscriberInterface
         }
 
         /* @var ConstraintViolation $constraintViolation */
-        return array_map(fn($constraintViolation) => $constraintViolation->getMessage(), iterator_to_array($result));
+        return array_map(fn ($constraintViolation) => $constraintViolation->getMessage(), iterator_to_array($result));
     }
 }

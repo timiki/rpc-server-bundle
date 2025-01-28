@@ -17,7 +17,7 @@ class JsonPreExecuteEvent extends Event
         private readonly object $object,
         private readonly MetaData $metadata,
         private readonly MapperInterface $mapper,
-        private readonly JsonRequest $jsonRequest
+        private readonly JsonRequest $jsonRequest,
     ) {
     }
 
