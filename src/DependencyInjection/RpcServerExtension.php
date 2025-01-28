@@ -53,6 +53,7 @@ class RpcServerExtension extends Extension
         // Configure parameters
 
         $container->setParameter('rpc.server.parameters.allow_extra_params', $parameters['allow_extra_params'] ?? false);
+        $container->setParameter('rpc.server.parameters.use_strict_types', $parameters['use_strict_types'] ?? false);
 
         // Configure mapping
 

@@ -26,6 +26,7 @@ class RpcServerExtensionTest extends TestCase
                 ],
                 'parameters' => [
                     'allow_extra_params' => false,
+                    'use_strict_types' => false,
                 ],
             ],
         ], $this->container);
@@ -40,5 +41,6 @@ class RpcServerExtensionTest extends TestCase
         $this->assertTrue($this->container->has('rpc.server.serializer.role'));
 
         $this->assertEquals(false, $this->container->getParameter('rpc.server.parameters.allow_extra_params'));
+        $this->assertEquals(false, $this->container->getParameter('rpc.server.parameters.use_strict_types'));
     }
 }

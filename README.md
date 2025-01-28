@@ -85,6 +85,9 @@ rpc_server:
         # Allow extra params in JSON request
         allow_extra_params: false
 
+        # Enable strict property types check
+        use_strict_types: false
+
 ``` 
 
 Add methods dir to exclude from autowire

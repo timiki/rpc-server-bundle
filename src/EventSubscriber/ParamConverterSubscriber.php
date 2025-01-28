@@ -53,41 +53,56 @@ class ParamConverterSubscriber implements EventSubscriberInterface
         $reflection = $event->getObjectReflection();
         $methodHandler = $event->getObject();
 
-        if (null !== $this->validator) {
-            $errors = [];
-            foreach ($params as $name => $value) {
-                if (!$reflection->hasProperty($name)) {
-                    if ($this->parameterBag->get('rpc.server.parameters.allow_extra_params')) {
-                        continue;
-                    }
-
-                    throw new InvalidParamsException(null, $jsonRequest->getId());
-                }
-
-                $reflectionProperty = $reflection->getProperty($name);
-                $reflectionProperty->setAccessible(true);
-
-                $typeErrors = $this->checkTypes($reflectionProperty->getType(), $value);
-                if (null === $typeErrors) {
-                    continue;
-                }
-
-                $errors[$reflectionProperty->getName()] = $typeErrors;
-            }
-
-            if (0 < \count($errors)) {
-                throw new InvalidParamsException($errors);
-            }
+        if (null !== $this->validator && $this->parameterBag->get('rpc.server.parameters.use_strict_types')) {
+            $this->validateStrictTypes($params, $reflection);
         }
 
         foreach ($params as $name => $value) {
+            if (!$reflection->hasProperty($name)) {
+                if ($this->parameterBag->get('rpc.server.parameters.allow_extra_params')) {
+                    continue;
+                }
+
+                throw new InvalidParamsException(null, $jsonRequest->getId());
+            }
+
             $reflectionProperty = $reflection->getProperty($name);
             $reflectionProperty->setAccessible(true);
             $reflectionProperty->setValue($methodHandler, $value);
         }
     }
 
-    private function checkTypes(?\ReflectionType $reflectionType, mixed $value): ?array
+    private function validateStrictTypes(array $params, \ReflectionObject $reflection): void
+    {
+        $errors = [];
+        foreach ($params as $name => $value) {
+            if (!$reflection->hasProperty($name)) {
+                if ($this->parameterBag->get('rpc.server.parameters.allow_extra_params')) {
+                    continue;
+                }
+
+                throw new InvalidParamsException(null, $jsonRequest->getId());
+            }
+
+            $reflectionProperty = $reflection->getProperty($name);
+            $reflectionProperty->setAccessible(true);
+
+            $typeErrors = $this->checkType($reflectionProperty->getType(), $value);
+            if (null === $typeErrors) {
+                continue;
+            }
+
+            $errors[$reflectionProperty->getName()] = $typeErrors;
+        }
+
+        if (0 === \count($errors)) {
+            return;
+        }
+
+        throw new InvalidParamsException($errors);
+    }
+
+    private function checkType(?\ReflectionType $reflectionType, mixed $value): ?array
     {
         if (null === $reflectionType) {
             return null;

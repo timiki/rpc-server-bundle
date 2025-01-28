@@ -24,4 +24,5 @@ rpc_server:
     serializer: null
     parameters:
         allow_extra_params: false
+        use_strict_types: false
 
