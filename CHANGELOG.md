@@ -1,3 +1,7 @@
+### 7.0.0
+
+* Add support symfony 8.0
+
 ### 6.1.0
 
 * Switch to use php attributes

@@ -12,7 +12,7 @@ use Timiki\Bundle\RpcServerBundle\Exceptions;
 class ParamConverterSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly ParameterBagInterface $parameterBag
+        private readonly ParameterBagInterface $parameterBag,
     ) {
     }
 

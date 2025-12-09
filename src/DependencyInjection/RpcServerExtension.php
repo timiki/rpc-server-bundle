@@ -112,7 +112,7 @@ class RpcServerExtension extends Extension
         foreach ((array) $mapping as $key => $value) {
             if (\is_numeric($key)) {
                 $createMapping(null, $value);
-            } elseif (\is_string($key) && !empty($value)) {
+            } elseif (!empty($value)) {
                 $createMapping($key, (array) $value);
             }
         }

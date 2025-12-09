@@ -12,7 +12,7 @@ use Timiki\Bundle\RpcServerBundle\Exceptions\MethodNotGrantedException;
 class AuthorizationCheckerSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly ?AuthorizationCheckerInterface $authChecker = null
+        private readonly ?AuthorizationCheckerInterface $authChecker = null,
     ) {
     }
 
