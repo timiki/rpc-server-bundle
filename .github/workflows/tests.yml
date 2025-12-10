@@ -2,11 +2,11 @@ name: Tests
 on: [ push ]
 jobs:
     phpstan:
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-22.04
         strategy:
             fail-fast: true
             matrix:
-                php-versions: [ '8.1', '8.2', '8.3' ]
+                php-versions: [ '8.3', '8.4' ]
         steps:
 
         -   name: Checkout
@@ -30,11 +30,11 @@ jobs:
             run: php bin/phpstan analyse -c phpstan.neon src
 
     php-cs-fixer:
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-22.04
         strategy:
             fail-fast: true
             matrix:
-                php-versions: [ '8.1', '8.2', '8.3' ]
+                php-versions: [ '8.3', '8.4' ]
         steps:
 
         -   name: Checkout
@@ -58,11 +58,11 @@ jobs:
             run: bin/php-cs-fixer fix --dry-run -v --using-cache=no
 
     phpunit:
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-22.04
         strategy:
             fail-fast: true
             matrix:
-                php-versions: [ '8.1', '8.2', '8.3' ]
+                php-versions: [ '8.3', '8.4' ]
         steps:
 
         -   name: Checkout
