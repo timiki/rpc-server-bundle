@@ -122,7 +122,7 @@ class RpcMethodPass implements CompilerPassInterface
         foreach ($reflectionClass->getProperties() as $reflectionProperty) {
             $attributes = $reflectionProperty->getAttributes(Attribute\Param::class);
 
-            if (count($attributes) > 0) {
+            if (count($attributes) > 0 && $reflectionProperty->hasDefaultValue()) {
                 $meta['params'][$reflectionProperty->name] = $reflectionProperty->getDefaultValue();
             }
         }
