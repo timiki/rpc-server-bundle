@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\Extension\Extension;
 use Timiki\Bundle\RpcServerBundle\EventSubscriber\CacheSubscriber;
 use Timiki\Bundle\RpcServerBundle\Handler\HttpHandler;
 use Timiki\Bundle\RpcServerBundle\Handler\JsonHandler;
