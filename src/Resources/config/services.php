@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Symfony\Bundle\MakerBundle\Maker\AbstractMaker;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Timiki\Bundle\RpcServerBundle\Controller\RpcController;
@@ -30,8 +31,10 @@ return static function (ContainerConfigurator $container) {
         ])
         ->tag('controller.service_arguments');
 
-    $services->set(MakeMethod::class)
-        ->tag('maker.command');
+    if (\class_exists(AbstractMaker::class)) {
+        $services->set(MakeMethod::class)
+            ->tag('maker.command');
+    }
 
     $services->set(BaseSerializer::class)
         ->public()
